@@ -1,0 +1,21 @@
+from Code.core.simulation import BaseSimulation
+from Code.converters.rlcg2s import run_rlcg2s
+from Code.converters.saver import save_ntwk
+from Code.connectors.connector import connect_elements
+from Code.symica.sym_spice import run_symspice
+
+
+class SymSnpTest(BaseSimulation):
+    def run(self) -> None:
+        # Шаг 1: Запуск Talgat
+        self.structure.run_talgat(self.current_run)
+
+        # Шаг 2: Преобразование RLGC в S-параметры
+        ntwk_list = run_rlcg2s(self.structure, self.current_run, return_networks=True)
+
+        # Шаг 3: Соединение сетей
+        if ntwk_list:
+            combined_ntwk = connect_elements(ntwk_list, self.structure.struct_name, self.current_run)
+
+        # Шаг 4: Запуск Symica с .snp файлом
+        run_symspice("SymSnpTest")

@@ -1,0 +1,12 @@
+simulator lang=local
+
+global 0
+
+PORT1 p1 0 port r=50 num=1 type=sine fundname=aaa ampl=0.0001 freq=5000000000 data=0 rptstart=1 rpttimes=0 mag=1e-006
+PORT2 p2 0 port r=50 num=2 type=sine fundname=aaa ampl=0.0001 freq=5000000000 data=0 rptstart=1 rpttimes=0 mag=1e-006
+
+NPORT0 p1 p2 nport file="E:\Saves\pycharm\SchematicSimulatorTest\Files\snp\test.s2p" datafmt=touchstone passivity=no causality=no
+
+sp sp start=1 stop=20G dec=1000 file="E:\Saves\pycharm\SchematicSimulatorTest\Files\sym\output_file_name.s2p"
+
+DEFAULT_OPTIONS options tnom=27 temp=27 reltol=1e-3 rawfmt=nutascii
