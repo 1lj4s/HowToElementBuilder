@@ -1,0 +1,8 @@
+__pycache__/
+.venv/
+Files/cir/
+Files/json/
+Files/npy/
+Files/sch/
+Files/sym/
+Files/ts/

@@ -1,5 +1,5 @@
 from Code.config import AVAILABLE_STRUCTURES, AVAILABLE_SIMULATIONS, JSON_PATH, create_default_config
-from Code.structures.mlin import MLIN
+from Code.structures.mlin import MLINgi
 from Code.structures.mtaper import MTAPER
 from Code.simulations.sym_sub_test import SymSubTest
 from Code.simulations.sym_snp_test import SymSnpTest
