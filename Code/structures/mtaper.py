@@ -1,4 +1,3 @@
-# Code/structures/mtaper.py
 import numpy as np
 import os
 import logging
@@ -13,7 +12,7 @@ class MTAPER(BaseStructure):
     def get_w_list(self) -> list:
         W1 = self.config["W1"]
         W2 = self.config["W2"]
-        Nsegs = self.config["Nsegs"]
+        Nsegs = self.config.get("Nsegs", 10)  # Значение по умолчанию
         Wtype = self.config.get("Wtype", "lin").lower()
         if Wtype == "log":
             return np.logspace(np.log10(W1), np.log10(W2), Nsegs).tolist()
@@ -27,11 +26,10 @@ class MTAPER(BaseStructure):
             logger.error(f"Не удалось извлечь ширину из имени файла: {npy_path}")
             return {}
 
-        params = self.config
-        f0 = params["f0"]
-        length = params["length"]
-        Nsegs = params["Nsegs"]
-        Z0 = params["Z0"]
+        length = self.config["length"]
+        Nsegs = self.config.get("Nsegs", 10)
+        Z0 = self.sim_config["Z0"]
+        f0 = self.sim_config["f0"]
         segment_length = length / Nsegs
 
         try:
@@ -65,25 +63,26 @@ class MTAPER(BaseStructure):
         }
 
     def _generate_talgat_specific_script(self, current_run: str, W: float) -> str:
-        params = self.config
         result_path = os.path.join(FILES_DIR, "npy", f"{self.struct_name}_{current_run}_{W * 1.e6:0g}.npy")
+        sim_params = self.sim_config
+        msub_params = self.msub_config
+
         return f"""
 W = {W}
 result_path = r'{result_path}'
-params = {params}
-f0 = params["f0"]
-seg_cond = params["seg_cond"]
-seg_diel = params["seg_diel"]
-loss = params["loss"]
-sigma = params["sigma"]
-ER0 = params["ER0"]
-MU0 = params["MU0"]
-TD0 = params["TD0"]
-ER1 = params["ER1"]
-MU1 = params["MU1"]
-TD1 = params["TD1"]
-T = params["T"]
-H = params["H"]
+f0 = {sim_params["f0"]}
+seg_cond = {sim_params["seg_cond"]}
+seg_diel = {sim_params["seg_diel"]}
+loss = {sim_params["loss"]}
+sigma = {msub_params.get("sigma", None)}
+ER0 = {msub_params["ER0"]}
+MU0 = {msub_params["MU0"]}
+TD0 = {msub_params["TD0"]}
+ER1 = {msub_params["ER1"]}
+MU1 = {msub_params["MU1"]}
+TD1 = {msub_params["TD1"]}
+T = {msub_params["T"]}
+H = {msub_params["H"]}
 D0 = [ER0, MU0, TD0]
 D1 = [ER1, MU1, TD1]
 

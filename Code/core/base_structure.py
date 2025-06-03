@@ -1,4 +1,3 @@
-# Code/core/base_structure.py
 from abc import ABC, abstractmethod
 import numpy as np
 import os
@@ -10,15 +9,30 @@ from Code.config import FILES_DIR, JSON_PATH
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
 class BaseStructure(ABC):
     def __init__(self, struct_name: str, config_path: str = JSON_PATH):
         self.struct_name = struct_name
         self.config_builder = SimulationConfigBuilder(config_path)
         self.config = self.config_builder.get_structure(struct_name)
-        required_params = {"f0", "length", "Z0", "num_ports"}
+
+        # Специфичные параметры валидации для разных структур
+        if struct_name in ["MLIN", "MTAPER"]:
+            required_params = {"length", "W1"}  # Основные параметры для линий
+        elif struct_name == "MSUB":
+            required_params = {"ER0", "MU0", "TD0", "ER1", "MU1", "TD1", "T", "H"}
+        elif struct_name == "SIM":
+            required_params = {"f0", "Z0", "num_ports"}
+        else:
+            required_params = set()
+
         if not self.config_builder.validate_structure(struct_name, required_params):
             raise ValueError(f"Некорректная конфигурация для {struct_name}")
-        self.num_ports = self.config.get("num_ports", 2)
+
+        # Загружаем параметры SIM и MSUB
+        self.sim_config = self.config_builder.get_structure("SIM")
+        self.msub_config = self.config_builder.get_structure("MSUB")
+        self.num_ports = self.sim_config.get("num_ports", 2)
 
     @abstractmethod
     def get_w_list(self) -> list:
