@@ -6,7 +6,7 @@ from Code.simulations.sym_snp_test import SymSnpTest
 
 def main():
     structure_name = "MLIN"  # Или "MLIN"
-    simulation_type = "sym_sub_test"  # Или "sym_snp_test"
+    simulation_type = "sym_snp_test"  # Или "sym_snp_test" "sym_sub_test"
     current_run = "test"
 
     # Создание конфигурации (использует SimulationConfigBuilder из input/input.py)

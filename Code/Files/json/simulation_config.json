@@ -1,6 +1,6 @@
 {
   "MLIN": {
-    "result_path": "D:\\saves\\Pycharm\\ElementBuilder\\Code\\Files\\npy\\MLIN_test.npy",
+    "result_path": "D:\\saves\\Pycharm\\HowToElementBuilder\\Code\\Files\\npy\\MLIN_test.npy",
     "f0": [
       100000000.0,
       500000000.0,
@@ -29,7 +29,7 @@
     "num_ports": 2
   },
   "MTAPER": {
-    "result_path": "D:\\saves\\Pycharm\\ElementBuilder\\Code\\Files\\npy\\MTAPER_test.npy",
+    "result_path": "D:\\saves\\Pycharm\\HowToElementBuilder\\Code\\Files\\npy\\MTAPER_test.npy",
     "f0": [
       100000000.0,
       500000000.0,

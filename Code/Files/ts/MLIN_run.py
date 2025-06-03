@@ -101,8 +101,8 @@ def SaveRes(path, data_dict):
 
 
 W = 1e-05
-result_path = r'D:\saves\Pycharm\ElementBuilder\Code\Files\npy\MLIN_test_10.npy'
-params = {'result_path': 'D:\\saves\\Pycharm\\ElementBuilder\\Code\\Files\\npy\\MLIN_test.npy', 'f0': [100000000.0, 500000000.0, 1000000000.0, 5000000000.0, 10000000000.0, 20000000000.0, 30000000000.0, 40000000000.0], 'seg_cond': 3.0, 'seg_diel': 1.0, 'loss': True, 'sigma': None, 'ER0': 1.0, 'MU0': 1.0, 'TD0': 0.0, 'ER1': 9.7, 'MU1': 1.0001, 'TD1': 0.003, 'T': 5.1e-06, 'H': 0.0001, 'W1': 1e-05, 'length': 0.01, 'Z0': 50, 'num_ports': 2}
+result_path = r'D:\saves\Pycharm\HowToElementBuilder\Code\Files\npy\MLIN_test_10.npy'
+params = {'result_path': 'D:\\saves\\Pycharm\\HowToElementBuilder\\Code\\Files\\npy\\MLIN_test.npy', 'f0': [100000000.0, 500000000.0, 1000000000.0, 5000000000.0, 10000000000.0, 20000000000.0, 30000000000.0, 40000000000.0], 'seg_cond': 3.0, 'seg_diel': 1.0, 'loss': True, 'sigma': None, 'ER0': 1.0, 'MU0': 1.0, 'TD0': 0.0, 'ER1': 9.7, 'MU1': 1.0001, 'TD1': 0.003, 'T': 5.1e-06, 'H': 0.0001, 'W1': 1e-05, 'length': 0.01, 'Z0': 50, 'num_ports': 2}
 f0 = params["f0"]
 seg_cond = params["seg_cond"]
 seg_diel = params["seg_diel"]
