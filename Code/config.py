@@ -6,7 +6,7 @@ from Code.input.input import SimulationConfigBuilder
 # Константы
 FILES_DIR = os.path.join(os.path.dirname(__file__), "Files")
 JSON_PATH = os.path.join(FILES_DIR, "json", "simulation_config.json")
-FREQUENCY_RANGE = np.arange(0.1e9, 40.e9, 0.1e9)
+FREQUENCY_RANGE = np.arange(0.1e9, 67.e9, 0.1e9)
 
 # Доступные структуры и симуляции
 AVAILABLE_STRUCTURES = ["MLIN", "MTAPER", "MXOVER"]
@@ -21,13 +21,13 @@ def create_default_config():
         ER0=1.0,  #
         MU0=1.0,  #
         TD0=0.0,  #
-        ER1=9.7,  #
+        ER1=12.9,  #
         MU1=1.0001,  #
         TD1=0.003,  #
         ER2=3.0,  #
         MU2=1.0002,  #
         TD2=0.001,  #
-        T=5.1e-6,  #
+        T=1e-6,  #
         H=100.e-6, #
         H1=100.e-6, #
     )
@@ -42,8 +42,8 @@ def create_default_config():
     builder.add_structure(
         struct_name="MLIN",
         result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
-        W1=10.e-6,
-        length=0.01,
+        W1=65.e-6,
+        length=450.e-6,
         num_ports=2,  ##
     )
     builder.add_structure(
@@ -57,7 +57,7 @@ def create_default_config():
         struct_name="MOPEN",
         result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
         W1=10.e-6,
-        length=0.01,
+        length=10.e-6,
         num_ports=1,  ##
     )
     builder.add_structure(
@@ -66,7 +66,7 @@ def create_default_config():
         W1=10.e-6,
         W2=100.e-6,
         Wtype="lin",
-        length=0.01,
+        length=100.e-6,
         num_ports=2,  ##
     )
     builder.add_structure(

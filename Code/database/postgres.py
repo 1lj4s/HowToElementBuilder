@@ -196,6 +196,57 @@ def find_and_display_s_params_corrected(filename):
          print(f"Ошибка при построении графика: {str(e)}")
          print(f"Размерности: freq={freq.shape}, s_db={s_db.shape}")
 
+
+def plot_comparison(db_filename, file_path):
+   # --- 1. Загрузка из базы данных ---
+   with engine.connect() as conn:
+      result = conn.execute(
+         text("SELECT s_params FROM s2p_networks WHERE filename = :filename"),
+         {"filename": db_filename}
+      )
+      row = result.fetchone()
+      if not row:
+         print(f"Файл {db_filename} не найден в базе данных")
+         return
+      s_params_db = row[0]
+
+   freq_db = np.array(s_params_db['frequencies'])
+   s_db = np.array(s_params_db['s_db'])  # [n_freq, 2, 2]
+   s11_db = s_db[:, 0, 0]
+   s21_db = s_db[:, 1, 0]
+
+   # --- 2. Загрузка из локального файла ---
+   net_file = rf.Network(file_path)
+   freq_file = net_file.f
+   s11_file = net_file.s_db[:, 0, 0]
+   s21_file = net_file.s_db[:, 1, 0]
+
+   # --- 3. Построение графиков ---
+   plt.figure(figsize=(12, 6))
+
+   # S11
+   plt.subplot(1, 2, 1)
+   plt.plot(freq_db / 1e9, s11_db, label=f"DB: {db_filename}", linestyle='--')
+   plt.plot(freq_file / 1e9, s11_file, label=f"File: {os.path.basename(file_path)}")
+   plt.title("S11 (dB)")
+   plt.xlabel("Частота (ГГц)")
+   plt.ylabel("Амплитуда (dB)")
+   plt.grid(True)
+   plt.legend()
+
+   # S21
+   plt.subplot(1, 2, 2)
+   plt.plot(freq_db / 1e9, s21_db, label=f"DB: {db_filename}", linestyle='--')
+   plt.plot(freq_file / 1e9, s21_file, label=f"File: {os.path.basename(file_path)}")
+   plt.title("S21 (dB)")
+   plt.xlabel("Частота (ГГц)")
+   plt.ylabel("Амплитуда (dB)")
+   plt.grid(True)
+   plt.legend()
+
+   plt.tight_layout()
+   plt.show()
+
 # if check_table_exists():
 #    print("Таблица существует!")
 # else:
@@ -205,8 +256,14 @@ def find_and_display_s_params_corrected(filename):
 
 # create_table()
 # s2p_to_postgres_corrected("MBEND_50_40.s2p")
-find_and_display_s_params_corrected("MBEND_50_170.s2p")
+# find_and_display_s_params_corrected("MBEND_50_50.s2p")
 
 # recreate_table()
 # folder_path = r"C:\Users\ZYS\PycharmProjects\LaunchTalgat\MBEND"
 # upload_folder_to_db(folder_path)
+
+
+plot_comparison(
+    db_filename="MLIN_65.0_450.0_.s2p",
+    file_path=r"D:\saves\Pycharm\HowToElementBuilder\Code\Files\sym\MLIN_test.s2p"
+)

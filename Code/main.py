@@ -6,7 +6,7 @@ from Code.simulations.sym_sub_test import SymSubTest
 from Code.simulations.sym_snp_test import SymSnpTest
 
 def main():
-    structure_name = "MXOVER"  # "MTAPER" или "MLIN"
+    structure_name = "MTAPER"  # "MTAPER" или "MLIN"
     simulation_type = "sym_snp_test"  # "sym_snp_test" или "sym_sub_test"
     current_run = "test"
 

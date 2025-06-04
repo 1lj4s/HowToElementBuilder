@@ -19,7 +19,7 @@ class BaseStructure(ABC):
         # Специфичные параметры валидации для разных структур
         if struct_name in ["MLIN", "MTAPER"]:
             required_params = {"length", "W1"}  # Основные параметры для линий
-        if struct_name in ["MLIN", "MTAPER"]:
+        elif struct_name == "MXOVER":
             required_params = {"length", "W1", "W2", "num_ports"}  # Основные параметры для линий
         elif struct_name == "MSUB":
             required_params = {"ER0", "MU0", "TD0", "ER1", "MU1", "TD1", "ER2", "MU2", "TD2", "T", "H", "H1"}

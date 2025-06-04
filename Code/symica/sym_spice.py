@@ -13,8 +13,7 @@ def run_symspice(scs_file: str, obj_file: str):
     elif "Sub" in scs_file:
         input_file = os.path.join(files_dir, "cir", obj_file)
     output_dir = os.path.join(files_dir, "sym")
-    expected_output = os.path.join(output_dir, f"{scs_file}.s2p")
-    output_destination = os.path.join(output_dir, f"{scs_file}.s2p")
+    expected_output = os.path.join(output_dir, obj_file)
 
     if not os.path.exists(cir_path):
         raise FileNotFoundError(f"Файл {cir_path} не найден")
@@ -28,7 +27,7 @@ def run_symspice(scs_file: str, obj_file: str):
                 # Разделяем строку по '=', заменяем часть после '=' на новый путь
                 parts = line.split('=', 1)  # Делим только по первому '='
                 lines[i] = f'{parts[0]}="{input_file}"\n'  # Добавляем кавычки и перенос строки
-            if (("Sub" in scs_file) & line.startswith("sp sp start=1 stop=20G dec=1000 file=")) | (("Snp" in scs_file) & line.startswith("SPSweep sp start=1 stop=20G step=10000 file=")):
+            if (("Sub" in scs_file) & line.startswith("sp sp")) | (("Snp" in scs_file) & line.startswith("SPSweep sp")):
                 parts = line.rsplit('=', 1)  # Делим только по первому '='
                 lines[i] = f'{parts[0]}="{expected_output}"\n'  # Добавляем кавычки и перенос строки
 
@@ -45,7 +44,7 @@ def run_symspice(scs_file: str, obj_file: str):
         print("\n======= STDERR =======")
         print(result.stderr)
         if os.path.exists(expected_output):
-            print(f"\n✅ Результат симуляции скопирован в: {output_destination}")
+            print(f"\n✅ Результат симуляции скопирован в: {expected_output}")
         else:
             print(f"\n⚠️ Выходной файл {expected_output} не найден. Симуляция могла не создать S-параметры.")
         print(f"\n✅ Симуляция {scs_file} завершена успешно.")
