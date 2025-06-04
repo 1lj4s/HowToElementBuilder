@@ -12,7 +12,7 @@ class MTAPER(BaseStructure):
     def get_w_list(self) -> list:
         W1 = self.config["W1"]
         W2 = self.config["W2"]
-        Nsegs = self.config.get("Nsegs", 10)  # Значение по умолчанию
+        Nsegs = self.config.get("Nsegs", 1)  # Значение по умолчанию
         Wtype = self.config.get("Wtype", "lin").lower()
         if Wtype == "log":
             return np.logspace(np.log10(W1), np.log10(W2), Nsegs).tolist()

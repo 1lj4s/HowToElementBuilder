@@ -2,7 +2,8 @@
 # sc query postgresql-x64-17 # статус
 # net stop postgresql-x64-17 # стоп сервер
 # net start postgresql-x64-17 # старт сервер
-
+import matplotlib
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 import skrf as rf
 import json
@@ -222,27 +223,29 @@ def plot_comparison(db_filename, file_path):
    s21_file = net_file.s_db[:, 1, 0]
 
    # --- 3. Построение графиков ---
-   plt.figure(figsize=(12, 6))
+   plt.figure(figsize=(7, 6))
 
    # S11
-   plt.subplot(1, 2, 1)
+   # plt.subplot(1, 2, 1)
    plt.plot(freq_db / 1e9, s11_db, label=f"DB: {db_filename}", linestyle='--')
    plt.plot(freq_file / 1e9, s11_file, label=f"File: {os.path.basename(file_path)}")
-   plt.title("S11 (dB)")
+   plt.plot(freq_db / 1e9, s21_db, label=f"DB: {db_filename}", linestyle='--')
+   plt.plot(freq_file / 1e9, s21_file, label=f"File: {os.path.basename(file_path)}")
+   plt.title("S (dB)")
    plt.xlabel("Частота (ГГц)")
    plt.ylabel("Амплитуда (dB)")
    plt.grid(True)
    plt.legend()
 
    # S21
-   plt.subplot(1, 2, 2)
-   plt.plot(freq_db / 1e9, s21_db, label=f"DB: {db_filename}", linestyle='--')
-   plt.plot(freq_file / 1e9, s21_file, label=f"File: {os.path.basename(file_path)}")
-   plt.title("S21 (dB)")
-   plt.xlabel("Частота (ГГц)")
-   plt.ylabel("Амплитуда (dB)")
-   plt.grid(True)
-   plt.legend()
+   # plt.subplot(1, 2, 2)
+   # plt.plot(freq_db / 1e9, s21_db, label=f"DB: {db_filename}", linestyle='--')
+   # plt.plot(freq_file / 1e9, s21_file, label=f"File: {os.path.basename(file_path)}")
+   # plt.title("S21 (dB)")
+   # plt.xlabel("Частота (ГГц)")
+   # plt.ylabel("Амплитуда (dB)")
+   # plt.grid(True)
+   # plt.legend()
 
    plt.tight_layout()
    plt.show()
@@ -263,7 +266,7 @@ def plot_comparison(db_filename, file_path):
 # upload_folder_to_db(folder_path)
 
 
-plot_comparison(
-    db_filename="MLIN_65.0_450.0_.s2p",
-    file_path=r"D:\saves\Pycharm\HowToElementBuilder\Code\Files\sym\MLIN_test.s2p"
-)
+# plot_comparison(
+#     db_filename="MLIN_10.0_450.0_.s2p",
+#     file_path=r"C:\Users\ZYS\PycharmProjects\HowToElementBuilder\Code\Files\sym\MLIN_test.s2p"
+# )

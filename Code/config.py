@@ -9,7 +9,7 @@ JSON_PATH = os.path.join(FILES_DIR, "json", "simulation_config.json")
 FREQUENCY_RANGE = np.arange(0.1e9, 67.e9, 0.1e9)
 
 # Доступные структуры и симуляции
-AVAILABLE_STRUCTURES = ["MLIN", "MTAPER", "MXOVER"]
+AVAILABLE_STRUCTURES = ["MLIN", "MTAPER", "MXOVER", "MCLIN", "MLEF", "MSTEP", "MBEND90X", "MOPENX", "MTEE"]
 AVAILABLE_SIMULATIONS = ["sym_sub_test", "sym_snp_test"]
 
 # Создание конфигурации
@@ -47,6 +47,15 @@ def create_default_config():
         num_ports=2,  ##
     )
     builder.add_structure(
+        struct_name="MTAPER",
+        result_path=os.path.join(FILES_DIR, "npy", "MTAPER_test.npy"),
+        W1=10.e-6,
+        W2=10.e-6,
+        Wtype="lin",
+        length=945.e-6,
+        num_ports=2,  ##
+    )
+    builder.add_structure(
         struct_name="MLEF",
         result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
         W1=10.e-6,
@@ -59,15 +68,6 @@ def create_default_config():
         W1=10.e-6,
         length=10.e-6,
         num_ports=1,  ##
-    )
-    builder.add_structure(
-        struct_name="MTAPER",
-        result_path=os.path.join(FILES_DIR, "npy", "MTAPER_test.npy"),
-        W1=10.e-6,
-        W2=100.e-6,
-        Wtype="lin",
-        length=100.e-6,
-        num_ports=2,  ##
     )
     builder.add_structure(
         struct_name="M2LIN",
@@ -97,3 +97,4 @@ def create_default_config():
         num_ports=4,  ##
     )
     builder.save()
+    return builder
