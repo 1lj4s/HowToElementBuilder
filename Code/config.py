@@ -31,6 +31,7 @@ def create_default_config():
     builder.add_structure(
         struct_name="SIM",
         f0=[0.1e9, 0.5e9, 1.e9, 5.e9, 10.e9, 20.e9, 30.e9, 40.e9], ##
+        #f0=[0.1e9, 0.5e9],
         seg_cond=3.0, ##
         seg_diel=1.0, ##
         loss=True, ##

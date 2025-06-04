@@ -5,7 +5,18 @@ from scipy.interpolate import interp1d
 from Code.core.base_structure import BaseStructure
 from Code.config import FILES_DIR
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+RESET = "\033[0m"
+GREEN = "\033[32m"
+class InfoColorFormatter(logging.Formatter):
+    def format(self, record):
+        message = super().format(record)
+        if record.levelname == "INFO":
+            return f"{GREEN}{message}{RESET}"
+        return message
+
+logging.basicConfig(level=logging.INFO, format=f'{GREEN}%(asctime)s - %(levelname)s - %(message)s{RESET}')
+handler = logging.getLogger().handlers[0]
+handler.setFormatter(InfoColorFormatter("%(asctime)s %(levelname)s: %(message)s"))
 logger = logging.getLogger(__name__)
 
 class MLIN(BaseStructure):

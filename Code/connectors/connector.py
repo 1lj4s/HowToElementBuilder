@@ -37,9 +37,9 @@ def connect_elements(ntwk_list, struct_name, current_run, connection_type="serie
             raise ValueError(f"Тип соединения {connection_type} не поддерживается")
 
         snp_dir = os.path.join(FILES_DIR, "snp")
-        save_ntwk(combined, snp_dir, struct_name, current_run)
+        obj_name = save_ntwk(combined, snp_dir, struct_name, current_run)
         logger.info(f"Объединенная сеть сохранена для {struct_name}_{current_run}")
-        return combined
+        return combined, obj_name
 
     except Exception as e:
         logger.error(f"Ошибка при объединении сетей: {e}")
