@@ -18,7 +18,9 @@ class BaseStructure(ABC):
 
         # Специфичные параметры валидации для разных структур
         if struct_name in ["MLIN", "MTAPER"]:
-            required_params = {"length", "W1"}  # Основные параметры для линий
+            required_params = {"length", "W1"}
+        elif struct_name == "MXOVER":
+            required_params = {"length", "W1", "W2", "num_ports"}
         elif struct_name == "MSUB":
             required_params = {"ER0", "MU0", "TD0", "ER1", "MU1", "TD1", "T", "H"}
         elif struct_name == "SIM":
@@ -32,7 +34,7 @@ class BaseStructure(ABC):
         # Загружаем параметры SIM и MSUB
         self.sim_config = self.config_builder.get_structure("SIM")
         self.msub_config = self.config_builder.get_structure("MSUB")
-        self.num_ports = self.sim_config.get("num_ports", 2)
+        self.num_ports = self.config.get("num_ports", self.sim_config.get("num_ports", 2))
 
     @abstractmethod
     def get_w_list(self) -> list:
@@ -50,7 +52,6 @@ class BaseStructure(ABC):
         pass
 
     def _get_common_talgat_script(self) -> str:
-        """Возвращает общую часть Talgat-скрипта (импорты и функции)."""
         COND_CODE = """
 def cond(X, Y, W, T, D1, D2, TOP, GND):
     if TOP:
