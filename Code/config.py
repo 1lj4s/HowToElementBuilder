@@ -27,7 +27,7 @@ def create_default_config():
         ER2=3.0,  #
         MU2=1.0002,  #
         TD2=0.001,  #
-        T=1e-6,  #
+        T=10e-6,  #
         H=100.e-6, #
         H1=100.e-6, #
     )
@@ -42,8 +42,17 @@ def create_default_config():
     builder.add_structure(
         struct_name="MLIN",
         result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
-        W1=65.e-6,
-        length=450.e-6,
+        W1=10.e-6,
+        length=120.e-6,
+        num_ports=2,  ##
+    )
+    builder.add_structure(
+        struct_name="MTAPER",
+        result_path=os.path.join(FILES_DIR, "npy", "MTAPER_test.npy"),
+        W1=10.e-6,
+        W2=120.e-6,
+        Wtype="lin",
+        length=230.e-6,
         num_ports=2,  ##
     )
     builder.add_structure(
@@ -59,15 +68,6 @@ def create_default_config():
         W1=10.e-6,
         length=10.e-6,
         num_ports=1,  ##
-    )
-    builder.add_structure(
-        struct_name="MTAPER",
-        result_path=os.path.join(FILES_DIR, "npy", "MTAPER_test.npy"),
-        W1=10.e-6,
-        W2=100.e-6,
-        Wtype="lin",
-        length=100.e-6,
-        num_ports=2,  ##
     )
     builder.add_structure(
         struct_name="M2LIN",

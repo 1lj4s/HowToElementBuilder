@@ -12,7 +12,8 @@ class MTAPER(BaseStructure):
     def get_w_list(self) -> list:
         W1 = self.config["W1"]
         W2 = self.config["W2"]
-        Nsegs = self.config.get("Nsegs", 10)  # Значение по умолчанию
+        Nsegs = self.config.get("Nsegs", 100)  # Значение по умолчанию
+        print("Nsegs1:", Nsegs)
         Wtype = self.config.get("Wtype", "lin").lower()
         if Wtype == "log":
             return np.logspace(np.log10(W1), np.log10(W2), Nsegs).tolist()
@@ -27,7 +28,8 @@ class MTAPER(BaseStructure):
             return {}
 
         length = self.config["length"]
-        Nsegs = self.config.get("Nsegs", 10)
+        Nsegs = self.config.get("Nsegs", 100)
+        print("Nsegs2:", Nsegs)
         Z0 = self.sim_config["Z0"]
         f0 = self.sim_config["f0"]
         segment_length = length / Nsegs

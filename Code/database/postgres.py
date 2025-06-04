@@ -263,7 +263,12 @@ def plot_comparison(db_filename, file_path):
 # upload_folder_to_db(folder_path)
 
 
+# plot_comparison(
+#     db_filename="MLIN_10.0_120.0_.s2p",
+#     file_path=r"D:\saves\Pycharm\HowToElementBuilder\Code\Files\sym\MLIN_test.s2p"
+# )
+
 plot_comparison(
-    db_filename="MLIN_65.0_450.0_.s2p",
-    file_path=r"D:\saves\Pycharm\HowToElementBuilder\Code\Files\sym\MLIN_test.s2p"
+    db_filename="MTAPER_10.0__120.0_230.0_.s2p",
+    file_path=r"D:\saves\Pycharm\HowToElementBuilder\Code\Files\sym\MTAPER_test.s2p"
 )
