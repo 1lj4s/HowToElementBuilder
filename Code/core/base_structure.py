@@ -19,8 +19,10 @@ class BaseStructure(ABC):
         # Специфичные параметры валидации для разных структур
         if struct_name in ["MLIN", "MTAPER"]:
             required_params = {"length", "W1"}  # Основные параметры для линий
+        if struct_name in ["MLIN", "MTAPER"]:
+            required_params = {"length", "W1", "W2", "num_ports"}  # Основные параметры для линий
         elif struct_name == "MSUB":
-            required_params = {"ER0", "MU0", "TD0", "ER1", "MU1", "TD1", "T", "H"}
+            required_params = {"ER0", "MU0", "TD0", "ER1", "MU1", "TD1", "ER2", "MU2", "TD2", "T", "H", "H1"}
         elif struct_name == "SIM":
             required_params = {"f0", "Z0", "num_ports"}
         else:
@@ -32,7 +34,7 @@ class BaseStructure(ABC):
         # Загружаем параметры SIM и MSUB
         self.sim_config = self.config_builder.get_structure("SIM")
         self.msub_config = self.config_builder.get_structure("MSUB")
-        self.num_ports = self.sim_config.get("num_ports", 2)
+        self.num_ports = self.config.get("num_ports", 2)
 
     @abstractmethod
     def get_w_list(self) -> list:

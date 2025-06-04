@@ -29,7 +29,6 @@ def create_default_config():
         TD1=0.003,  #
         T=5.1e-6,  #
         H=100.e-6  #
-
     )
     builder.add_structure(
         struct_name="SIM",
@@ -38,29 +37,54 @@ def create_default_config():
         seg_diel=1.0, ##
         loss=True, ##
         Z0=50, ##
-        num_ports = 2 ##
     )
     builder.add_structure(
         struct_name="MLIN",
         result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
         W1=10.e-6,
         length=0.01,
-
+        num_ports=2,  ##
+    )
+    builder.add_structure(
+        struct_name="MLEF",
+        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
+        W1=10.e-6,
+        length=0.01,
+        num_ports=1,  ##
+    )
+    builder.add_structure(
+        struct_name="MOPEN",
+        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
+        W1=10.e-6,
+        length=0.01,
+        num_ports=1,  ##
     )
     builder.add_structure(
         struct_name="MTAPER",
         result_path=os.path.join(FILES_DIR, "npy", "MTAPER_test.npy"),
-        sigma=None,
-        ER0=1.0,
-        MU0=1.0,
-        TD0=0.0,
-        ER1=9.7,
-        MU1=1.0001,
-        TD1=0.003,
         W1=10.e-6,
         W2=100.e-6,
         Wtype="lin",
-        length=0.01
+        length=0.01,
+        num_ports=2,  ##
+    )
+    builder.add_structure(
+        struct_name="M2LIN",
+        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
+        W1=10.e-6,
+        W2=10.e-6,
+        S=10.e-6,
+        length=0.01,
+        num_ports=4,  ##
+    )
+    builder.add_structure(
+        struct_name="MCFIL",
+        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
+        W1=10.e-6,
+        W2=10.e-6,
+        S=10.e-6,
+        length=0.01,
+        num_ports=2,  ##
     )
     builder.save()
 
@@ -74,10 +98,10 @@ from Code.simulations.sym_snp_test import SymSnpTest
 
 def main():
     structure_name = "MTAPER"  # Или "MLIN"
-    simulation_type = "sym_snp_test"  # Или "sym_snp_test" "sym_sub_test"
+    simulation_type = "sym_snp_test"  # Или "sym_sub_test"
     current_run = "test"
 
-    # Создание конфигурации (использует SimulationConfigBuilder из input/input.py)
+    # Создание конфигурации
     create_default_config()
 
     # Выбор структуры
@@ -86,7 +110,7 @@ def main():
     elif structure_name == "MTAPER":
         structure = MTAPER(structure_name, JSON_PATH)
     else:
-        raise ValueError(f"Структура {structure_name} не поддерживается")
+        raise ValueError(f"Структура {structure_name} не поддерживается. Доступные структуры: {AVAILABLE_STRUCTURES}")
 
     # Выбор симуляции
     if simulation_type == "sym_sub_test":
@@ -94,7 +118,7 @@ def main():
     elif simulation_type == "sym_snp_test":
         simulation = SymSnpTest(structure, current_run)
     else:
-        raise ValueError(f"Тип симуляции {simulation_type} не поддерживается")
+        raise ValueError(f"Тип симуляции {simulation_type} не поддерживается. Доступные симуляции: {AVAILABLE_SIMULATIONS}")
 
     # Запуск симуляции
     simulation.run()
@@ -143,9 +167,9 @@ def connect_elements(ntwk_list, struct_name, current_run, connection_type="serie
             raise ValueError(f"Тип соединения {connection_type} не поддерживается")
 
         snp_dir = os.path.join(FILES_DIR, "snp")
-        save_ntwk(combined, snp_dir, struct_name, current_run)
+        obj_name = save_ntwk(combined, snp_dir, struct_name, current_run)
         logger.info(f"Объединенная сеть сохранена для {struct_name}_{current_run}")
-        return combined
+        return combined, obj_name
 
     except Exception as e:
         logger.error(f"Ошибка при объединении сетей: {e}")
@@ -351,10 +375,10 @@ def save_ntwk(ntwk, directory, struct_name, current_run):
 
     ntwk.write_touchstone(filepath_no_ext)
     print(f"Сохранён объединённый файл: {filepath}")
+    return os.path.basename(filepath)
 
 # ===== File: core\base_structure.py =====
 
-# Code/core/base_structure.py
 from abc import ABC, abstractmethod
 import numpy as np
 import os
@@ -366,15 +390,30 @@ from Code.config import FILES_DIR, JSON_PATH
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
 class BaseStructure(ABC):
     def __init__(self, struct_name: str, config_path: str = JSON_PATH):
         self.struct_name = struct_name
         self.config_builder = SimulationConfigBuilder(config_path)
         self.config = self.config_builder.get_structure(struct_name)
-        required_params = {"f0", "length", "Z0", "num_ports"}
+
+        # Специфичные параметры валидации для разных структур
+        if struct_name in ["MLIN", "MTAPER"]:
+            required_params = {"length", "W1"}  # Основные параметры для линий
+        elif struct_name == "MSUB":
+            required_params = {"ER0", "MU0", "TD0", "ER1", "MU1", "TD1", "T", "H"}
+        elif struct_name == "SIM":
+            required_params = {"f0", "Z0", "num_ports"}
+        else:
+            required_params = set()
+
         if not self.config_builder.validate_structure(struct_name, required_params):
             raise ValueError(f"Некорректная конфигурация для {struct_name}")
-        self.num_ports = self.config.get("num_ports", 2)
+
+        # Загружаем параметры SIM и MSUB
+        self.sim_config = self.config_builder.get_structure("SIM")
+        self.msub_config = self.config_builder.get_structure("MSUB")
+        self.num_ports = self.sim_config.get("num_ports", 2)
 
     @abstractmethod
     def get_w_list(self) -> list:
@@ -766,20 +805,19 @@ def SaveRes(path, data_dict):
 
 W = 1e-05
 result_path = r'D:\saves\Pycharm\HowToElementBuilder\Code\Files\npy\MLIN_test_10.npy'
-params = {'result_path': 'D:\\saves\\Pycharm\\HowToElementBuilder\\Code\\Files\\npy\\MLIN_test.npy', 'f0': [100000000.0, 500000000.0, 1000000000.0, 5000000000.0, 10000000000.0, 20000000000.0, 30000000000.0, 40000000000.0], 'seg_cond': 3.0, 'seg_diel': 1.0, 'loss': True, 'sigma': None, 'ER0': 1.0, 'MU0': 1.0, 'TD0': 0.0, 'ER1': 9.7, 'MU1': 1.0001, 'TD1': 0.003, 'T': 5.1e-06, 'H': 0.0001, 'W1': 1e-05, 'length': 0.01, 'Z0': 50, 'num_ports': 2}
-f0 = params["f0"]
-seg_cond = params["seg_cond"]
-seg_diel = params["seg_diel"]
-loss = params["loss"]
-sigma = params["sigma"]
-ER0 = params["ER0"]
-MU0 = params["MU0"]
-TD0 = params["TD0"]
-ER1 = params["ER1"]
-MU1 = params["MU1"]
-TD1 = params["TD1"]
-T = params["T"]
-H = params["H"]
+f0 = [100000000.0, 500000000.0, 1000000000.0, 5000000000.0, 10000000000.0, 20000000000.0, 30000000000.0, 40000000000.0]
+seg_cond = 3.0
+seg_diel = 1.0
+loss = True
+sigma = None
+ER0 = 1.0
+MU0 = 1.0
+TD0 = 0.0
+ER1 = 9.7
+MU1 = 1.0001
+TD1 = 0.003
+T = 5.1e-06
+H = 0.0001
 D0 = [ER0, MU0, TD0]
 D1 = [ER1, MU1, TD1]
 
@@ -902,20 +940,19 @@ def SaveRes(path, data_dict):
 
 W = 0.0001
 result_path = r'D:\saves\Pycharm\HowToElementBuilder\Code\Files\npy\MTAPER_test_100.npy'
-params = {'result_path': 'D:\\saves\\Pycharm\\HowToElementBuilder\\Code\\Files\\npy\\MTAPER_test.npy', 'f0': [100000000.0, 500000000.0, 1000000000.0, 5000000000.0, 10000000000.0, 20000000000.0, 30000000000.0, 40000000000.0], 'seg_cond': 3.0, 'seg_diel': 1.0, 'loss': True, 'sigma': None, 'ER0': 1.0, 'MU0': 1.0, 'TD0': 0.0, 'ER1': 9.7, 'MU1': 1.0001, 'TD1': 0.003, 'T': 5.1e-06, 'H': 0.0001, 'W1': 1e-05, 'W2': 0.0001, 'length': 0.01, 'Nsegs': 20, 'Wtype': 'lin', 'Z0': 50, 'num_ports': 2}
-f0 = params["f0"]
-seg_cond = params["seg_cond"]
-seg_diel = params["seg_diel"]
-loss = params["loss"]
-sigma = params["sigma"]
-ER0 = params["ER0"]
-MU0 = params["MU0"]
-TD0 = params["TD0"]
-ER1 = params["ER1"]
-MU1 = params["MU1"]
-TD1 = params["TD1"]
-T = params["T"]
-H = params["H"]
+f0 = [100000000.0, 500000000.0, 1000000000.0, 5000000000.0, 10000000000.0, 20000000000.0, 30000000000.0, 40000000000.0]
+seg_cond = 3.0
+seg_diel = 1.0
+loss = True
+sigma = None
+ER0 = 1.0
+MU0 = 1.0
+TD0 = 0.0
+ER1 = 9.7
+MU1 = 1.0001
+TD1 = 0.003
+T = 5.1e-06
+H = 0.0001
 D0 = [ER0, MU0, TD0]
 D1 = [ER1, MU1, TD1]
 
@@ -926,6 +963,150 @@ SET_AUTO_SEGMENT_LENGTH_CONDUCTOR(T / seg_cond)
 CC1 = []
 CC1.append(cond(2 * W, H, W, T, D1, D0, True, False))
 diel1(CC1, H, D1, D0)
+
+conf = GET_CONFIGURATION_2D()
+result = CalMat(conf, f0, loss=loss, sigma=sigma)
+SaveRes(result_path, result)
+
+
+# ===== File: Files\ts\MXOVER_run.py =====
+
+
+register_talgat_commands()
+INCLUDE("UTIL")
+INCLUDE("RESPONSE")
+INCLUDE("MATRIX")
+INCLUDE("MOM2D")
+INCLUDE("TLX")
+INCLUDE("INFIX")
+INCLUDE("GRAPH")
+import numpy as np
+import os
+
+
+def cond(X, Y, W, T, D1, D2, TOP, GND):
+    if TOP:
+        c = 1.
+        a = 0.
+        na = 1.
+    else:
+        c = -1.
+        a = 1.
+        na = 0.
+    if GND:
+        CONDUCTOR_GROUNDED()
+    else:
+        CONDUCTOR()
+    SET_ER_PLUS(D1[0])
+    SET_MU_PLUS(D1[1])
+    SET_TAN_DELTA_PLUS(D1[2])
+    LINE(X + a * W, Y, X + na * W, Y)
+    SET_ER_PLUS(D2[0])
+    SET_MU_PLUS(D2[1])
+    SET_TAN_DELTA_PLUS(D2[2])
+    LINETO(X + na * W, Y + c * T)
+    LINETO(X + a * W, Y + c * T)
+    LINETO(X + a * W, Y)
+    return [X, W]
+
+
+def diel1(A, H, D1, D0):
+    N = len(A)
+    DIELECTRIC()
+    SET_ER_PLUS(D1[0])
+    SET_MU_PLUS(D1[1])
+    SET_TAN_DELTA_PLUS(D1[2])
+    SET_ER_MINUS(D0[0])
+    SET_MU_MINUS(D0[1])
+    SET_TAN_DELTA_MINUS(D0[2])
+    LINE(0, H, A[0][0], H)
+    LINE(A[N-1][0] + A[N-1][1], H, A[N-1][0] + A[N-1][1] + A[0][0], H)
+    if N >= 2:
+        for i1 in range(N-1):
+            LINE(A[i1][0] + A[i1][1], H, A[i1+1][0], H)
+
+
+def CalMat(conf, f0, loss=False, sigma=None):
+    smn_L = SMN_L_OMP(conf)
+    mL = CALCULATE_L(smn_L, conf)
+    if loss:
+        smn_CG = SMN_CG_OMP(conf)
+        mC = CALCULATE_C(SMN_C_OMP(conf), conf)
+        n = GET_MATRIX_ROWS(mL)
+        mR_arr = np.zeros((n, n, len(f0)))
+        mG_arr = np.zeros((n, n, len(f0)))
+        for idx in range(len(f0)):
+            freq = f0[idx]
+            mR = CALCULATE_R(smn_L, conf, freq, sigma)
+            cg = CALCULATE_CG(smn_CG, conf, freq)
+            mG = GET_IMAG_MATRIX(cg)
+            for i in range(n):
+                for j in range(n):
+                    mR_arr[i, j, idx] = GET_MATRIX_VALUE(mR, i, j)
+                    mG_arr[i, j, idx] = GET_MATRIX_VALUE(mG, i, j)
+    else:
+        mC = CALCULATE_C(SMN_C_OMP(conf), conf)
+        n = GET_MATRIX_ROWS(mL)
+        mR_arr = np.zeros((n, n, 1))
+        mG_arr = np.zeros((n, n, 1))
+    mL_arr = np.zeros((n, n))
+    mC_arr = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            mL_arr[i, j] = GET_MATRIX_VALUE(mL, i, j)
+            mC_arr[i, j] = GET_MATRIX_VALUE(mC, i, j)
+    return {
+        'mL': mL_arr,
+        'mC': mC_arr,
+        'mR': mR_arr,
+        'mG': mG_arr
+    }
+
+
+def SaveRes(path, data_dict):
+    folder = os.path.dirname(path)
+    if folder and not os.path.exists(folder):
+        os.makedirs(folder, exist_ok=True)
+    if not path.endswith(".npy"):
+        path += ".npy"
+    np.save(path, data_dict)
+    print(f"[!] Result saved to: {path}")
+
+
+W1 = 5e-05
+W2 = 5e-05
+result_path = r'D:\saves\Pycharm\HowToElementBuilder\Code\Files\npy\MXOVER_test_50.npy'
+f0 = [100000000.0, 500000000.0, 1000000000.0, 5000000000.0, 10000000000.0, 20000000000.0, 30000000000.0, 40000000000.0]
+seg_cond = 3.0
+seg_diel = 1.0
+loss = True
+sigma = None
+ER0 = 1.0
+MU0 = 1.0
+TD0 = 0.0
+ER1 = 9.7
+MU1 = 1.0001
+TD1 = 0.003
+ER2 = 3.0
+MU2 = 1.0002
+TD2 = 0.001
+T = 5.1e-06
+H1 = 0.0001
+H2 = 0.0001
+D0 = [ER0, MU0, TD0]
+D1 = [ER1, MU1, TD1]
+D2 = [ER2, MU2, TD2]
+
+SET_INFINITE_GROUND(1)
+SET_AUTO_SEGMENT_LENGTH_DIELECTRIC(T / seg_diel)
+SET_AUTO_SEGMENT_LENGTH_CONDUCTOR(T / seg_cond)
+
+CC1 = []
+CC2 = []
+CC1.append(cond(2*W1, H1, W1, T, D1, D2, True, False))
+diel1(CC1, H1, D1, D2)
+CC2.append(cond(2*W2, H1+H2, W2, T, D2, D0, True, False))
+diel1(CC2, H1+H2, D2, D0)
 
 conf = GET_CONFIGURATION_2D()
 result = CalMat(conf, f0, loss=loss, sigma=sigma)
@@ -993,10 +1174,10 @@ class SymSnpTest(BaseSimulation):
 
         # Шаг 3: Соединение сетей
         if ntwk_list:
-            combined_ntwk = connect_elements(ntwk_list, self.structure.struct_name, self.current_run)
+            combined_ntwk, obj_name  = connect_elements(ntwk_list, self.structure.struct_name, self.current_run)
 
         # Шаг 4: Запуск Symica с .snp файлом
-        run_symspice("SymSnpTest")
+        run_symspice(scs_file="SymSnpTest",obj_file = obj_name)
 
 # ===== File: simulations\sym_sub_test.py =====
 
@@ -1028,7 +1209,6 @@ class SymSubTest(BaseSimulation):
 
 # ===== File: structures\mlin.py =====
 
-# Code/structures/mlin.py
 import numpy as np
 import os
 import logging
@@ -1036,7 +1216,18 @@ from scipy.interpolate import interp1d
 from Code.core.base_structure import BaseStructure
 from Code.config import FILES_DIR
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+RESET = "\033[0m"
+GREEN = "\033[32m"
+class InfoColorFormatter(logging.Formatter):
+    def format(self, record):
+        message = super().format(record)
+        if record.levelname == "INFO":
+            return f"{GREEN}{message}{RESET}"
+        return message
+
+logging.basicConfig(level=logging.INFO, format=f'{GREEN}%(asctime)s - %(levelname)s - %(message)s{RESET}')
+handler = logging.getLogger().handlers[0]
+handler.setFormatter(InfoColorFormatter("%(asctime)s %(levelname)s: %(message)s"))
 logger = logging.getLogger(__name__)
 
 class MLIN(BaseStructure):
@@ -1051,10 +1242,9 @@ class MLIN(BaseStructure):
             logger.error(f"Не удалось извлечь ширину из имени файла: {npy_path}")
             return {}
 
-        params = self.config
-        f0 = params["f0"]
-        length = params["length"]
-        Z0 = params["Z0"]
+        length = self.config["length"]
+        Z0 = self.sim_config["Z0"]
+        f0 = self.sim_config["f0"]
 
         try:
             data = np.load(npy_path, allow_pickle=True).item()
@@ -1088,25 +1278,26 @@ class MLIN(BaseStructure):
         }
 
     def _generate_talgat_specific_script(self, current_run: str, W: float) -> str:
-        params = self.config
         result_path = os.path.join(FILES_DIR, "npy", f"{self.struct_name}_{current_run}_{W * 1.e6:0g}.npy")
+        sim_params = self.sim_config
+        msub_params = self.msub_config
+
         return f"""
 W = {W}
 result_path = r'{result_path}'
-params = {params}
-f0 = params["f0"]
-seg_cond = params["seg_cond"]
-seg_diel = params["seg_diel"]
-loss = params["loss"]
-sigma = params["sigma"]
-ER0 = params["ER0"]
-MU0 = params["MU0"]
-TD0 = params["TD0"]
-ER1 = params["ER1"]
-MU1 = params["MU1"]
-TD1 = params["TD1"]
-T = params["T"]
-H = params["H"]
+f0 = {sim_params["f0"]}
+seg_cond = {sim_params["seg_cond"]}
+seg_diel = {sim_params["seg_diel"]}
+loss = {sim_params["loss"]}
+sigma = {msub_params.get("sigma", None)}
+ER0 = {msub_params["ER0"]}
+MU0 = {msub_params["MU0"]}
+TD0 = {msub_params["TD0"]}
+ER1 = {msub_params["ER1"]}
+MU1 = {msub_params["MU1"]}
+TD1 = {msub_params["TD1"]}
+T = {msub_params["T"]}
+H = {msub_params["H"]}
 D0 = [ER0, MU0, TD0]
 D1 = [ER1, MU1, TD1]
 
@@ -1125,7 +1316,6 @@ SaveRes(result_path, result)
 
 # ===== File: structures\mtaper.py =====
 
-# Code/structures/mtaper.py
 import numpy as np
 import os
 import logging
@@ -1140,7 +1330,7 @@ class MTAPER(BaseStructure):
     def get_w_list(self) -> list:
         W1 = self.config["W1"]
         W2 = self.config["W2"]
-        Nsegs = self.config["Nsegs"]
+        Nsegs = self.config.get("Nsegs", 10)  # Значение по умолчанию
         Wtype = self.config.get("Wtype", "lin").lower()
         if Wtype == "log":
             return np.logspace(np.log10(W1), np.log10(W2), Nsegs).tolist()
@@ -1154,11 +1344,10 @@ class MTAPER(BaseStructure):
             logger.error(f"Не удалось извлечь ширину из имени файла: {npy_path}")
             return {}
 
-        params = self.config
-        f0 = params["f0"]
-        length = params["length"]
-        Nsegs = params["Nsegs"]
-        Z0 = params["Z0"]
+        length = self.config["length"]
+        Nsegs = self.config.get("Nsegs", 10)
+        Z0 = self.sim_config["Z0"]
+        f0 = self.sim_config["f0"]
         segment_length = length / Nsegs
 
         try:
@@ -1192,25 +1381,26 @@ class MTAPER(BaseStructure):
         }
 
     def _generate_talgat_specific_script(self, current_run: str, W: float) -> str:
-        params = self.config
         result_path = os.path.join(FILES_DIR, "npy", f"{self.struct_name}_{current_run}_{W * 1.e6:0g}.npy")
+        sim_params = self.sim_config
+        msub_params = self.msub_config
+
         return f"""
 W = {W}
 result_path = r'{result_path}'
-params = {params}
-f0 = params["f0"]
-seg_cond = params["seg_cond"]
-seg_diel = params["seg_diel"]
-loss = params["loss"]
-sigma = params["sigma"]
-ER0 = params["ER0"]
-MU0 = params["MU0"]
-TD0 = params["TD0"]
-ER1 = params["ER1"]
-MU1 = params["MU1"]
-TD1 = params["TD1"]
-T = params["T"]
-H = params["H"]
+f0 = {sim_params["f0"]}
+seg_cond = {sim_params["seg_cond"]}
+seg_diel = {sim_params["seg_diel"]}
+loss = {sim_params["loss"]}
+sigma = {msub_params.get("sigma", None)}
+ER0 = {msub_params["ER0"]}
+MU0 = {msub_params["MU0"]}
+TD0 = {msub_params["TD0"]}
+ER1 = {msub_params["ER1"]}
+MU1 = {msub_params["MU1"]}
+TD1 = {msub_params["TD1"]}
+T = {msub_params["T"]}
+H = {msub_params["H"]}
 D0 = [ER0, MU0, TD0]
 D1 = [ER1, MU1, TD1]
 
@@ -1253,14 +1443,18 @@ class NewStructure(BaseStructure):
 
 import subprocess
 import os
-import shutil
+#import shutil
 
-def run_symspice(scs_file: str):
+def run_symspice(scs_file: str, obj_file: str):
     base_dir = os.path.dirname(__file__)
-    cir_path = os.path.abspath(os.path.join(base_dir, "..", "..", "Files", "sch", f"{scs_file}.scs"))
+    cir_path = os.path.abspath(os.path.join(base_dir, "..", "Files", "sch", f"{scs_file}.scs"))
     cir_dir = os.path.dirname(cir_path)
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     files_dir = os.path.join(project_root, "Files")
+    if "Snp" in scs_file:
+        input_file = os.path.join(files_dir, "snp", obj_file)
+    elif "Sub" in scs_file:
+        input_file = os.path.join(files_dir, "cir", obj_file)
     output_dir = os.path.join(files_dir, "sym")
     expected_output = os.path.join(output_dir, f"{scs_file}.s2p")
     output_destination = os.path.join(output_dir, f"{scs_file}.s2p")
@@ -1268,8 +1462,25 @@ def run_symspice(scs_file: str):
     if not os.path.exists(cir_path):
         raise FileNotFoundError(f"Файл {cir_path} не найден")
 
+    with open(cir_path, 'r') as file:
+        lines = file.readlines()
+
+        # Поиск и замена строки с NPORT0
+        for i, line in enumerate(lines):
+            if line.startswith("NPORT0 1 0 2 0 nport file="):
+                # Разделяем строку по '=', заменяем часть после '=' на новый путь
+                parts = line.split('=', 1)  # Делим только по первому '='
+                lines[i] = f'{parts[0]}="{input_file}"\n'  # Добавляем кавычки и перенос строки
+            if (("Sub" in scs_file) & line.startswith("sp sp start=1 stop=20G dec=1000 file=")) | (("Snp" in scs_file) & line.startswith("SPSweep sp start=1 stop=20G step=10000 file=")):
+                parts = line.rsplit('=', 1)  # Делим только по первому '='
+                lines[i] = f'{parts[0]}="{expected_output}"\n'  # Добавляем кавычки и перенос строки
+
+    # Запись изменённого файла
+    with open(cir_path, 'w') as file:
+        file.writelines(lines)
+
     os.makedirs(output_dir, exist_ok=True)
-    command = ["symspice", os.path.basename(cir_path)]
+    command = [os.path.abspath(r"C:\Program Files\Symica\bin\symspice.exe"), os.path.basename(cir_path)]
     try:
         result = subprocess.run(command, cwd=cir_dir, capture_output=True, text=True, check=True)
         print("======= STDOUT =======")
