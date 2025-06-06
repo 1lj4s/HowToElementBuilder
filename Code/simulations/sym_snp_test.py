@@ -4,7 +4,6 @@ from Code.converters.saver import save_ntwk
 from Code.connectors.connector import connect_elements
 from Code.symica.sym_spice import run_symspice
 
-
 class SymSnpTest(BaseSimulation):
     def run(self) -> None:
         # Шаг 1: Запуск Talgat
@@ -15,7 +14,12 @@ class SymSnpTest(BaseSimulation):
 
         # Шаг 3: Соединение сетей
         if ntwk_list:
-            combined_ntwk, obj_name  = connect_elements(ntwk_list, self.structure.struct_name, self.current_run)
+            combined_ntwk, obj_name = connect_elements(ntwk_list, self.structure.struct_name, self.current_run)
 
-        # Шаг 4: Запуск Symica с .snp файлом
-        run_symspice(scs_file="SymSnpTest",obj_file = obj_name)
+            # Шаг 4: Запуск Symica с .snp файлом
+            run_symspice(
+                scs_file="SymSnpTest",
+                obj_file=obj_name,
+                structure_name=self.structure.struct_name,
+                num_ports=self.structure.num_ports
+            )

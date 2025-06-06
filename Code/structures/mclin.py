@@ -8,9 +8,9 @@ from Code.config import FILES_DIR
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-class MXOVER(BaseStructure):
+class MCLIN(BaseStructure):
     def get_w_list(self) -> list:
-        return [self.config["W1"], self.config["W2"]]
+        return [self.config["W1"]]  # Return only W1 to avoid duplicate runs
 
     def process_parameters(self, npy_path: str, freq_range: np.ndarray) -> dict:
         W_str = os.path.basename(npy_path).split('_')[-1].split('.')[0]
@@ -61,6 +61,7 @@ class MXOVER(BaseStructure):
         msub_params = self.msub_config
         W1 = self.config["W1"]
         W2 = self.config["W2"]
+        S = self.config["S"]
 
         return f"""
 W1 = {W1}
@@ -82,17 +83,15 @@ T = {msub_params["T"]}
 H1 = {msub_params["H"]}
 D0 = [ER0, MU0, TD0]
 D1 = [ER1, MU1, TD1]
-D2 = [ER2, MU2, TD2]
 
 SET_INFINITE_GROUND(1)
 SET_AUTO_SEGMENT_LENGTH_DIELECTRIC(T / seg_diel)
 SET_AUTO_SEGMENT_LENGTH_CONDUCTOR(T / seg_cond)
 
 CC1 = []
-
-CC1.append(cond(2*W1, H1, W1, T, D1, D2, True, False))
-CC1.append(cond(2*W1+W1+S, H1, W2, T, D1, D2, True, False))
-diel1(CC1, H1, D1, D2)
+CC1.append(cond(2*W1, H1, W1, T, D1, D0, True, False))
+CC1.append(cond(2*W1+W1+S, H1, W2, T, D1, D0, True, False))
+diel1(CC1, H1, D1, D0)
 
 conf = GET_CONFIGURATION_2D()
 result = CalMat(conf, f0, loss=loss, sigma=sigma)

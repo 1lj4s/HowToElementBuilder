@@ -5,7 +5,6 @@ from Code.connectors.connector import connect_elements
 from Code.vector_fitting.vector_fitting import run_vector_fitting
 from Code.symica.sym_spice import run_symspice
 
-
 class SymSubTest(BaseSimulation):
     def run(self) -> None:
         # Шаг 1: Запуск Talgat
@@ -16,10 +15,15 @@ class SymSubTest(BaseSimulation):
 
         # Шаг 3: Соединение сетей
         if ntwk_list:
-            combined_ntwk = connect_elements(ntwk_list, self.structure.struct_name, self.current_run)
+            combined_ntwk, obj_name = connect_elements(ntwk_list, self.structure.struct_name, self.current_run)
 
-        # Шаг 4: Векторная аппроксимация
-        run_vector_fitting(self.structure.struct_name, self.structure.num_ports)
+            # Шаг 4: Векторная аппроксимация
+            run_vector_fitting(self.structure.struct_name, self.structure.num_ports)
 
-        # Шаг 5: Запуск Symica
-        run_symspice("SymSubTest")
+            # Шаг 5: Запуск Symica
+            run_symspice(
+                scs_file="SymSubTest",
+                obj_file=obj_name,
+                structure_name=self.structure.struct_name,
+                num_ports=self.structure.num_ports
+            )

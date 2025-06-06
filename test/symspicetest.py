@@ -1,7 +1,7 @@
 import subprocess
 import os
 from Code.config import FILES_DIR, FREQUENCY_RANGE
-from Code.input.input import SimulationConfigBuilder
+
 
 def generate_scs_content(simulation_type: str, structure_name: str, current_run: str, num_ports: int,
                          input_file: str = None) -> str:
@@ -85,47 +85,26 @@ def generate_scs_content(simulation_type: str, structure_name: str, current_run:
         scs_content.append(f"include \"{input_file}\"")
         scs_content.append("")
 
-        # Загрузка параметров структуры
-        config_builder = SimulationConfigBuilder(os.path.join(FILES_DIR, "json", "simulation_config.json"))
-        structure_params = config_builder.get_structure(structure_name)
-
+        # Добавление элемента X1 с параметрами из config.py
+        msub_params = SimulationConfigBuilder(os.path.join(FILES_DIR, "json", "simulation_config.json")).get_structure(
+            "MSUB")
+        par1 = msub_params.get("ER1", 5)  # Пример: ER1 как par1
+        par2 = msub_params.get("T", 2)  # Пример: T как par2
         nodes = " ".join(f"p{i + 1}" for i in range(num_ports))
-        if structure_name == "TFR":
-            rs = structure_params.get("RS", 16)
-            w = structure_params.get("W", 50e-6)
-            l = structure_params.get("L", 50e-6)
-            scs_content.append(f"X1 {nodes} sch RS={rs} W={w:.6e} L={l:.6e}")
-        elif structure_name == "MOPEN":
-            w = structure_params.get("W", 50e-6)
-            msub_params = config_builder.get_structure("MSUB")
-            h = msub_params.get("H", 100e-6)
-            er = msub_params.get("ER1", 12.9)
-            scs_content.append(f"X1 p1 0 sch W={w:.6e} H={h:.6e} ER={er:.2f}")
-        elif structure_name == "MSTEP":
-            w1 = structure_params.get("W1", 50e-6)
-            w2 = structure_params.get("W2", 50e-6)
-            msub_params = config_builder.get_structure("MSUB")
-            h = msub_params.get("H", 100e-6)
-            er = msub_params.get("ER1", 12.9)
-            scs_content.append(f"X1 {nodes} sch W1={w1:.6e} W2={w2:.6e} H={h:.6e} ER={er:.2f}")
-        else:
-            msub_params = config_builder.get_structure("MSUB")
-            par1 = msub_params.get("ER1", 5)
-            par2 = msub_params.get("T", 1e-6)
-            scs_content.append(f"X1 {nodes} sch2 par1={par1:.2f} par2={par2:.6e}")
+        scs_content.append(f"X1 {nodes} sch par1={par1} par2={par2}")
         scs_content.append("")
 
         # Добавление портов
         for i in range(num_ports):
             scs_content.append(
                 f"PORT{i + 1} p{i + 1} 0 port r=50 num={i + 1} type=sine fundname=aaa ampl=0.0001 "
-                f"freq=5000000000 data=0 rptstart=0 mag=1e-006"
+                f"freq=5000000000 data=0 rptstart=1 rpttimes=0 mag=1e-006"
             )
         scs_content.append("")
 
         # sp для CustomCir
         scs_content.append(
-            f"sp sp start={freq_start}G stop={freq_stop}G dec=401 file=\"{output_path}\""
+            f"sp sp start={freq_start}G stop={67}G dec=401 file=\"{output_path}\""
         )
 
     else:
@@ -141,13 +120,14 @@ def generate_scs_content(simulation_type: str, structure_name: str, current_run:
 
     return "\n".join(scs_content)
 
+
 def run_symspice(scs_file: str, obj_file: str, structure_name: str, num_ports: int):
     """
     Запускает Symica сгенерировав .scs файл и выполняет симуляцию.
 
     Args:
         scs_file (str): Тип симуляции ('SymSnpTest', 'SymSubTest', 'CustomCir').
-        obj_file (str): Путь к входному файлу (.cir для CustomCir, имя для других).
+        obj_file (str): Имя входного файла (для SymSnpTest/SymSubTest) или путь к .cir (для CustomCir).
         structure_name (str): Название структуры.
         num_ports (int): Количество портов структуры.
     """
@@ -158,14 +138,11 @@ def run_symspice(scs_file: str, obj_file: str, structure_name: str, num_ports: i
     os.makedirs(cir_dir, exist_ok=True)
     os.makedirs(output_dir, exist_ok=True)
 
-    # Извлекаем current_run из obj_file
-    current_run = "test" if scs_file == "CustomCir" else obj_file.replace(f"{structure_name}_", "").split('.')[0]
-
     # Генерация содержимого .scs файла
     scs_content = generate_scs_content(
         simulation_type=scs_file,
         structure_name=structure_name,
-        current_run=current_run,
+        current_run=obj_file.split('.')[0] if '.' in obj_file else obj_file,
         num_ports=num_ports,
         input_file=obj_file if scs_file == "CustomCir" else None
     )
@@ -187,7 +164,7 @@ def run_symspice(scs_file: str, obj_file: str, structure_name: str, num_ports: i
         print(result.stdout)
         print("\n======= STDERR =======")
         print(result.stderr)
-        expected_output = os.path.join(output_dir, f"{structure_name}_{current_run}.s{num_ports}p")
+        expected_output = os.path.join(output_dir, f"{structure_name}_{obj_file.split('.')[0]}.s{num_ports}p")
         if os.path.exists(expected_output):
             print(f"\n✅ Результат симуляции сохранен в: {expected_output}")
         else:
@@ -200,6 +177,16 @@ def run_symspice(scs_file: str, obj_file: str, structure_name: str, num_ports: i
     except FileNotFoundError:
         print("\n❌ Ошибка: symspice не найден. Убедитесь, что он установлен и добавлен в PATH")
 
+
 # Пример использования:
 if __name__ == "__main__":
-    run_symspice("SymSnpTest", "MLIN_test.s2p", "MLIN", 2)
+    from Code.input.input import SimulationConfigBuilder
+
+    # Пример для SymSnpTest
+    run_symspice("SymSnpTest", "test", "MLIN", 2)
+
+    # Пример для SymSubTest
+    run_symspice("SymSubTest", "test", "MLIN", 2)
+
+    # Пример для CustomCir
+    run_symspice("CustomCir", r"D:\saves\Pycharm\HowToElementBuilder\Code\Files\cir\RES.cir", "MLIN", 2)

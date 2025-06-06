@@ -9,8 +9,8 @@ JSON_PATH = os.path.join(FILES_DIR, "json", "simulation_config.json")
 FREQUENCY_RANGE = np.arange(0.1e9, 67.e9, 0.1e9)
 
 # Доступные структуры и симуляции
-AVAILABLE_STRUCTURES = ["MLIN", "MTAPER", "MXOVER"]
-AVAILABLE_SIMULATIONS = ["sym_sub_test", "sym_snp_test"]
+AVAILABLE_STRUCTURES = ["MLIN", "MCLIN", "MTAPER", "MXOVER", "MSTEP", "MOPEN", "TFR"]
+AVAILABLE_SIMULATIONS = ["sym_sub_test", "sym_snp_test", "CustomCir"]
 
 # Создание конфигурации
 def create_default_config():
@@ -27,9 +27,9 @@ def create_default_config():
         ER2=3.0,  #
         MU2=1.0002,  #
         TD2=0.001,  #
-        T=10e-6,  #
+        T=5.e-6,  #
         H=100.e-6, #
-        H1=100.e-6, #
+        H1=20.e-6, #
     )
     builder.add_structure(
         struct_name="SIM",
@@ -47,6 +47,29 @@ def create_default_config():
         num_ports=2,  ##
     )
     builder.add_structure(
+        struct_name="MXOVER",
+        result_path=os.path.join(FILES_DIR, "npy", "MXOVER_test.npy"),
+        W1=50.e-6,
+        W2=50.e-6,
+        num_ports=4,  ##
+    )
+    builder.add_structure(
+        struct_name="MLEF",
+        result_path=os.path.join(FILES_DIR, "npy", "MLEF_test.npy"),
+        W1=10.e-6,
+        length=120.e-6,
+        num_ports=1,  ##
+    )
+    builder.add_structure(
+        struct_name="MCLIN",
+        result_path=os.path.join(FILES_DIR, "npy", "MCLIN_test.npy"),
+        W1=70.e-6,
+        W2=70.e-6,
+        S=20.e-6,
+        length=1000.e-6,
+        num_ports=4,  ##
+    )
+    builder.add_structure(
         struct_name="MTAPER",
         result_path=os.path.join(FILES_DIR, "npy", "MTAPER_test.npy"),
         W1=10.e-6,
@@ -56,44 +79,41 @@ def create_default_config():
         num_ports=2,  ##
     )
     builder.add_structure(
-        struct_name="MLEF",
-        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
-        W1=10.e-6,
-        length=0.01,
-        num_ports=1,  ##
-    )
-    builder.add_structure(
-        struct_name="MOPEN",
-        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
-        W1=10.e-6,
-        length=10.e-6,
-        num_ports=1,  ##
-    )
-    builder.add_structure(
-        struct_name="M2LIN",
-        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
+        struct_name="MTEE",
+        result_path=os.path.join(FILES_DIR, "cir", "MTEE.cir"),
         W1=10.e-6,
         W2=10.e-6,
-        S=10.e-6,
-        length=0.01,
-        num_ports=4,  ##
+        W3=10.e-6,
+        num_ports=3,  ##
     )
     builder.add_structure(
-        struct_name="MCFIL",
-        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
-        W1=10.e-6,
-        W2=10.e-6,
-        S=10.e-6,
-        length=0.01,
+        struct_name="MSTEP",
+        result_path=os.path.join(FILES_DIR, "cir", "MSTEP.cir"),
+        W1=150.e-6,
+        W2=50.e-6,
         num_ports=2,  ##
     )
     builder.add_structure(
-        struct_name="MXOVER",
-        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
+        struct_name="MOPEN",
+        result_path=os.path.join(FILES_DIR, "cir", "MOPEN.cir"),
+        W=10.e-6,
+        num_ports=1,
+    )
+    builder.add_structure(
+        struct_name="MBEND90",
+        result_path=os.path.join(FILES_DIR, "cir", "MBEND90.cir"),
         W1=10.e-6,
         W2=10.e-6,
-        S=10.e-6,
-        length=0.01,
-        num_ports=4,  ##
+        num_ports=2,  ##
     )
+    builder.add_structure(
+        struct_name="TFR",
+        result_path=os.path.join(FILES_DIR, "cir", "TFR.cir"),
+        W=50.e-6,
+        L=50.e-6,
+        RS=60,
+        num_ports=2,  ##
+    )
+
+
     builder.save()

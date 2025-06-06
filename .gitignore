@@ -1,11 +1,5 @@
 __pycache__/
 .venv/
-Files/cir/
-Files/json/
-Files/npy/
-Files/sym/
-Files/ts/
-Files/sch/SymSnpTest_sp.apb/
 Code/Files/cir/
 Code/Files/json/
 Code/Files/npy/
