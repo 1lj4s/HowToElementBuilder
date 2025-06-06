@@ -17,20 +17,24 @@ class BaseStructure(ABC):
         self.config = self.config_builder.get_structure(struct_name)
 
         # Специфичные параметры валидации для разных структур
-        if struct_name in ["MLIN", "MTAPER"]:
-            required_params = {"length", "W1"}
+        if struct_name in ["MLIN", "MTAPER", "MLEF"]:
+            required_params = {"length", "W1", "num_ports"}
         elif struct_name == "MXOVER":
             required_params = {"W1", "W2", "num_ports"}
+        elif struct_name == "MBEND90x":
+            required_params = {"W", "num_ports"}
         elif struct_name == "MCLIN":
-            required_params = {"W1", "W2", "S", "num_ports"}
+            required_params = {"W1", "W2", "S", "length", "num_ports"}
         elif struct_name == "MSUB":
             required_params = {"ER0", "MU0", "TD0", "ER1", "MU1", "TD1", "ER2", "MU2", "TD2", "T", "H", "H1"}
         elif struct_name == "TFR":
             required_params = {"W", "L", "RS", "num_ports"}
         elif struct_name == "MOPEN":
             required_params = {"W", "num_ports"}
+        elif struct_name == "MSTEP":
+            required_params = {"W1", "W2", "num_ports"}
         elif struct_name == "SIM":
-            required_params = {"f0", "Z0", "num_ports"}
+            required_params = {"f0", "Z0", "seg_cond", "seg_diel", "loss"}
         else:
             required_params = set()
 

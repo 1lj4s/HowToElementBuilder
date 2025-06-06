@@ -9,7 +9,7 @@ JSON_PATH = os.path.join(FILES_DIR, "json", "simulation_config.json")
 FREQUENCY_RANGE = np.arange(0.1e9, 67.e9, 0.1e9)
 
 # Доступные структуры и симуляции
-AVAILABLE_STRUCTURES = ["MLIN", "MCLIN", "MTAPER", "MXOVER", "MSTEP", "MOPEN", "TFR"]
+AVAILABLE_STRUCTURES = ["MLIN", "MLEF", "MCLIN", "MTAPER", "MXOVER", "MBEND90X", "MSTEP", "MOPEN", "TFR"]
 AVAILABLE_SIMULATIONS = ["sym_sub_test", "sym_snp_test", "CustomCir"]
 
 # Создание конфигурации
@@ -24,12 +24,12 @@ def create_default_config():
         ER1=12.9,  #
         MU1=1.0001,  #
         TD1=0.003,  #
-        ER2=3.0,  #
+        ER2=12.9001,  #
         MU2=1.0002,  #
-        TD2=0.001,  #
+        TD2=0.003,  #
         T=5.e-6,  #
         H=100.e-6, #
-        H1=20.e-6, #
+        H1=100.e-6, #
     )
     builder.add_structure(
         struct_name="SIM",
@@ -57,7 +57,7 @@ def create_default_config():
         struct_name="MLEF",
         result_path=os.path.join(FILES_DIR, "npy", "MLEF_test.npy"),
         W1=10.e-6,
-        length=120.e-6,
+        length=100.e-6,
         num_ports=1,  ##
     )
     builder.add_structure(
@@ -76,6 +76,12 @@ def create_default_config():
         W2=120.e-6,
         Wtype="lin",
         length=230.e-6,
+        num_ports=2,  ##
+    )
+    builder.add_structure(
+        struct_name="MBEND90X",
+        result_path=os.path.join(FILES_DIR, "npy", "MBEND90X.npy"),
+        W1=100.e-6,
         num_ports=2,  ##
     )
     builder.add_structure(
@@ -99,13 +105,7 @@ def create_default_config():
         W=10.e-6,
         num_ports=1,
     )
-    builder.add_structure(
-        struct_name="MBEND90",
-        result_path=os.path.join(FILES_DIR, "cir", "MBEND90.cir"),
-        W1=10.e-6,
-        W2=10.e-6,
-        num_ports=2,  ##
-    )
+
     builder.add_structure(
         struct_name="TFR",
         result_path=os.path.join(FILES_DIR, "cir", "TFR.cir"),

@@ -1,3 +1,0 @@
-.SUBCKT sch 1 2 RS=50 W=50 L=50
-r1 p1 p2 resistor r=RS*L/W
-.ENDS sch1

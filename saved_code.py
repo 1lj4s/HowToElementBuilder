@@ -12,7 +12,7 @@ JSON_PATH = os.path.join(FILES_DIR, "json", "simulation_config.json")
 FREQUENCY_RANGE = np.arange(0.1e9, 67.e9, 0.1e9)
 
 # Доступные структуры и симуляции
-AVAILABLE_STRUCTURES = ["MLIN", "MCLIN", "MTAPER", "MXOVER", "MSTEP", "MOPEN", "TFR"]
+AVAILABLE_STRUCTURES = ["MLIN", "MCLIN", "MTAPER", "MXOVER", "MLEF", "MSTEP", "MOPEN", "TFR"]
 AVAILABLE_SIMULATIONS = ["sym_sub_test", "sym_snp_test", "CustomCir"]
 
 # Создание конфигурации
@@ -27,12 +27,12 @@ def create_default_config():
         ER1=12.9,  #
         MU1=1.0001,  #
         TD1=0.003,  #
-        ER2=3.0,  #
+        ER2=12.9001,  #
         MU2=1.0002,  #
-        TD2=0.001,  #
+        TD2=0.003,  #
         T=5.e-6,  #
         H=100.e-6, #
-        H1=20.e-6, #
+        H1=100.e-6, #
     )
     builder.add_structure(
         struct_name="SIM",
@@ -138,7 +138,7 @@ from Code.input.input import SimulationConfigBuilder
 
 def main():
 
-    structure_name = "MLIN"  #AVAILABLE_STRUCTURES = ["MLIN", "MCLIN", "MTAPER", "MXOVER", "MOPEN", "MSTEP", "TFR"]
+    structure_name = "MXOVER"  #AVAILABLE_STRUCTURES = ["MLIN", "MCLIN", "MTAPER", "MXOVER", "MOPEN", "MSTEP", "TFR"]
     simulation_type = "sym_snp_test" #AVAILABLE_SIMULATIONS = ["sym_sub_test", "sym_snp_test", "CustomCir"]
     current_run = "test"
 
@@ -148,7 +148,7 @@ def main():
     # Выбор структуры
     if structure_name == "MLIN":
         structure = MLIN(structure_name, JSON_PATH)
-    if structure_name == "MCLIN":
+    elif structure_name == "MCLIN":
         structure = MCLIN(structure_name, JSON_PATH)
     elif structure_name == "MTAPER":
         structure = MTAPER(structure_name, JSON_PATH)
@@ -463,19 +463,21 @@ class BaseStructure(ABC):
 
         # Специфичные параметры валидации для разных структур
         if struct_name in ["MLIN", "MTAPER"]:
-            required_params = {"length", "W1"}
+            required_params = {"length", "W1", "num_ports"}
         elif struct_name == "MXOVER":
             required_params = {"W1", "W2", "num_ports"}
         elif struct_name == "MCLIN":
-            required_params = {"W1", "W2", "S", "num_ports"}
+            required_params = {"W1", "W2", "S", "length", "num_ports"}
         elif struct_name == "MSUB":
             required_params = {"ER0", "MU0", "TD0", "ER1", "MU1", "TD1", "ER2", "MU2", "TD2", "T", "H", "H1"}
         elif struct_name == "TFR":
             required_params = {"W", "L", "RS", "num_ports"}
         elif struct_name == "MOPEN":
             required_params = {"W", "num_ports"}
+        elif struct_name == "MSTEP":
+            required_params = {"W1", "W2", "num_ports"}
         elif struct_name == "SIM":
-            required_params = {"f0", "Z0", "num_ports"}
+            required_params = {"f0", "Z0", "seg_cond", "seg_diel", "loss"}
         else:
             required_params = set()
 
@@ -1303,7 +1305,7 @@ TD0 = 0.0
 ER1 = 12.9
 MU1 = 1.0001
 TD1 = 0.003
-T = 1e-05
+T = 5e-06
 H = 0.0001
 D0 = [ER0, MU0, TD0]
 D1 = [ER1, MU1, TD1]
@@ -1574,12 +1576,12 @@ TD0 = 0.0
 ER1 = 12.9
 MU1 = 1.0001
 TD1 = 0.003
-ER2 = 3.0
+ER2 = 12.9001
 MU2 = 1.0002
-TD2 = 0.001
+TD2 = 0.003
 T = 5e-06
 H1 = 0.0001
-H2 = 2e-05
+H2 = 0.0001
 D0 = [ER0, MU0, TD0]
 D1 = [ER1, MU1, TD1]
 D2 = [ER2, MU2, TD2]

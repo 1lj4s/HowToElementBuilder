@@ -6,6 +6,8 @@ from Code.structures.mclin import MCLIN
 from Code.structures.tfr import TFR
 from Code.structures.mopen import MOPEN
 from Code.structures.mstep import MSTEP
+from Code.structures.mlef import MLEF
+from Code.structures.mbend90x import MBEND90X
 from Code.simulations.sym_sub_test import SymSubTest
 from Code.simulations.sym_snp_test import SymSnpTest
 from Code.symica.sym_spice import run_symspice
@@ -13,8 +15,8 @@ from Code.input.input import SimulationConfigBuilder
 
 def main():
 
-    structure_name = "MLIN"  #AVAILABLE_STRUCTURES = ["MLIN", "MCLIN", "MTAPER", "MXOVER", "MOPEN", "MSTEP", "TFR"]
-    simulation_type = "sym_snp_test" #AVAILABLE_SIMULATIONS = ["sym_sub_test", "sym_snp_test", "CustomCir"]
+    structure_name = "MBEND90X"  # "MLIN", "MLEF", "MCLIN", "MTAPER", "MXOVER", "MBEND90X", "MSTEP", "MOPEN", "TFR"
+    simulation_type = "sym_snp_test" # "sym_sub_test", "sym_snp_test", "CustomCir"
     current_run = "test"
 
     # Создание конфигурации
@@ -23,12 +25,16 @@ def main():
     # Выбор структуры
     if structure_name == "MLIN":
         structure = MLIN(structure_name, JSON_PATH)
+    elif structure_name == "MLEF":
+        structure = MLEF(structure_name, JSON_PATH)
     elif structure_name == "MCLIN":
         structure = MCLIN(structure_name, JSON_PATH)
     elif structure_name == "MTAPER":
         structure = MTAPER(structure_name, JSON_PATH)
     elif structure_name == "MXOVER":
         structure = MXOVER(structure_name, JSON_PATH)
+    elif structure_name == "MBEND90X":
+        structure = MBEND90X(structure_name, JSON_PATH)
     elif structure_name == "TFR":
         structure = TFR(structure_name, JSON_PATH)
     elif structure_name == "MOPEN":
