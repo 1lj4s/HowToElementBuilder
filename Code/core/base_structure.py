@@ -62,7 +62,6 @@ class BaseStructure(ABC):
         pass
 
     def _get_common_talgat_script(self) -> str:
-        """Возвращает общую часть Talgat-скрипта (импорты и функции)."""
         COND_CODE = """
 def cond(X, Y, W, T, D1, D2, TOP, GND):
     if TOP:

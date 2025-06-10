@@ -36,7 +36,7 @@ def create_default_config():
     )
     builder.add_structure(
         struct_name="SIM",
-        f0=[0.1e9, 0.5e9, 1.e9, 5.e9, 10.e9, 20.e9, 30.e9, 40.e9], ##
+        f0=[0.1e9, 0.5e9, 1.e9, 5.e9, 10.e9, 20.e9, 30.e9, 40.e9], ## диапазон частот для моделирования с потерями
         seg_cond=3.0, ##
         seg_diel=1.0, ##
         loss=True, ##
@@ -505,7 +505,6 @@ class BaseStructure(ABC):
         pass
 
     def _get_common_talgat_script(self) -> str:
-        """Возвращает общую часть Talgat-скрипта (импорты и функции)."""
         COND_CODE = """
 def cond(X, Y, W, T, D1, D2, TOP, GND):
     if TOP:
@@ -1324,6 +1323,7 @@ SaveRes(result_path, result)
 
 
 # ===== File: Files\ts\MTAPER_run.py =====
+
 
 
 register_talgat_commands()
@@ -2187,7 +2187,7 @@ logger = logging.getLogger(__name__)
 
 class MXOVER(BaseStructure):
     def get_w_list(self) -> list:
-        return [self.config["W1"]]
+        return [self.config["W1"], self.config["W2"]]
 
     def process_parameters(self, npy_path: str, freq_range: np.ndarray) -> dict:
         W_str = os.path.basename(npy_path).split('_')[-1].split('.')[0]

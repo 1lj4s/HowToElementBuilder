@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class MXOVER(BaseStructure):
     def get_w_list(self) -> list:
-        return [self.config["W1"]]
+        return [self.config["W1"], self.config["W2"]]
 
     def process_parameters(self, npy_path: str, freq_range: np.ndarray) -> dict:
         W_str = os.path.basename(npy_path).split('_')[-1].split('.')[0]

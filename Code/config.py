@@ -1,9 +1,9 @@
+# File: config.py
 import os
 import numpy as np
-
 from Code.input.input import SimulationConfigBuilder
 
-# Константы
+# Constants
 FILES_DIR = os.path.join(os.path.dirname(__file__), "Files")
 JSON_PATH = os.path.join(FILES_DIR, "json", "simulation_config.json")
 FREQUENCY_RANGE = np.arange(0.1e9, 67.e9, 0.1e9)
@@ -12,7 +12,6 @@ FREQUENCY_RANGE = np.arange(0.1e9, 67.e9, 0.1e9)
 AVAILABLE_STRUCTURES = ["MLIN", "MLEF", "MCLIN", "MTAPER", "MXOVER", "MBEND90X", "MSTEP", "MOPEN", "TFR"]
 AVAILABLE_SIMULATIONS = ["sym_sub_test", "sym_snp_test", "CustomCir"]
 
-# Создание конфигурации
 def create_default_config():
     builder = SimulationConfigBuilder(JSON_PATH)
     builder.add_structure(

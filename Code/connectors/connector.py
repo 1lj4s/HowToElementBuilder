@@ -1,8 +1,11 @@
+# File: connectors\connector.py
 import skrf
+import numpy as np
 import os
 import logging
 from Code.converters.saver import save_ntwk
 from Code.config import FILES_DIR
+from Code.core.utils import get_config
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -25,6 +28,18 @@ def connect_elements(ntwk_list, struct_name, current_run, connection_type="serie
         return None
 
     try:
+        # Load configuration to get ports information
+        config_path = os.path.join(FILES_DIR, "json", "simulation_config.json")
+        config = get_config(config_path)
+        struct_config = config.get(struct_name, {})
+        ports_config = struct_config.get("ports", [])
+        num_ports = struct_config.get("num_ports", 2)
+
+        if len(ports_config) != num_ports:
+            logger.error(f"Ports configuration length ({len(ports_config)}) does not match num_ports ({num_ports}) for {struct_name}")
+            return None
+
+        # Combine networks (series connection for now)
         combined = ntwk_list[0]
         if struct_name == "MLEF":
             # Convert 2-port to 1-port for MLEF
@@ -39,6 +54,7 @@ def connect_elements(ntwk_list, struct_name, current_run, connection_type="serie
             else:
                 raise ValueError(f"Connection type {connection_type} not supported")
 
+        # Save the resulting network
         snp_dir = os.path.join(FILES_DIR, "snp")
         num_ports = combined.nports
         obj_name = save_ntwk(combined, snp_dir, struct_name, current_run)
