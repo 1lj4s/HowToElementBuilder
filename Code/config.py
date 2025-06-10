@@ -1,118 +1,74 @@
-# File: config.py
-import os
 import numpy as np
-from Code.input.input import SimulationConfigBuilder
 
-# Constants
-FILES_DIR = os.path.join(os.path.dirname(__file__), "Files")
-JSON_PATH = os.path.join(FILES_DIR, "json", "simulation_config.json")
-FREQUENCY_RANGE = np.arange(0.1e9, 67.e9, 0.1e9)
-
-# Доступные структуры и симуляции
-AVAILABLE_STRUCTURES = ["MLIN", "MLEF", "MCLIN", "MTAPER", "MXOVER", "MBEND90X", "MSTEP", "MOPEN", "TFR"]
-AVAILABLE_SIMULATIONS = ["sym_sub_test", "sym_snp_test", "CustomCir"]
-
-def create_default_config():
-    builder = SimulationConfigBuilder(JSON_PATH)
-    builder.add_structure(
-        struct_name="MSUB",
-        sigma=None,  #
-        ER0=1.0,  #
-        MU0=1.0,  #
-        TD0=0.0,  #
-        ER1=12.9,  #
-        MU1=1.0001,  #
-        TD1=0.003,  #
-        ER2=12.9001,  #
-        MU2=1.0002,  #
-        TD2=0.003,  #
-        T=5.e-6,  #
-        H=100.e-6, #
-        H1=100.e-6, #
-    )
-    builder.add_structure(
-        struct_name="SIM",
-        f0=[0.1e9, 0.5e9, 1.e9, 5.e9, 10.e9, 20.e9, 30.e9, 40.e9], ##
-        seg_cond=3.0, ##
-        seg_diel=1.0, ##
-        loss=True, ##
-        Z0=50, ##
-    )
-    builder.add_structure(
-        struct_name="MLIN",
-        result_path=os.path.join(FILES_DIR, "npy", "MLIN_test.npy"),
-        W1=10.e-6,
-        length=120.e-6,
-        num_ports=2,  ##
-    )
-    builder.add_structure(
-        struct_name="MXOVER",
-        result_path=os.path.join(FILES_DIR, "npy", "MXOVER_test.npy"),
-        W1=50.e-6,
-        W2=50.e-6,
-        num_ports=4,  ##
-    )
-    builder.add_structure(
-        struct_name="MLEF",
-        result_path=os.path.join(FILES_DIR, "npy", "MLEF_test.npy"),
-        W1=10.e-6,
-        length=100.e-6,
-        num_ports=1,  ##
-    )
-    builder.add_structure(
-        struct_name="MCLIN",
-        result_path=os.path.join(FILES_DIR, "npy", "MCLIN_test.npy"),
-        W1=70.e-6,
-        W2=70.e-6,
-        S=20.e-6,
-        length=1000.e-6,
-        num_ports=4,  ##
-    )
-    builder.add_structure(
-        struct_name="MTAPER",
-        result_path=os.path.join(FILES_DIR, "npy", "MTAPER_test.npy"),
-        W1=10.e-6,
-        W2=120.e-6,
-        Wtype="lin",
-        length=230.e-6,
-        num_ports=2,  ##
-    )
-    builder.add_structure(
-        struct_name="MBEND90X",
-        result_path=os.path.join(FILES_DIR, "npy", "MBEND90X.npy"),
-        W1=100.e-6,
-        num_ports=2,  ##
-    )
-    builder.add_structure(
-        struct_name="MTEE",
-        result_path=os.path.join(FILES_DIR, "cir", "MTEE.cir"),
-        W1=10.e-6,
-        W2=10.e-6,
-        W3=10.e-6,
-        num_ports=3,  ##
-    )
-    builder.add_structure(
-        struct_name="MSTEP",
-        result_path=os.path.join(FILES_DIR, "cir", "MSTEP.cir"),
-        W1=150.e-6,
-        W2=50.e-6,
-        num_ports=2,  ##
-    )
-    builder.add_structure(
-        struct_name="MOPEN",
-        result_path=os.path.join(FILES_DIR, "cir", "MOPEN.cir"),
-        W=10.e-6,
-        num_ports=1,
-    )
-
-    builder.add_structure(
-        struct_name="TFR",
-        result_path=os.path.join(FILES_DIR, "cir", "TFR.cir"),
-        W=50.e-6,
-        L=50.e-6,
-        RS=60,
-        num_ports=2,  ##
-    )
-
-
-    builder.save()
+CONFIG = {
+    "M1LIN": [
+        {
+            "W": 10e-6,
+            "S": 10e-6,
+            "T": 2e-6,
+            "f0": [0.1e9, 0.5e9, 1.e9, 5.e9, 10.e9, 50.e9],
+            "freq_range": np.linspace(0.1e9, 67e9, 100),
+            "Z0": 50,
+            "length": 0.1,
+            "loss": True,
+            "sigma": None,
+            "H": 100.e-6,
+            "ER0": 1.0,
+            "ER1": 12.9,
+            "MU0": 1.0,
+            "MU1": 1.0001,
+            "TD0": 0.0,
+            "TD1": 0.003,
+            "seg_cond": 3.0,
+            "seg_diel": 1.0,
+            "do_vector_fitting": True
+        }
+    ],
+    "M2LIN": [
+        {
+            "W1": 10e-6,
+            "W2": 15e-6,
+            "S": 10e-6,
+            "T": 2e-6,
+            "f0": [0.1e9, 0.5e9, 1.e9, 5.e9, 10.e9, 50.e9],
+            "freq_range": np.linspace(0.1e9, 67e9, 100),
+            "Z0": 50,
+            "length": 0.1,
+            "loss": True,
+            "sigma": None,
+            "H": 100.e-6,
+            "ER0": 1.0,
+            "ER1": 12.9,
+            "MU0": 1.0,
+            "MU1": 1.0001,
+            "TD0": 0.0,
+            "TD1": 0.003,
+            "seg_cond": 3.0,
+            "seg_diel": 1.0,
+            "do_vector_fitting": True
+        }
+    ],
+    "MNLIN": [
+        {
+            "W": [10.e-6, 10.e-6, 10.e-6, 10.e-6, 10.e-6],
+            "S": [10.e-6, 10.e-6, 10.e-6, 10.e-6],
+            "T": 2e-6,
+            "f0": [0.01e9, 0.05e9, 0.1e9, 0.5e9, 1.e9, 5.e9, 10.e9, 50.e9],
+            "freq_range": np.linspace(0.1e9, 67e9, 100),
+            "Z0": 50,
+            "length": 0.1,
+            "loss": True,
+            "sigma": None,
+            "H": 100.e-6,
+            "ER0": 1.0,
+            "ER1": 12.9,
+            "MU0": 1.0,
+            "MU1": 1.0001,
+            "TD0": 0.0,
+            "TD1": 0.003,
+            "seg_cond": 3.0,
+            "seg_diel": 1.0,
+            "do_vector_fitting": True
+        }
+    ]
+}
