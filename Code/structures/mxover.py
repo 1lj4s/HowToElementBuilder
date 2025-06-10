@@ -20,7 +20,7 @@ class MXOVER(BaseStructure):
             logger.error(f"Не удалось извлечь ширину из имени файла: {npy_path}")
             return {}
 
-        length = self.config["length"]
+        length = self.config["W2"]
         Z0 = self.sim_config["Z0"]
         f0 = self.sim_config["f0"]
 
@@ -95,7 +95,7 @@ CC1 = []
 CC2 = []
 CC1.append(cond(2*W1, H1, W1, T, D1, D2, True, False))
 diel1(CC1, H1, D1, D2)
-CC2.append(cond(2*W2, H1+H2, W2, T, D2, D0, True, False))
+CC2.append(cond(2*W1, H1+H2, W1, T, D2, D0, True, False))
 diel1(CC2, H1+H2, D2, D0)
 
 conf = GET_CONFIGURATION_2D()

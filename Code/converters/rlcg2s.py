@@ -21,7 +21,7 @@ def find_matching_files(npy_dir: str, struct_name: str, current_run: str) -> lis
 def run_rlcg2s(structure, current_run: str, return_networks: bool = False) -> list:
     npy_dir = os.path.join(FILES_DIR, "npy")
     snp_dir = os.path.join(FILES_DIR, "snp")
-    freq_range = np.arange(0.1e9, 40.e9, 0.1e9)
+    freq_range = np.arange(0.1e9, 67.e9, 0.1e9)
 
     logger.info(f"Директория для .npy: {npy_dir}")
     logger.info(f"Директория для .snp: {snp_dir}")

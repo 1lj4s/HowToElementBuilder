@@ -5,19 +5,23 @@ from scipy.interpolate import interp1d
 from Code.core.base_structure import BaseStructure
 from Code.config import FILES_DIR
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+RESET = "\033[0m"
+GREEN = "\033[32m"
+class InfoColorFormatter(logging.Formatter):
+    def format(self, record):
+        message = super().format(record)
+        if record.levelname == "INFO":
+            return f"{GREEN}{message}{RESET}"
+        return message
+
+logging.basicConfig(level=logging.INFO, format=f'{GREEN}%(asctime)s - %(levelname)s - %(message)s{RESET}')
+handler = logging.getLogger().handlers[0]
+handler.setFormatter(InfoColorFormatter("%(asctime)s %(levelname)s: %(message)s"))
 logger = logging.getLogger(__name__)
 
-class MTAPER(BaseStructure):
+class MBEND90X(BaseStructure):
     def get_w_list(self) -> list:
-        W1 = self.config["W1"]
-        W2 = self.config["W2"]
-        Nsegs = self.config.get("Nsegs", 100)  # Значение по умолчанию
-        print("Nsegs1:", Nsegs)
-        Wtype = self.config.get("Wtype", "lin").lower()
-        if Wtype == "log":
-            return np.logspace(np.log10(W1), np.log10(W2), Nsegs).tolist()
-        return np.linspace(W1, W2, Nsegs).tolist()
+        return [self.config["W1"]]
 
     def process_parameters(self, npy_path: str, freq_range: np.ndarray) -> dict:
         W_str = os.path.basename(npy_path).split('_')[-1].split('.')[0]
@@ -27,12 +31,9 @@ class MTAPER(BaseStructure):
             logger.error(f"Не удалось извлечь ширину из имени файла: {npy_path}")
             return {}
 
-        length = self.config["length"]
-        Nsegs = self.config.get("Nsegs", 100)
-        print("Nsegs2:", Nsegs)
+        length = self.config["W1"]
         Z0 = self.sim_config["Z0"]
         f0 = self.sim_config["f0"]
-        segment_length = length / Nsegs
 
         try:
             data = np.load(npy_path, allow_pickle=True).item()
@@ -43,6 +44,7 @@ class MTAPER(BaseStructure):
         mL, mC, mR, mG = data['mL'], data['mC'], data['mR'], data['mG']
         M = len(freq_range)
 
+        # Интерполяция mR и mG
         mR_interpolated = np.zeros((mR.shape[0], mR.shape[1], M))
         mG_interpolated = np.zeros((mG.shape[0], mG.shape[1], M))
         for i in range(mR.shape[0]):
@@ -60,7 +62,7 @@ class MTAPER(BaseStructure):
             'mL': mL,
             'mG': mG_interpolated,
             'mC': mC,
-            'length': segment_length,
+            'length': length,
             'Z0': Z0
         }
 

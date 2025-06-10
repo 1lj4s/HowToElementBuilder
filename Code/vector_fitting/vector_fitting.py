@@ -8,7 +8,7 @@ from Code.config import FILES_DIR, FREQUENCY_RANGE
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def run_vector_fitting(struct_name: str, num_ports: int, show_plots: bool = True):
+def run_vector_fitting(struct_name: str, num_ports: int, show_plots: bool = False):
     """
     Выполняет векторную аппроксимацию (Vector Fitting) для создания SPICE-модели из S-параметров.
 

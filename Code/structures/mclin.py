@@ -8,16 +8,9 @@ from Code.config import FILES_DIR
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-class MTAPER(BaseStructure):
+class MCLIN(BaseStructure):
     def get_w_list(self) -> list:
-        W1 = self.config["W1"]
-        W2 = self.config["W2"]
-        Nsegs = self.config.get("Nsegs", 100)  # Значение по умолчанию
-        print("Nsegs1:", Nsegs)
-        Wtype = self.config.get("Wtype", "lin").lower()
-        if Wtype == "log":
-            return np.logspace(np.log10(W1), np.log10(W2), Nsegs).tolist()
-        return np.linspace(W1, W2, Nsegs).tolist()
+        return [self.config["W1"]]  # Return only W1 to avoid duplicate runs
 
     def process_parameters(self, npy_path: str, freq_range: np.ndarray) -> dict:
         W_str = os.path.basename(npy_path).split('_')[-1].split('.')[0]
@@ -28,11 +21,8 @@ class MTAPER(BaseStructure):
             return {}
 
         length = self.config["length"]
-        Nsegs = self.config.get("Nsegs", 100)
-        print("Nsegs2:", Nsegs)
         Z0 = self.sim_config["Z0"]
         f0 = self.sim_config["f0"]
-        segment_length = length / Nsegs
 
         try:
             data = np.load(npy_path, allow_pickle=True).item()
@@ -43,6 +33,7 @@ class MTAPER(BaseStructure):
         mL, mC, mR, mG = data['mL'], data['mC'], data['mR'], data['mG']
         M = len(freq_range)
 
+        # Интерполяция mR и mG
         mR_interpolated = np.zeros((mR.shape[0], mR.shape[1], M))
         mG_interpolated = np.zeros((mG.shape[0], mG.shape[1], M))
         for i in range(mR.shape[0]):
@@ -60,7 +51,7 @@ class MTAPER(BaseStructure):
             'mL': mL,
             'mG': mG_interpolated,
             'mC': mC,
-            'length': segment_length,
+            'length': length,
             'Z0': Z0
         }
 
@@ -68,9 +59,14 @@ class MTAPER(BaseStructure):
         result_path = os.path.join(FILES_DIR, "npy", f"{self.struct_name}_{current_run}_{W * 1.e6:0g}.npy")
         sim_params = self.sim_config
         msub_params = self.msub_config
+        W1 = self.config["W1"]
+        W2 = self.config["W2"]
+        S = self.config["S"]
 
         return f"""
-W = {W}
+W1 = {W1}
+W2 = {W2}
+S = {S}
 result_path = r'{result_path}'
 f0 = {sim_params["f0"]}
 seg_cond = {sim_params["seg_cond"]}
@@ -84,7 +80,7 @@ ER1 = {msub_params["ER1"]}
 MU1 = {msub_params["MU1"]}
 TD1 = {msub_params["TD1"]}
 T = {msub_params["T"]}
-H = {msub_params["H"]}
+H1 = {msub_params["H"]}
 D0 = [ER0, MU0, TD0]
 D1 = [ER1, MU1, TD1]
 
@@ -93,8 +89,9 @@ SET_AUTO_SEGMENT_LENGTH_DIELECTRIC(T / seg_diel)
 SET_AUTO_SEGMENT_LENGTH_CONDUCTOR(T / seg_cond)
 
 CC1 = []
-CC1.append(cond(2 * W, H, W, T, D1, D0, True, False))
-diel1(CC1, H, D1, D0)
+CC1.append(cond(2*W1, H1, W1, T, D1, D0, True, False))
+CC1.append(cond(2*W1+W1+S, H1, W2, T, D1, D0, True, False))
+diel1(CC1, H1, D1, D0)
 
 conf = GET_CONFIGURATION_2D()
 result = CalMat(conf, f0, loss=loss, sigma=sigma)

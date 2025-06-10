@@ -46,3 +46,4 @@ def save_ntwk(ntwk, directory, struct_name, current_run):
 
     ntwk.write_touchstone(filepath_no_ext)
     print(f"Сохранён объединённый файл: {filepath}")
+    return os.path.basename(filepath)

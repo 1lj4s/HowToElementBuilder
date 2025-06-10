@@ -5,8 +5,6 @@ from Code.converters.saver import save_ntwk
 from Code.connectors.connector import connect_elements
 from Code.vector_fitting.vector_fitting import run_vector_fitting
 from Code.symica.sym_spice import run_symspice
-from Code.core.utils import get_config
-from Code.config import FILES_DIR
 
 class SymSubTest(BaseSimulation):
     def run(self) -> None:
@@ -25,10 +23,15 @@ class SymSubTest(BaseSimulation):
 
         # Step 3: Combine and terminate networks
         if ntwk_list:
-            combined_ntwk = connect_elements(ntwk_list, self.structure.struct_name, self.current_run)
+            combined_ntwk, obj_name = connect_elements(ntwk_list, self.structure.struct_name, self.current_run)
 
-        # Step 4: Vector fitting with active ports
-        run_vector_fitting(self.structure.struct_name, active_ports)
+            # Шаг 4: Векторная аппроксимация
+            run_vector_fitting(self.structure.struct_name, self.structure.num_ports)
 
-        # Step 5: Run Symica
-        run_symspice("SymSubTest")
+            # Шаг 5: Запуск Symica
+            run_symspice(
+                scs_file="SymSubTest",
+                obj_file=obj_name,
+                structure_name=self.structure.struct_name,
+                num_ports=self.structure.num_ports
+            )
