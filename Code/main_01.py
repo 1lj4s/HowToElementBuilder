@@ -1,4 +1,3 @@
-
 import time
 import json
 import numpy as np
@@ -6,16 +5,22 @@ from config import CONFIG
 from talgat.talgatsession import TalgatSession
 from rlcg2s.rlcg2s import RLGC2SConverter
 from vectorfitting.vectorfitting import SParamProcessor
+from symica.symicanetlist import SymicaNetlist
+from symica.symicasession import SymicaSession
 import tempfile
 import os
 
 
 def run_all():
     exe_path = r"C:\Program Files\TALGAT 2021\PythonClient.exe"
-    main_path = os.path.dirname(os.path.abspath(__file__))
+    symica_exe_path = r"C:\Program Files\Symica\bin\symspice.exe"
+    working_dir = "E:/Saves/pycharm/SubprocessTest/symica"
+
     # Load shared.py once
-    shared_code = open(os.path.join(main_path, "talgat", "shared.py"), encoding="utf-8").read()
+    shared_code = open("talgat/shared.py", encoding="utf-8").read()
     session = TalgatSession(exe_path)
+    symica_session = SymicaSession(symica_exe_path, working_dir)
+    netlist_gen = SymicaNetlist(working_dir)
 
     # Write shared.py to a temporary file
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".py", encoding="utf-8") as tmp:
@@ -29,7 +34,7 @@ def run_all():
 
     for struct_name, struct_conf in CONFIG.items():
         print(f"Running structure: {struct_name}")
-        script_code = open(os.path.join(main_path, "talgat", f"{struct_name}.py"), encoding="utf-8").read()
+        script_code = open(f"talgat/{struct_name}.py", encoding="utf-8").read()
 
         struct_results = []
         for params in struct_conf:
@@ -55,7 +60,6 @@ def run_all():
             result = session.run_script(params, script_code)
             print(f"Completed TALGAT simulation in {time.time() - start_talgat:.2f} sec")
 
-
             # Convert RLGC to S-parameters
             converter = RLGC2SConverter(params, [result])
             s_params, rlgc_struct = converter.convert()
@@ -69,37 +73,67 @@ def run_all():
                 name=f"{struct_name}_{len(struct_results) + 1}"
             )
 
-            # Optionally perform vector fitting
+            # Optionally perform vector fitting and generate subcircuit
+            subcircuit_text = None
             if params['do_vector_fitting']:
                 processor.perform_vector_fitting(**params['vf_params'])
-
                 processor.generate_subcircuit(
                     fitted_model_name=f"{struct_name}_equiv_no_ref",
                     create_reference_pins=False
                 )
-                # processor.generate_subcircuit(
-                #     fitted_model_name=f"{struct_name}_equiv_with_ref",
-                #     create_reference_pins=True
-                # )
-                # print(f"\nSubcircuits for {struct_name}_{len(struct_results) + 1}:")
-                # for subcircuit_name, subcircuit_text in processor.get_subcircuits().items():
-                #     print(f"\n--- {subcircuit_name} ---")
-                #     print(subcircuit_text)
+                print(f"\nSubcircuits for {struct_name}_{len(struct_results) + 1}:")
+                for subcircuit_name, text in processor.get_subcircuits().items():
+                    print(f"\n--- {subcircuit_name} ---")
+                    print(text)
+                    subcircuit_text = text
+
+            # Run SymSpice simulation
+            output_filename = os.path.join(working_dir, "Files", "sym", f"{struct_name}_test.s2p")
+            if subcircuit_text:
+                # Use CustomCir for subcircuit
+                netlist = netlist_gen.generate_netlist(
+                    simulation_type="CustomCir",
+                    structure_name=struct_name,
+                    num_ports=2,  # Adjust based on your structure
+                    subcircuit_text=subcircuit_text
+                )
+            else:
+                # Use SymSnpTest for S-parameters
+                # Assume S-parameters are saved to a temporary file
+                with tempfile.NamedTemporaryFile("w", delete=False, suffix=".s2p",
+                                                 dir=os.path.join(working_dir, "Files", "snp")) as tmp_snp:
+                    # This is a placeholder; you need to write s_params to tmp_snp
+                    # For now, assume an existing .s2p file
+                    input_file = os.path.join(working_dir, "Files", "snp", f"{struct_name}_input.s2p")
+                    netlist = netlist_gen.generate_netlist(
+                        simulation_type="SymSnpTest",
+                        structure_name=struct_name,
+                        num_ports=2,  # Adjust based on your structure
+                        input_file=input_file
+                    )
+
+            start_symica = time.time()
+            symica_result = symica_session.run_netlist(netlist, output_filename)
+            print(f"Completed SymSpice simulation in {time.time() - start_symica:.2f} sec")
+            print(f"SymSpice result: {symica_result}")
+
             struct_results.append({
                 "params": params,
                 "s_params": s_params,
                 "rlgc": rlgc_struct,
-                "processor": processor
+                "processor": processor,
+                "symica_result": symica_result
             })
-
 
         all_results[struct_name] = struct_results
 
     # Clean up temporary file
     os.remove(shared_path)
     session.close()
+    # symica_session.close()
 
     return all_results
+
 
 if __name__ == "__main__":
     start = time.time()
