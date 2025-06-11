@@ -1,21 +1,40 @@
 
 import time
-import json
-import numpy as np
-from config import CONFIG
+
+from matplotlib.style.core import available
+
+# import json
+# import numpy as np
+from config import STRUCTURES, SUBSTRATES, SIMULATIONS
 from talgat.talgatsession import TalgatSession
 from rlcg2s.rlcg2s import RLGC2SConverter
 from vectorfitting.vectorfitting import SParamProcessor
 import tempfile
 import os
+import core
+
+def gen_path():
+    paths = {
+        "main": os.path.dirname(os.path.abspath(__file__)),
+        "talgat_exe": r"C:\Program Files\TALGAT 2021\PythonClient.exe",
+        "talgat_code": os.path.join(os.path.dirname(os.path.abspath(__file__)), "talgat"),
+        "shared": None
+    }
+    # try:
+    #     shared_code = open(os.path.join(paths["main"], "talgat", "shared.py"), encoding="utf-8").read()
+    #     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".py", encoding="utf-8") as tmp:
+    #         tmp.write(shared_code)
+    #         shared_path = tmp.name
+    # except Exception as ex:
+    #     print(f"Cant create temp file: {ex}")
+    #     quit()
+    # paths.update({"shared": shared_path})
+    return paths
 
 
 def run_all():
-    exe_path = r"C:\Program Files\TALGAT 2021\PythonClient.exe"
-    main_path = os.path.dirname(os.path.abspath(__file__))
-    # Load shared.py once
     shared_code = open(os.path.join(main_path, "talgat", "shared.py"), encoding="utf-8").read()
-    session = TalgatSession(exe_path)
+    session = TalgatSession(talgat_path)
 
     # Write shared.py to a temporary file
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".py", encoding="utf-8") as tmp:
@@ -102,7 +121,30 @@ def run_all():
     return all_results
 
 if __name__ == "__main__":
+    #print("Select structure name")
+    #Цикл для  ожидания ввода названия структуры
+    #TODO реализовать возможность ввода нескольких структур
+    available_structs = ["M1LIN", "M2LIN", "MNLIN"]
+    print("Available structures:", ', '.join(STRUCTURES))
+    while True:
+        selected_struct = input("Type structure name or exit: ")
+        if selected_struct in STRUCTURES.keys():
+            if selected_struct not in available_structs:
+                print("This structure not implemented yet, please select from", ', '.join(available_structs))
+            else:
+                break
+        elif selected_struct == "exit":
+            quit()
+        else:
+            print("Invalid structure, select from available ones")
+            print("Available structures:", ', '.join(STRUCTURES))
+    paths = gen_path()
     start = time.time()
-    results = run_all()
-    print("All simulations completed.")
-    print(f"Completed FULL simulation in {time.time() - start:.2f} sec")
+    print("Selected structure - ", selected_struct)
+    subst = SUBSTRATES[STRUCTURES[selected_struct]["SUBSTRATE"]]
+    sim_param = SIMULATIONS[STRUCTURES[selected_struct]["SIMULATION"]]
+    handler = core.Simulation_Handler(paths, selected_struct, STRUCTURES[selected_struct], subst, sim_param)
+    handler.run_simulation()
+    #results = run_all()
+    #print("All simulations completed.")
+    #print(f"Completed FULL simulation in {time.time() - start:.2f} sec")

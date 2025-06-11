@@ -1,7 +1,7 @@
 import numpy as np
 
 SIMULATIONS = {
-    "SPARAM": [
+    "SPARAM":
         {
             "f0": [0.1e9, 0.5e9, 1.e9, 5.e9, 10.e9, 50.e9],
             "freq_range": np.linspace(0.1e9, 67e9, 100),
@@ -11,10 +11,9 @@ SIMULATIONS = {
             "seg_diel": 1.0,
             "do_vector_fitting": True,
         }
-    ],
 }
 SUBSTRATES = {
-    "MSUB": [
+    "MSUB":
         {
             "T": 2e-6,
             "H": 100.e-6,
@@ -24,9 +23,8 @@ SUBSTRATES = {
             "ER1": 12.9,
             "MU1": 1.0001,
             "TD1": 0.003,
-        }
-    ],
-    "M2SUB": [
+        },
+    "M2SUB":
         {
             "T": 2e-6,
             "T2": 2e-6,
@@ -42,19 +40,17 @@ SUBSTRATES = {
             "MU2": 1.0002,
             "TD2": 0.003,
         }
-    ],
 }
 STRUCTURES = {
-    "M1LIN": [
+    "M1LIN":
         {
             "W": 10e-6,
             "length": 0.1,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "M2LIN": [
+        },
+    "M2LIN":
         {
             "W1": 10e-6,
             "W2": 15e-6,
@@ -63,9 +59,8 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MNLIN": [
+        },
+    "MNLIN":
         {
             "W": [10.e-6, 10.e-6, 10.e-6, 10.e-6, 10.e-6],
             "S": [10.e-6, 10.e-6, 10.e-6, 10.e-6],
@@ -73,9 +68,8 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MTEE": [
+        },
+    "MTEE":
         {
             "W1": 10.e-6,
             "W2": 15.e-6,
@@ -83,9 +77,8 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog", # Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "TFR": [
+        },
+    "TFR":
         {
             "W": 10.e-6,
             "L": 15.e-6,
@@ -93,51 +86,45 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog", # Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MSTEP": [
+        },
+    "MSTEP":
         {
             "W1": 10.e-6,
             "W2": 15.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MLEF": [
+        },
+    "MLEF":
         {
             "W": 10.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Talgat",
+            "MODELTYPE": "2D_Quasistatic",
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MOPEN": [
+        },
+    "MOPEN":
         {
             "W": 10.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MCURVE": [
+        },
+    "MCURVE":
         {
             "W": 10.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MBEND": [
+        },
+    "MBEND":
         {
             "W1": 10.e-6,
             "W2": 15.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MCFIL": [
+        },
+    "MCFIL":
         {
             "W1": 10.e-6,
             "W2": 15.e-6,
@@ -145,9 +132,8 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MCROSS": [
+        },
+    "MCROSS":
         {
             "W1": 10.e-6,
             "W2": 15.e-6,
@@ -156,9 +142,8 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MSTUB2W": [
+        },
+    "MSTUB2W":
         {
             "W": 10.e-6,
             "Ro": 15.e-6,
@@ -166,28 +151,25 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MXOVER": [
+        },
+    "MXOVER":
         {
             "W1": 10.e-6,
             "W2": 10.e-6,
-            "SUBSTRATE": "MSUB2",
+            "SUBSTRATE": "M2SUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MGAPX": [
+        },
+    "MGAPX":
         {
             "W1": 10.e-6,
             "W2": 10.e-6,
             "S": 10.e-6,
-            "SUBSTRATE": "MSUB1",
+            "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MTAPER": [
+        },
+    "MTAPER":
         {
             "W1": 10.e-6,
             "W2": 50.e-6,
@@ -195,18 +177,16 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MLSC": [
+        },
+    "MLSC":
         {
             "W": 10.e-6,
             "L": 100.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-        }
-    ],
-    "MLANG": [
+        },
+    "MLANG":
         {
             "W": 40.e-6,
             "S": 40.e-6,
@@ -215,5 +195,4 @@ STRUCTURES = {
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic
             "SIMULATION": "SPARAM",
         }
-    ],
 }
