@@ -56,7 +56,7 @@ class TalgatSession:
         self.proc.wait()
 
 def main():
-    from shared import CalMat  # если потребуется
+    # from shared import CalMat  # если потребуется
     exe_path = r"C:\Program Files\TALGAT 2021\PythonClient.exe"
     shared_code = open("shared.py", encoding="utf-8").read()
     script_code = open("M1LIN.py", encoding="utf-8").read()

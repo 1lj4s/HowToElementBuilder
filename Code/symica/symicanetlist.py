@@ -11,7 +11,7 @@ class SymicaNetlist:
             freq_range (list, optional): Frequency range in Hz [start, stop, step]. Defaults to [0.1e9, 67e9, 0.1e9].
         """
         self.working_dir = os.path.abspath(working_dir)
-        self.freq_range = freq_range if freq_range else [0.1e9, 67e9, 0.1e9]
+        self.freq_range = freq_range if freq_range else [0.1e9, 0.2e9, 67e9]
         self.sym_dir = os.path.join(self.working_dir, "Files", "sym")
         self.snp_dir = os.path.join(self.working_dir, "Files", "snp")
         self.cir_dir = os.path.join(self.working_dir, "Files", "cir")
@@ -141,6 +141,9 @@ class SymicaNetlist:
 
 if __name__ == "__main__":
     # Example usage
+    import numpy as np
+    freqs = np.linspace(0.1e9, 67e9, 100)
+    print(freqs)
     netlist_gen = SymicaNetlist(working_dir="E:/Saves/pycharm/SubprocessTest/symica")
 
     # Example for SymSnpTest
