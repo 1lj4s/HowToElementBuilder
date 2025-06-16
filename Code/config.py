@@ -42,7 +42,7 @@ SUBSTRATES = {
         }
 }
 STRUCTURES = {
-    "M1LIN":
+    "MLIN": # однопроводная лп
         {
             "W": 10e-6,
             "length": 0.1,
@@ -50,7 +50,41 @@ STRUCTURES = {
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
-    "M2LIN":
+    "MLSC": # однопроводная лп, земля на дальнем конце
+        {
+            "W": 10.e-6,
+            "L": 100.e-6,
+            "SUBSTRATE": "MSUB",
+            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
+            "SIMULATION": "SPARAM",
+        },
+    "MLEF": # однопроводная лп, обрыв на дальнем конце
+        {
+            "W": 10.e-6,
+            "SUBSTRATE": "MSUB",
+            "MODELTYPE": "2D_Quasistatic",
+            "SIMULATION": "SPARAM",
+        },
+    "MTAPER": # N однопроводных лп шириной от W1 до W2, каждая длиной L/N
+        {
+            "W1": 10.e-6,
+            "W2": 50.e-6,
+            "L": 100.e-6,
+            "Taper": "Linear",  # Linear or Exponential sweep of W
+            "SUBSTRATE": "MSUB",
+            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
+            "SIMULATION": "SPARAM",
+        },
+    "MSTUB2W": # Множество однопроводных лп шириной от W до
+        {
+            "W": 10.e-6, # Начальаня ширина
+            "Ro": 15.e-6, # Длина
+            "Theta": 45, # Угол
+            "SUBSTRATE": "MSUB",
+            "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
+            "SIMULATION": "SPARAM",
+        },
+    "MCLIN": # Двухпроводная ЛП
         {
             "W1": 70e-6,
             "W2": 70e-6,
@@ -60,60 +94,13 @@ STRUCTURES = {
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
-    "MNLIN":
-        {
-            "W": [10.e-6, 10.e-6, 10.e-6, 10.e-6, 10.e-6],
-            "S": [10.e-6, 10.e-6, 10.e-6, 10.e-6],
-            "length": 0.1,
-            "SUBSTRATE": "MSUB",
-            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic
-            "SIMULATION": "SPARAM",
-        },
-    "MTEE":
+    "MCFIL": # Двухпроводная ЛП, первый проводник в обрыве на дальнем конце, второй на ближнем
         {
             "W1": 10.e-6,
             "W2": 15.e-6,
-            "W3": 20.e-6,
-            "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Verilog", # Verilog or Subcircuit
-            "SIMULATION": "SPARAM",
-        },
-    "TFR":
-        {
-            "W": 10.e-6,
-            "L": 15.e-6,
-            "RS": 50,
-            "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Verilog", # Verilog or Subcircuit
-            "SIMULATION": "SPARAM",
-        },
-    "MSTEP":
-        {
-            "W1": 10.e-6,
-            "W2": 15.e-6,
-            "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Verilog",  # Verilog or Subcircuit
-            "SIMULATION": "SPARAM",
-        },
-    "MLEF":
-        {
-            "W": 10.e-6,
+            "S": 15.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",
-            "SIMULATION": "SPARAM",
-        },
-    "MOPEN":
-        {
-            "W": 10.e-6,
-            "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Verilog",  # Verilog or Subcircuit
-            "SIMULATION": "SPARAM",
-        },
-    "MCURVE":
-        {
-            "W": 10.e-6,
-            "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
     "MBEND":
@@ -124,13 +111,21 @@ STRUCTURES = {
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
-    "MCFIL":
+    "MCURVE":
+        {
+            "W": 10.e-6,
+            "Angle": 90,
+            "SUBSTRATE": "MSUB",
+            "MODELTYPE": "Verilog",  # Verilog or Subcircuit
+            "SIMULATION": "SPARAM",
+        },
+    "MTEE":
         {
             "W1": 10.e-6,
             "W2": 15.e-6,
-            "S": 15.e-6,
+            "W3": 20.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "2D_Quasistatic",
+            "MODELTYPE": "Verilog", # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
     "MCROSS":
@@ -143,16 +138,7 @@ STRUCTURES = {
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
-    "MSTUB2W":
-        {
-            "W": 10.e-6,
-            "Ro": 15.e-6,
-            "Theta": 20.e-6,
-            "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
-            "SIMULATION": "SPARAM",
-        },
-    "MXOVER":
+    "MXOVER": # Пересечение линий передачи на разных слоях
         {
             "W1": 10.e-6,
             "W2": 10.e-6,
@@ -160,34 +146,32 @@ STRUCTURES = {
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
-    "MGAPX":
+    "MGAPX": # Разрыв меду ЛП
         {
-            "W1": 10.e-6,
-            "W2": 10.e-6,
+            "W": 10.e-6,
             "S": 10.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
-    "MTAPER":
+    "MSTEP": # Ступенчато-импедансный переход
         {
             "W1": 10.e-6,
-            "W2": 50.e-6,
-            "L": 100.e-6,
+            "W2": 15.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
+            "MODELTYPE": "Verilog",  # Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
-    "MLSC":
+    "MOPEN": # Иммитация краевого эффекта на конце лп
         {
             "W": 10.e-6,
-            "L": 100.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
+            "MODELTYPE": "Verilog",  # Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
-    "MLANG":
+    "MLANG": # Две n-проводные линии, которые надо правильно соединить
         {
+            "N": 4,
             "W": 40.e-6,
             "S": 40.e-6,
             "L": 100.e-6,

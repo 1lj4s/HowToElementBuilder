@@ -1,0 +1,6 @@
+.SUBCKT sch 1 2
+
+.PARAM res = 'RS*L/W'
+
+r1 1 2 resistor r=res
+.ENDS sch

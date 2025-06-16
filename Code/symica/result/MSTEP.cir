@@ -1,0 +1,30 @@
+.SUBCKT sch 1 2
+
+.PARAM WH1='W1/H'
+.PARAM WH2='W2/H'
+
+.PARAM EFF1 = '(ER + 1)/2 + (ER - 1)/2 / sqrt(1 + 12 / WH1)'
+.PARAM EFF2 = '(ER + 1)/2 + (ER - 1)/2 / sqrt(1 + 12 / WH2)'
+
+.PARAM Z01 = '60 / sqrt(EFF1) * log(8 / WH1 + 0.25 * WH1)'
+.PARAM Z02 = '60 / sqrt(EFF2) * log(8 / WH2 + 0.25 * WH2)'
+
+.PARAM Lw1 = 'Z01 * sqrt(EFF1) / 3e8'
+.PARAM Lw2 = 'Z02 * sqrt(EFF2) / 3e8'
+
+.PARAM Ls = '0.000987 * H * (1 - (Z01/Z02) * sqrt(EFF1/EFF2))**2'
+
+.PARAM L1 = 'Ls * Lw1 * 1.e-3 / (Lw1 + Lw2)'
+.PARAM L2 = 'Ls * Lw2 * 1.e-3 / (Lw1 + Lw2)'
+
+.PARAM term1 = 'sqrt(EFF1) / Z01'
+.PARAM term2 = '1 - W2/W1'
+.PARAM term3 = '(EFF1 + 0.3)/(EFF1 - 0.258)'
+.PARAM term4 = '(WH1 + 0.264)/(WH1 + 0.8)'
+.PARAM C1 = '0.00137 * H * term1 * term2 * term3 * term4*1.e-6'
+
+L1 1 3 inductor L=L1
+L2 3 2 inductor L=L2
+C1 3 0 capacitor C=C1
+
+.ENDS sch
