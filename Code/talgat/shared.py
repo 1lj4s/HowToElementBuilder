@@ -49,7 +49,7 @@ def CalMat(conf, f0, loss=False, sigma=None):
     mL = CALCULATE_L(smn_L, conf)
     if loss:
         smn_CG = SMN_CG_OMP(conf)
-        mC = CALCULATE_C(SMN_C_OMP(conf), conf)
+        # mC = CALCULATE_C(SMN_C_OMP(conf), conf)
         n = GET_MATRIX_ROWS(mL)
         mR_arr = np.zeros((n, n, len(f0)))
         mG_arr = np.zeros((n, n, len(f0)))
@@ -57,6 +57,7 @@ def CalMat(conf, f0, loss=False, sigma=None):
             freq = f0[idx]
             mR = CALCULATE_R(smn_L, conf, freq, sigma)
             cg = CALCULATE_CG(smn_CG, conf, freq)
+            mC = GET_REAL_MATRIX(cg)
             mG = GET_IMAG_MATRIX(cg)
             for i in range(n):
                 for j in range(n):

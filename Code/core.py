@@ -45,6 +45,8 @@ class Simulation_Handler():
             s_params, rlgc_struct = converter.convert()
             print(f"S-params shape for {self.struct_name}: {s_params.shape}")
 
+            # converter.save_to_snp(s_params)
+
 
 
             # Create SParamProcessor

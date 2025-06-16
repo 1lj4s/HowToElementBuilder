@@ -1,6 +1,5 @@
 __pycache__/
 .venv/
-Code/Files/snp
 Files/cir/
 Files/json/
 Files/npy/
@@ -9,3 +8,4 @@ Files/sym/
 Files/ts/
 Files/sch/SymSnpTest_sp.apb/
 Code/Files/cir/
+Code/Symica/symsnptest_sp.apb/

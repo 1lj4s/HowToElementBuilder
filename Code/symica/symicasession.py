@@ -25,19 +25,37 @@ class SymicaSession:
         cir_file = os.path.basename(cir_path)
 
         try:
-            result = subprocess.run(
+            # Запуск процесса с Popen для захвата вывода в реальном времени
+            process = subprocess.Popen(
                 [self.symspice_path, cir_file],
                 cwd=cir_dir,
-                capture_output=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 text=True,
-                check=False
+                bufsize=1
             )
 
+            output_lines = []
+            # Чтение вывода построчно
+            while True:
+                line = process.stdout.readline()
+                if not line:
+                    break
+                print("[SYMSPICE]", line.strip())
+                output_lines.append(line.strip())
+                # Проверка на завершение вывода (если нужно остановиться при определенной строке)
+                if line.strip().startswith("{") and line.strip().endswith("}"):
+                    break
+
+            # Ожидание завершения процесса и получение кода возврата
+            returncode = process.wait()
+
             return {
-                "status": "ok" if result.returncode == 0 else "error",
-                "stdout": result.stdout,
-                "stderr": result.stderr,
-                "returncode": result.returncode
+                "status": "ok" if returncode == 0 else "error",
+                "stdout": "\n".join(output_lines),
+                "stderr": "",
+                "returncode": returncode
             }
 
         except FileNotFoundError:
@@ -51,10 +69,6 @@ if __name__ == "__main__":
     cir_file = r"E:\Saves\pycharm\HowToElementBuilder\Code\symica\symsnptest.scs"
     result = session.run_simulation(cir_file)
 
-    print("======= STDOUT =======")
-    print(result.get("stdout", ""))
-    print("\n======= STDERR =======")
-    print(result.get("stderr", ""))
     print("\n======= STATUS =======")
     print(result.get("status", "unknown"))
 

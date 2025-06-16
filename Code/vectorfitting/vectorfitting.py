@@ -227,7 +227,7 @@ class SParamProcessor:
 # Example usage
 if __name__ == "__main__":
     # Example with a pre-existing .s4p file
-    nw_3port = skrf.Network('MXOVER_test.s4p')
+    nw_3port = skrf.Network('MLIN_test.s2p')
     processor = SParamProcessor(nw_3port.s, nw_3port.f, z0=nw_3port.z0, name='test_network')
     processor.perform_vector_fitting(
         n_poles_init_real=3,

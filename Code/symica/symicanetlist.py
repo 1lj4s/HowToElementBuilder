@@ -165,7 +165,7 @@ ends MLIN
 """
     custom_netlist = netlist_gen.generate_netlist(
         simulation_type="CustomCir",
-        structure_name="MLIN",
+        structure_name="TFR",
         num_ports=2,
         subcircuit_text=subcircuit_text
     )

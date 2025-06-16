@@ -3,7 +3,7 @@ import numpy as np
 SIMULATIONS = {
     "SPARAM":
         {
-            "f0": [0.1e9, 0.5e9, 1.e9, 5.e9, 10.e9, 50.e9],
+            "f0": np.linspace(1.5e9, 3.5e9, 5),
             "freq_range": np.linspace(0.1e9, 67e9, 100),
             "loss": True,
             "sigma": None,
@@ -52,10 +52,10 @@ STRUCTURES = {
         },
     "M2LIN":
         {
-            "W1": 10e-6,
-            "W2": 15e-6,
-            "S": 10e-6,
-            "length": 0.1,
+            "W1": 70e-6,
+            "W2": 70e-6,
+            "S": 30e-6,
+            "length": 500.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
