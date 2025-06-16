@@ -124,8 +124,8 @@ if __name__ == "__main__":
     #print("Select structure name")
     #Цикл для  ожидания ввода названия структуры
     #TODO реализовать возможность ввода нескольких структур
-    available_structs = ["M1LIN", "M2LIN", "MNLIN"]
-    print("Available structures:", ', '.join(STRUCTURES))
+    available_structs = ["MLIN", "MLSC", "MLEF", "MCLIN", "MCFIL"]
+    print("Available structures:", ', '.join(available_structs))
     while True:
         selected_struct = input("Type structure name or exit: ")
         if selected_struct in STRUCTURES.keys():
@@ -137,13 +137,15 @@ if __name__ == "__main__":
             quit()
         else:
             print("Invalid structure, select from available ones")
-            print("Available structures:", ', '.join(STRUCTURES))
+            print("Available structures:", ', '.join(available_structs))
     paths = gen_path()
     start = time.time()
     print("Selected structure - ", selected_struct)
     subst = SUBSTRATES[STRUCTURES[selected_struct]["SUBSTRATE"]]
     sim_param = SIMULATIONS[STRUCTURES[selected_struct]["SIMULATION"]]
     handler = core.Simulation_Handler(paths, selected_struct, STRUCTURES[selected_struct], subst, sim_param)
+    handler.m1lin = STRUCTURES["M1LIN_STRUCTS"]
+    handler.mnlin = STRUCTURES["MNLIN_STRUCTS"]
     handler.run_simulation()
     #results = run_all()
     #print("All simulations completed.")

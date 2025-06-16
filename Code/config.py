@@ -3,7 +3,7 @@ import numpy as np
 SIMULATIONS = {
     "SPARAM":
         {
-            "f0": np.linspace(1.5e9, 3.5e9, 5),
+            "f0": np.linspace(1.5e9, 3.5e9, 2),
             "freq_range": np.linspace(0.1e9, 67e9, 100),
             "loss": True,
             "sigma": None,
@@ -42,6 +42,8 @@ SUBSTRATES = {
         }
 }
 STRUCTURES = {
+    "M1LIN_STRUCTS": ["MLIN", "MLSC", "MLEF"],
+    "MNLIN_STRUCTS": ["MCLIN", "MCFIL"],
     "MLIN": # однопроводная лп
         {
             "W": 10e-6,
@@ -53,7 +55,7 @@ STRUCTURES = {
     "MLSC": # однопроводная лп, земля на дальнем конце
         {
             "W": 10.e-6,
-            "L": 100.e-6,
+            "length": 100.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
@@ -61,6 +63,7 @@ STRUCTURES = {
     "MLEF": # однопроводная лп, обрыв на дальнем конце
         {
             "W": 10.e-6,
+            "length": 100.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",
             "SIMULATION": "SPARAM",
@@ -74,10 +77,12 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
+            "N": 5, #кол-во точек до интерполяции
+            "N2": 100 #кол-во точек после интерполяции
         },
-    "MSTUB2W": # Множество однопроводных лп шириной от W до
+    "MRSTUB2W": # Множество однопроводных лп шириной от W до
         {
-            "W": 10.e-6, # Начальаня ширина
+            "W": 10.e-6, # Начальная ширина
             "Ro": 15.e-6, # Длина
             "Theta": 45, # Угол
             "SUBSTRATE": "MSUB",
@@ -86,9 +91,9 @@ STRUCTURES = {
         },
     "MCLIN": # Двухпроводная ЛП
         {
-            "W1": 70e-6,
+            "W": [70e-6, 80e-6],
             "W2": 70e-6,
-            "S": 30e-6,
+            "S": [30e-6],
             "length": 500.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
@@ -96,7 +101,7 @@ STRUCTURES = {
         },
     "MCFIL": # Двухпроводная ЛП, первый проводник в обрыве на дальнем конце, второй на ближнем
         {
-            "W1": 10.e-6,
+            "W": 10.e-6,
             "W2": 15.e-6,
             "S": 15.e-6,
             "SUBSTRATE": "MSUB",
