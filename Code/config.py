@@ -9,7 +9,7 @@ SIMULATIONS = {
             "sigma": None,
             "seg_cond": 3.0,
             "seg_diel": 1.0,
-            "do_vector_fitting": True,
+            "do_vector_fitting": False,
         }
 }
 SUBSTRATES = {
@@ -43,7 +43,7 @@ SUBSTRATES = {
 }
 STRUCTURES = {
     "M1LIN_STRUCTS": ["MLIN", "MLSC", "MLEF"],
-    "MNLIN_STRUCTS": ["MCLIN", "MCFIL"],
+    "MNLIN_STRUCTS": ["MCLIN", "MCFIL", "MXCLIN"],
     "MLIN": # однопроводная лп
         {
             "W": 10e-6,
