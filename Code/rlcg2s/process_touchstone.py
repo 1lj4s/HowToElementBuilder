@@ -38,6 +38,6 @@ def make_one_end_line(s_params, freq: list, Z0: float, gamma: int):
     # Create a new 1-port Network object
     s_1port = s11_eff.reshape(-1, 1, 1)  # Shape: (n_freq, 1, 1)
     ntwk_1port = rf.Network(frequency=freq, s=s_1port, name="test_s1p")
-    ntwk_1port.write_touchstone("test_s1p", form="db")
-    return sparam_from_circuit.s
+    # ntwk_1port.write_touchstone("test_s1p", form="db")
+    return ntwk_1port.s
 

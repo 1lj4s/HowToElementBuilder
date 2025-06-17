@@ -181,14 +181,14 @@ STRUCTURES = {
             "W1": 50.e-6,
             "W2": 70.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Verilog",  # Verilog or Subcircuit
+            "MODELTYPE": "Subcircuit",  # Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
     "MOPEN": # Иммитация краевого эффекта на конце лп
         {
             "W": 10.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Verilog",  # Verilog or Subcircuit
+            "MODELTYPE": "Subcircuit",  # Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
     "MLANG": # Две n-проводные линии, которые надо правильно соединить

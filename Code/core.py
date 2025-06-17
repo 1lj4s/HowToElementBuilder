@@ -2,6 +2,7 @@ from talgat.talgatsession import TalgatSession
 from rlcg2s.rlcg2s import RLGC2SConverter
 from vectorfitting.vectorfitting import SParamProcessor
 from rlcg2s.process_touchstone import make_one_end_line
+from symica.symicasession import SymicaSession
 import numpy as np
 import tempfile
 import os
@@ -80,9 +81,12 @@ class Simulation_Handler():
                     case "MLSC":
                         s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
                                                      Z0=params["Z0"], gamma=-1)
+                        s_params = s_params = np.moveaxis(s_params, 0, 2)
                     case "MLEF":
                         s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
                                              Z0=params["Z0"], gamma=1)
+                        s_params = np.moveaxis(s_params, 0, 2)
+                print(f"New S-params shape for {self.struct_name}: {s_params.shape}")
             else:
                 for result in results_mtaper:
                     converter = RLGC2SConverter(params, [result])
@@ -121,8 +125,16 @@ class Simulation_Handler():
                 print("Vector fitting performed")
 
             converter.save_to_snp(s_params, filename=os.path.join(self.paths["SNP_DIR"], f"{self.struct_name}"))
-        else: #self.struct_params["MODELTYPE"] == "2D_Quasistatic"
-            raise NotImplementedError(f'Model type "{self.struct_params["MODELTYPE"]}" for "{self.struct_name}" not implemented yet')
+        SymSession = SymicaSession(self.paths, self.struct_name, self.struct_params, self.subst_params, self.sim_params)
+        if 's_params' in locals():
+            netlist_path = SymSession.generate_netlist(self.struct_name, num_ports=s_params.shape[1])
+        else:
+            netlist_path = SymSession.generate_netlist(self.struct_name, num_ports=2)
+        result = SymSession.run_simulation(netlist_path)
+        print("[SYMSPICE]", result.get("status", "unknown"))
+
+        if "error" in result:
+            print("[SYMSPICE]", result["error"])
 
         # Optionally perform vector fitting
 

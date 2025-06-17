@@ -10,9 +10,9 @@ def gen_path():
         "talgat_exe": r"C:\Program Files\TALGAT 2021\PythonClient.exe",
         "talgat_code": os.path.join(os.path.dirname(os.path.abspath(__file__)), "talgat"),
         "shared": None,
-        "NETLIST_DIR": os.path.join("../../Code/Files/symnet/"),
     }
     (paths.update({
+        "NETLIST_DIR": os.path.join(paths["main"], "Files", "symnet"),
         "SNP_DIR": os.path.join(paths["main"], "Files","snp"),
         "VERILOG_DIR": os.path.join(paths["main"], "Files", "ver"),
         "SUBCIRCUIT_DIR": os.path.join(paths["main"], "Files", "sub"),
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     #print("Select structure name")
     #Цикл для  ожидания ввода названия структуры
     #TODO реализовать возможность ввода нескольких структур
-    available_structs = ["MLIN", "MLSC", "MLEF", "MCLIN", "MCFIL"]
+    available_structs = ["MLIN", "MLSC", "MLEF", "MCLIN", "MCFIL", "MOPEN", "MSTEP"]
     print("Available structures:", ', '.join(available_structs))
     while True:
         selected_struct = input("Type structure name or exit: ")
