@@ -43,7 +43,7 @@ SUBSTRATES = {
 }
 STRUCTURES = {
     "M1LIN_STRUCTS": ["MLIN", "MLSC", "MLEF"],
-    "MNLIN_STRUCTS": ["MCLIN", "MCFIL"],
+    "MNLIN_STRUCTS": ["MCLIN", "MCFIL", "MXCLIN"],
     "MLIN": # однопроводная лп
         {
             "W": 10e-6,

@@ -1,7 +1,7 @@
 from talgat.talgatsession import TalgatSession
 from rlcg2s.rlcg2s import RLGC2SConverter
 from vectorfitting.vectorfitting import SParamProcessor
-from rlcg2s.process_touchstone import make_MLSC
+from rlcg2s.process_touchstone import make_one_end_line
 import numpy as np
 import tempfile
 import os
@@ -75,20 +75,16 @@ class Simulation_Handler():
             converter = RLGC2SConverter(params, [result])
             s_params, rlgc_struct = converter.convert()
             print(f"S-params shape for {self.struct_name}: {s_params.shape}")
-            if self.struct_name == "MLSC":
-                s_params = make_MLSC(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range, Z0=params["Z0"])
+            match self.struct_name:
+                case "MLSC":
+                    s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
+                                                 Z0=params["Z0"], gamma=-1)
+                case "MLEF":
+                    s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
+                                         Z0=params["Z0"], gamma=1)
+
 
             #converter.save_to_snp(s_params)
-
-
-
-            # Create SParamProcessor
-            processor = SParamProcessor(
-                s_params=s_params,
-                freqs=self.sim_params['freq_range'],
-                z0=params['Z0'],
-                name=f"{self.struct_name}"
-            )
         else:
             raise NotImplementedError(f'Model type "{self.struct_params["MODELTYPE"]}" for "{self.struct_name}" not implemented yet')
 
@@ -108,6 +104,13 @@ class Simulation_Handler():
                 'nu_samples': 1.0,
                 'parameter_type': 's'
             })
+            # Create SParamProcessor
+            processor = SParamProcessor(
+                s_params=s_params,
+                freqs=self.sim_params['freq_range'],
+                z0=params['Z0'],
+                name=f"{self.struct_name}"
+            )
             processor.perform_vector_fitting(**params['vf_params'])
 
             subcircuit = processor.generate_subcircuit(
