@@ -72,52 +72,60 @@ class Simulation_Handler():
                 params.update({"Z0":50})
 
             # Convert RLGC to S-parameters
-            converter = RLGC2SConverter(params, [result])
-            s_params, rlgc_struct = converter.convert()
-            print(f"S-params shape for {self.struct_name}: {s_params.shape}")
-            match self.struct_name:
-                case "MLSC":
-                    s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
-                                                 Z0=params["Z0"], gamma=-1)
-                case "MLEF":
-                    s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
-                                         Z0=params["Z0"], gamma=1)
+            if self.struct_name != "MTAPER":
+                converter = RLGC2SConverter(params, [result])
+                s_params, rlgc_struct = converter.convert()
+                print(f"S-params shape for {self.struct_name}: {s_params.shape}")
+                match self.struct_name:
+                    case "MLSC":
+                        s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
+                                                     Z0=params["Z0"], gamma=-1)
+                    case "MLEF":
+                        s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
+                                             Z0=params["Z0"], gamma=1)
+            else:
+                for result in results_mtaper:
+                    converter = RLGC2SConverter(params, [result])
+                    s_params, rlgc_struct = converter.convert()
+                    print(f"S-params shape for {self.struct_name}: {s_params.shape}")
+                    #TODO Добавить послед соединение s параметров
 
+            if self.sim_params['do_vector_fitting']:
+                params.setdefault('vf_params', {
+                    'n_poles_init_real': 3,
+                    'n_poles_init_cmplx': 6,
+                    'n_poles_add': 5,
+                    'model_order_max': 100,
+                    'iters_start': 3,
+                    'iters_inter': 3,
+                    'iters_final': 5,
+                    'target_error': 0.01,
+                    'alpha': 0.03,
+                    'gamma': 0.03,
+                    'nu_samples': 1.0,
+                    'parameter_type': 's'
+                })
+                # Create SParamProcessor
+                processor = SParamProcessor(
+                    s_params=s_params,
+                    freqs=self.sim_params['freq_range'],
+                    z0=params['Z0'],
+                    name=f"{self.struct_name}"
+                )
+                processor.perform_vector_fitting(**params['vf_params'])
 
-            #converter.save_to_snp(s_params)
-        else:
+                subcircuit = processor.generate_subcircuit(
+                    fitted_model_name=f"{self.struct_name}_equiv_no_ref",
+                    create_reference_pins=False
+                )
+                print("Vector fitting performed")
+
+            converter.save_to_snp(s_params, filename=os.path.join(self.paths["SNP_DIR"], f"{self.struct_name}"))
+        else: #self.struct_params["MODELTYPE"] == "2D_Quasistatic"
             raise NotImplementedError(f'Model type "{self.struct_params["MODELTYPE"]}" for "{self.struct_name}" not implemented yet')
 
         # Optionally perform vector fitting
-        if self.sim_params['do_vector_fitting']:
-            params.setdefault('vf_params', {
-                'n_poles_init_real': 3,
-                'n_poles_init_cmplx': 6,
-                'n_poles_add': 5,
-                'model_order_max': 100,
-                'iters_start': 3,
-                'iters_inter': 3,
-                'iters_final': 5,
-                'target_error': 0.01,
-                'alpha': 0.03,
-                'gamma': 0.03,
-                'nu_samples': 1.0,
-                'parameter_type': 's'
-            })
-            # Create SParamProcessor
-            processor = SParamProcessor(
-                s_params=s_params,
-                freqs=self.sim_params['freq_range'],
-                z0=params['Z0'],
-                name=f"{self.struct_name}"
-            )
-            processor.perform_vector_fitting(**params['vf_params'])
 
-            subcircuit = processor.generate_subcircuit(
-                fitted_model_name=f"{self.struct_name}_equiv_no_ref",
-                create_reference_pins=False
-            )
-            print("Vector fitting performed")
 
 
 

@@ -38,6 +38,7 @@ def generate_netlist(struct_name: str, out_name: str):
     elif model_type == "Verilog":
         verilog_path = VERILOG_DIR / f"{struct_name}.va"
         netlist_lines.append(f'ahdl_include "{verilog_path.resolve()}"')
+        element_ports = [f"p{i + 1}" for i in range(n_ports)]
 
         # params = " ".join([f"{k} = {v}" for k, v in structure.items() if k not in {"MODELTYPE", "SUBSTRATE", "SIMULATION"}])
         substrate_name = structure["SUBSTRATE"]
@@ -46,10 +47,10 @@ def generate_netlist(struct_name: str, out_name: str):
         all_params = {**substrate_params, **structure_params}
         params = " ".join([f"{k} = {v}" for k, v in all_params.items()])
 
-        netlist_lines.append(f'I0 {VERILOG_PORTS[1]} {VERILOG_PORTS[0]} {struct_name} {params}')
+        netlist_lines.append(f'I0 {" ".join(element_ports)} {struct_name} {params}')
 
-        for idx, port in enumerate(VERILOG_PORTS):
-            netlist_lines.append(f'PORT{idx} {port} 0 port r=50 num={idx+1} type=sine rptstart=1 rpttimes=0')
+        for idx, port in enumerate(element_ports):
+            netlist_lines.append(f'PORT{idx+1} {port} 0 port r=50 num={idx+1} type=sine rptstart=1 rpttimes=0')
 
     elif model_type == "Subcircuit":
         sub_path = SUBCIRCUIT_DIR / f"{struct_name}.cir"

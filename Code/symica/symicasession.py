@@ -72,8 +72,8 @@ if __name__ == "__main__":
     SUBCIRCUIT_DIR = Path("../../Code/Files/sub/")
     OUTPUT_DIR = Path("../../Files/symout/")
     VERILOG_PORTS = ["n7_1", "n7_2"]
-    DEFAULT_PORTS = ["1", "2"]
-    netlist_path = generate_netlist("MSTEP", "MSTEP")
+    DEFAULT_PORTS = ["n7_1", "n7_2"]
+    netlist_path = generate_netlist("MOPEN", "MOPEN")
 
     # netlist_path = r"D:\saves\Pycharm\HowToElementBuilder\Code\Files\symnet/MSTEP.scs"
 
