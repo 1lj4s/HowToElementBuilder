@@ -134,6 +134,7 @@ STRUCTURES = {
         {
             "W1": 70.e-6,
             "W2": 70.e-6,
+            "NumPorts": 2,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",

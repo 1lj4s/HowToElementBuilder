@@ -23,7 +23,7 @@ if __name__ == "__main__":
     #print("Select structure name")
     #Цикл для  ожидания ввода названия структуры
     #TODO реализовать возможность ввода нескольких структур
-    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND90X", "MCURVE", "MTEE", "MCROSS", "MXOVER", "MGAPX", "MSTEP", "MOPEN", "MLANG"]
+    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MTEE", "MCROSS", "MXOVER", "MGAPX", "MSTEP", "MOPEN", "MLANG"]
     print("Available structures:", ', '.join(available_structs))
     while True:
         selected_struct = input("Type structure name or exit: ")
