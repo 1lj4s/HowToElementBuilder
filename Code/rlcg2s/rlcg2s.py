@@ -7,7 +7,7 @@ from scipy.interpolate import interp1d
 class RLGC2SConverter:
     """Class to convert RLGC parameters to S-parameters based on input params and results."""
 
-    def __init__(self, params, results):
+    def __init__(self, params, results, mtaper = False):
         """
         Initialize with params and results dictionaries.
 
@@ -21,7 +21,11 @@ class RLGC2SConverter:
         self.f0 = np.asarray(params['f0'])
         self.length = params['length']
         self.z0 = params['Z0']
-        self.num_lines = len(results[0]['result']['mL'])
+        self.mtaper = mtaper
+        if mtaper:
+            self.num_lines = len(results['mL'])
+        else:
+            self.num_lines = len(results[0]['result']['mL'])
         self.loss = params.get('loss')
 
     def _interpolate_matrices(self, matrix, freq_orig, freq_new):
@@ -53,7 +57,10 @@ class RLGC2SConverter:
         Returns:
             tuple: Interpolated or copied matrices (mR, mL, mG, mC).
         """
-        result = self.results[0]['result']
+        if self.mtaper:
+            result = self.results
+        else:
+            result = self.results[0]['result']
         mL = np.array(result['mL'])[:, :, np.newaxis]
         mC = np.array(result['mC'])[:, :, np.newaxis]
         mR = np.array(result['mR'])

@@ -80,12 +80,12 @@ STRUCTURES = {
         {
             "W1": 10.e-6,
             "W2": 50.e-6,
-            "L": 100.e-6,
+            "length": 100.e-6,
             "Taper": "Linear",  # Linear or Exponential sweep of W
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-            "N": 5, #кол-во точек до интерполяции
+            "N": 2, #кол-во точек до интерполяции
             "N2": 100 #кол-во точек после интерполяции
         },
     "MRSTUB2W": # Множество однопроводных лп шириной от W до
