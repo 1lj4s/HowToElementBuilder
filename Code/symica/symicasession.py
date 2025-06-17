@@ -23,7 +23,7 @@ class SymicaSession:
 
         netlist_lines = [
             "simulator lang=local",
-            "global 0\n"
+            "global 0"
         ]
         ports = [str(x) for x in range(1,num_ports+1)]
         zeros = ['0'] * num_ports
@@ -77,14 +77,14 @@ class SymicaSession:
         f_step = (f_stop - f_start) / points
         analysis_path = os.path.join(self.paths["OUTPUT_DIR"], f"{out_name}.s{num_ports}p")
         netlist_lines.append(
-            f'\nSPSweep sp start={f_start:.0f} stop={f_stop:.0f} step={f_step} file="{analysis_path}"')
+            f'SPSweep sp start={f_start:.0f} stop={f_stop:.0f} step={f_step} file="{analysis_path}"')
 
         # Завершающие опции
         netlist_lines.append(
-            "\nDEFAULT_OPTIONS options tnom=27 temp=27  acout=0 fast_spice=0 reltol=1.000000e-003 rawfmt=nutascii")
+            "DEFAULT_OPTIONS options tnom=27 temp=27  acout=0 fast_spice=0 reltol=1.000000e-003 rawfmt=nutascii")
 
         for line in netlist_lines:
-            print(line)
+            print(f"[symnetlist] {line}")
         # Сохраняем файл
         if not os.path.exists(self.paths["NETLIST_DIR"]):
             os.mkdir(self.paths["NETLIST_DIR"])

@@ -1,0 +1,8 @@
+simulator lang=local
+global 0
+ahdl_include "E:\Saves\pycharm\HowToElementBuilder\Code\Files\ver\MOPENX.va"
+I0 p1 p2 MOPENX T = 2e-06 H = 0.0001 ER0 = 1.0 MU0 = 1.0 TD0 = 0.0 ER1 = 12.9 MU1 = 1.0001 TD1 = 0.003 W = 7e-05
+PORT1 p1 0 port r=50 num=1 type=sine rptstart=1 rpttimes=0
+PORT2 p2 0 port r=50 num=2 type=sine rptstart=1 rpttimes=0
+SPSweep sp start=100000000 stop=67000000000 step=669000000.0 file="E:\Saves\pycharm\HowToElementBuilder\Code\Files\symout\MOPENX.s2p"
+DEFAULT_OPTIONS options tnom=27 temp=27  acout=0 fast_spice=0 reltol=1.000000e-003 rawfmt=nutascii

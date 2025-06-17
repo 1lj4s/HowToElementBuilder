@@ -4,6 +4,8 @@ from vectorfitting.vectorfitting import SParamProcessor
 from rlcg2s.process_touchstone import make_one_end_line
 from symica.symicasession import SymicaSession
 from rlcg2s.matinterp import matrix_interp
+from rlcg2s.paramrecalc import mrstubparamrecalc, mcurveparamrecalc
+from connectors.connector import connect_sparams
 import numpy as np
 import tempfile
 import os
@@ -19,6 +21,16 @@ class Simulation_Handler():
         self.struct_params = struct
         self.subst_params = subst
         self.sim_params = simul
+
+        # Пересчет входных параметров для MRSTUB2W и MCURVE. Пока это будет тут)
+        if self.struct_name == "MRSTUB2W":
+            W1, W2, length = mrstubparamrecalc(self.struct_params)
+            self.struct_params.update({"W1": W1, "W2": W2, "length": length})
+            print("W1, W2, length", W1, W2, length)
+        elif self.struct_name == "MCURVE":
+            length = mcurveparamrecalc(self.struct_params)
+            self.struct_params.update({"length": length})
+
         print("Simulation_Hundler started successfully")
 
     def run_simulation(self):
@@ -36,35 +48,22 @@ class Simulation_Handler():
             params.update(self.subst_params)
             params.update(self.sim_params)
 
-            if self.struct_name == "MRSTUB2W": #TODO допилить MRSTUB2W
-                script_code = open(os.path.join(self.paths["talgat_code"], "M1LIN.py"), encoding="utf-8").read()
-                start_talgat = time.time()
-                results_mtaper = []
-                for i, w in enumerate(range(self.struct_params["W"]/self.struct_params["N"], self.struct_params["W"])):
-                    params.update({"W": w, "L": (self.struct_params["L"]/self.struct_params["N"])*i})
-                    results_mtaper[i] = session.run_script(params, script_code)
-                print(f"Completed TALGAT simulation in {time.time() - start_talgat:.2f} sec")
-                print("Performing interpolation")
-            elif self.struct_name == "MTAPER":
+            if self.struct_name in ("MTAPER", "MRSTUB2W"):
                 script_code = open(os.path.join(self.paths["talgat_code"], "M1LIN.py"), encoding="utf-8").read()
                 start_talgat = time.time()
                 results_mtaper = []
                 if self.struct_params["Taper"] == "Linear":
                     W_values = [self.struct_params["W1"] + i * (self.struct_params["W2"] - self.struct_params["W1"]) / (self.struct_params["N"] - 1) for i in range(self.struct_params["N"])]
-                else:  # Exp
+                elif self.struct_params["Taper"] == "Exponential":
                     W_values = [self.struct_params["W1"] * (self.struct_params["W2"] / self.struct_params["W1"]) ** (i / (self.struct_params["N"] - 1)) for i in range(self.struct_params["N"])]
                 for i, W in enumerate(W_values):
                     params.update({
                         "W": W,
-                        "length": self.struct_params["length"] / self.struct_params["N"]
+                        "length": self.struct_params["length"] / self.struct_params["N2"]
                     })
-                    temp = session.run_script(params, script_code)
                     results_mtaper.append(session.run_script(params, script_code)["result"])
                 result = matrix_interp(results_mtaper, self.struct_params["N2"])
-                print("new_dicks = ", result)
-                    # добавить интерполяцию rlcg матриц
-                    # выполнить rlcg2s для всех наборов матриц
-                    # добавить склеивание s-параметров
+                print("result=", result)
                 print(f"Completed TALGAT simulation for {self.struct_name} in {time.time() - start_talgat:.2f} sec")
                 print("Performing interpolation")
             else:
@@ -79,6 +78,7 @@ class Simulation_Handler():
                                encoding="utf-8").read()
                 start_talgat = time.time()
                 result = session.run_script(params, script_code)
+                print("MLIN_result", result)
                 print(f"Completed TALGAT simulation for {self.struct_name} in {time.time() - start_talgat:.2f} sec")
 
 
@@ -87,7 +87,7 @@ class Simulation_Handler():
                 params.update({"Z0":50})
 
             # Convert RLGC to S-parameters
-            if self.struct_name != "MTAPER":
+            if self.struct_name not in ("MTAPER", "MRSTUB2W"):
                 converter = RLGC2SConverter(params, [result])
                 s_params, rlgc_struct = converter.convert()
                 print(f"S-params shape for {self.struct_name}: {s_params.shape}")
@@ -102,11 +102,20 @@ class Simulation_Handler():
                         s_params = np.moveaxis(s_params, 0, 2)
                 print(f"New S-params shape for {self.struct_name}: {s_params.shape}")
             else:
-
-                converter = RLGC2SConverter(params, result[0], mtaper = True)
-                s_params, rlgc_struct = converter.convert()
-                print(f"S-params shape for {self.struct_name}: {s_params.shape}")
-                #TODO Добавить послед соединение s параметров
+                s_params_list = []
+                for res in result:
+                    converter = RLGC2SConverter(params, [{'result': res}])
+                    s_params, rlgc_struct = converter.convert()
+                    s_params_list.append(s_params)
+                print(f"S-params list length for {self.struct_name}: {len(s_params_list)}")
+                print(f"Shape of first S-params in list: {s_params_list[0].shape}")
+                if self.struct_name in ("MTAPER", "MRSTUB2W"):
+                    freqs = self.sim_params['freq_range']
+                    s_params = connect_sparams(s_params_list, freqs)
+                    if self.struct_name == "MRSTUB2W":
+                        s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
+                                                     Z0=params["Z0"], gamma=1)
+                        s_params = np.moveaxis(s_params, 0, 2)
 
             if self.sim_params['do_vector_fitting']:
                 params.setdefault('vf_params', {
@@ -143,7 +152,7 @@ class Simulation_Handler():
         if 's_params' in locals():
             netlist_path = SymSession.generate_netlist(self.struct_name, num_ports=s_params.shape[1])
         else:
-            netlist_path = SymSession.generate_netlist(self.struct_name, num_ports=2)
+            netlist_path = SymSession.generate_netlist(self.struct_name, num_ports=self.struct_params['NumPorts'])
         result = SymSession.run_simulation(netlist_path)
         print("[SYMSPICE]", result.get("status", "unknown"))
 

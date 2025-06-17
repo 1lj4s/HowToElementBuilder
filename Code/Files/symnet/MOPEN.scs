@@ -1,11 +1,7 @@
 simulator lang=local
 global 0
-
-ahdl_include "D:\saves\Pycharm\HowToElementBuilder\Code\Files\ver\MOPEN.va"
-I0 n7_2 n7_1 MOPEN T = 2e-06 H = 0.0001 ER0 = 1.0 MU0 = 1.0 TD0 = 0.0 ER1 = 12.9 MU1 = 1.0001 TD1 = 0.003 W = 1e-05
-PORT0 n7_1 0 port r=50 num=1 type=sine rptstart=1 rpttimes=0
-PORT1 n7_2 0 port r=50 num=2 type=sine rptstart=1 rpttimes=0
-
-SPSweep sp start=100000000 stop=67000000000 step=669000000.0 file="D:\saves\Pycharm\HowToElementBuilder\Code\Files\symout\MOPEN.s2p"
-
+ahdl_include "E:\Saves\pycharm\HowToElementBuilder\Code\Files\ver\MOPEN.va"
+I0 p1 MOPEN T = 2e-06 H = 0.0001 ER0 = 1.0 MU0 = 1.0 TD0 = 0.0 ER1 = 12.9 MU1 = 1.0001 TD1 = 0.003 W = 7e-05 NumPorts = 1
+PORT1 p1 0 port r=50 num=1 type=sine rptstart=1 rpttimes=0
+SPSweep sp start=100000000 stop=67000000000 step=669000000.0 file="E:\Saves\pycharm\HowToElementBuilder\Code\Files\symout\MOPEN.s1p"
 DEFAULT_OPTIONS options tnom=27 temp=27  acout=0 fast_spice=0 reltol=1.000000e-003 rawfmt=nutascii

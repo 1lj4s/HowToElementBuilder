@@ -1,0 +1,27 @@
+
+TYPEMODEL	"MSTEP"	"0x00000000"	nonbinned nonleveled
+SIMULATOR	"LOCAL"
+SIMTYPEMODEL	"MSTEP"
+TEMPLATEIND	"{@ename} {@node name=p1} {@node name=p2} @grpparref {@indparname_eq_indparvalue}"
+TEMPLATEGRP	"@NONE"
+
+INDIVIDUAL
+	"m"	p	""	""	""
+	"W1"	p	""	""	""
+	"W2"	p	""	""	""
+	"H"	p	""	""	""
+	"ER1"	p	""	""	""
+	"c_mps"	p	""	""	""
+	"pi"	p	""	""	""
+	"Paramref"	p	""	"Parameter set reference"	" "
+GROUP
+	"W1"	p	""	""	""
+	"W2"	p	""	""	""
+	"H"	p	""	""	""
+	"ER1"	p	""	""	""
+	"c_mps"	p	""	""	""
+	"pi"	p	""	""	""
+
+END
+
+END

@@ -1,9 +1,9 @@
 `include "constants.h"
 `include "discipline.h"
 
-module MOPEN(p, n);
-    inout p, n;
-    electrical p, n;
+module MOPEN(p);
+    inout p;
+    electrical p;
     
     parameter real W = 1000.0;
     parameter real H = 300.0;
@@ -28,6 +28,6 @@ module MOPEN(p, n);
 
         COC = (DL_ex * 1e-6 * sqrt(E_eff))/(3e8 * Z0);
 
-        I(p, n) <+ ddt(COC * V(p, n));
+        I(p) <+ ddt(COC * V(p));
     end
 endmodule
