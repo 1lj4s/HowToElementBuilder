@@ -9,7 +9,7 @@ SIMULATIONS = {
             "sigma": None,
             "seg_cond": 3.0,
             "seg_diel": 1.0,
-            "do_vector_fitting": True,
+            "do_vector_fitting": False,
         }
 }
 SUBSTRATES = {
@@ -173,13 +173,13 @@ STRUCTURES = {
             "W": 10.e-6,
             "S": 10.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
+            "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
-    "MSTEP": # Ступенчато-импедансный переход
+    "MSTEP": # Ступенчато-импедансный переход. sub не работает C<0,
         {
-            "W1": 10.e-6,
-            "W2": 15.e-6,
+            "W1": 50.e-6,
+            "W2": 70.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # Verilog or Subcircuit
             "SIMULATION": "SPARAM",

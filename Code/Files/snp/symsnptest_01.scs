@@ -1,0 +1,10 @@
+simulator lang=local
+global 0
+
+NPORT0 1 0 2 0 nport file="D:\saves\Pycharm\HowToElementBuilder\Code\symica\MLIN_test.s2p"
+PORT0 1 0 port r=50 num=1 type=sine rptstart=1 rpttimes=0
+PORT1 2 0 port r=50 num=2 type=sine rptstart=1 rpttimes=0
+
+sp sp start=100000000 stop=67000000000 dec=100 file="D:\saves\Pycharm\HowToElementBuilder\Code\symica\MLIN_test_02.s2p"
+
+DEFAULT_OPTIONS options tnom=27 temp=27  acout=0 fast_spice=0 reltol=1.000000e-003 rawfmt=nutascii

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 rf.stylely()
 # reference LC circuit made in Designer
-LC_designer = rf.Network(os.path.join("Files", "snp", "MLIN_test.s2p"), name = "snp")
+LC_designer = rf.Network(os.path.join("Files", "snp", "MLIN_test.s2p"), name ="snp")
 # scikit-rf: manually connecting networks
 line = rf.media.DefinedGammaZ0(frequency=LC_designer.frequency, z0=50)
 LC_manual = line.inductor(24e-9) ** line.capacitor(70e-12)

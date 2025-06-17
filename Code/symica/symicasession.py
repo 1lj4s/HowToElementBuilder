@@ -1,8 +1,8 @@
-# symicasession.py
-
 import subprocess
 import os
 from typing import Optional
+from Code.symica.symicanetlist_01 import generate_netlist
+from pathlib import Path
 
 class SymicaSession:
     def __init__(self, symspice_path: str = r"C:\Program Files\Symica\bin\symspice.exe"):
@@ -65,12 +65,23 @@ class SymicaSession:
 
 # Пример использования
 if __name__ == "__main__":
-    session = SymicaSession()
-    cir_file = r"E:\Saves\pycharm\HowToElementBuilder\Code\symica\symsnptest.scs"
-    result = session.run_simulation(cir_file)
+    # создаем нетлист и возвращаем путь к нему
+    NETLIST_DIR = Path("../../Code/Files/symnet/")
+    SNP_DIR = Path("../../Code/Files/snp/")
+    VERILOG_DIR = Path("../../Code/Files/ver/")
+    SUBCIRCUIT_DIR = Path("../../Code/Files/sub/")
+    OUTPUT_DIR = Path("../../Files/symout/")
+    VERILOG_PORTS = ["n7_1", "n7_2"]
+    DEFAULT_PORTS = ["1", "2"]
+    netlist_path = generate_netlist("MSTEP", "MSTEP")
 
-    print("\n======= STATUS =======")
-    print(result.get("status", "unknown"))
+    # netlist_path = r"D:\saves\Pycharm\HowToElementBuilder\Code\Files\symnet/MSTEP.scs"
+
+    # Работаем с symica
+    session = SymicaSession()
+    result = session.run_simulation(netlist_path)
+
+    print("[SYMSPICE]", result.get("status", "unknown"))
 
     if "error" in result:
-        print("\n❌", result["error"])
+        print("[SYMSPICE]",  result["error"])
