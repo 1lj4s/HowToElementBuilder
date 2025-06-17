@@ -52,6 +52,14 @@ STRUCTURES = {
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
+    "MTRACE2":  # однопроводная лп, с автотрассировкой (M1LIN_STRUCTS)
+        {
+            "W": 10e-6,
+            "length": 0.1,
+            "SUBSTRATE": "MSUB",
+            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
+            "SIMULATION": "SPARAM",
+        },
     "MLSC": # однопроводная лп, земля на дальнем конце
         {
             "W": 10.e-6,
@@ -104,6 +112,15 @@ STRUCTURES = {
             "W": 10.e-6,
             "W2": 15.e-6,
             "S": 15.e-6,
+            "SUBSTRATE": "MSUB",
+            "MODELTYPE": "2D_Quasistatic",
+            "SIMULATION": "SPARAM",
+        },
+    "MXCLIN":  # X-проводная ЛП (MNLIN_STRUCTS)
+        {
+            "W": [50e-6, 60e-6, 70e-6, 80e-6],
+            "S": [50e-6, 60e-6, 70e-6],
+            "N": 5, # Число проводников (в будущем: дает ввести столько W и S сколько надо)
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",
             "SIMULATION": "SPARAM",
