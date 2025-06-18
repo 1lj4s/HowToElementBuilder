@@ -24,7 +24,7 @@ if __name__ == "__main__":
     #print("Select structure name")
     #Цикл для  ожидания ввода названия структуры
     #TODO реализовать возможность ввода нескольких структур
-    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MTEE", "MXOVER", "MGAPX", "MSTEP", "MOPEN", "MLANG"]
+    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MXOVER", "MSTEP", "MOPEN", "MLANG"]
     print("[MAIN] Available structures:", ', '.join(available_structs))
     while True:
         selected_struct = input("[MAIN] Type structure name or exit: ").upper()
@@ -60,23 +60,23 @@ if __name__ == "__main__":
     handler = core.Simulation_Handler(paths, selected_struct, STRUCTURES[selected_struct], subst, sim_param)
     handler.m1lin = STRUCTURES["M1LIN_STRUCTS"]
     handler.mnlin = STRUCTURES["MNLIN_STRUCTS"]
-    handler.run_simulation()
+    num_ports = handler.run_simulation()
     if selected_struct in ["MLIN", "MTRACE2", "MLSC", "MLEF", "MGAPX"]:
         x = int(STRUCTURES[selected_struct]["W"] * 1e6)
         y = int(STRUCTURES[selected_struct]["length"] * 1e6)
         z = None
-    # elif selected_struct == "MTAPER":
-    #     x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
-    #     y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
-    #     z = int(STRUCTURES[selected_struct]["length"] * 1e6)
+    elif selected_struct == "MTAPER":
+        x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
+        y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
+        z = int(STRUCTURES[selected_struct]["length"] * 1e6)
     elif selected_struct == "MRSTUB2W":
         x = int(STRUCTURES[selected_struct]["W"] * 1e6)
         y = int(STRUCTURES[selected_struct]["Ro"] * 1e6)
         z = int(STRUCTURES[selected_struct]["Theta"])
     elif selected_struct in ["MCLIN", "MCFIL", "MXCLIN"]:
-        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+        x = int(STRUCTURES[selected_struct]["W"][0] * 1e6)
         y = int(STRUCTURES[selected_struct]["length"] * 1e6)
-        z = int(STRUCTURES[selected_struct]["S"] * 1e6)
+        z = int(STRUCTURES[selected_struct]["S"][0] * 1e6)
     elif selected_struct == "MCURVE":
         x = int(STRUCTURES[selected_struct]["W"] * 1e6)
         y = int(STRUCTURES[selected_struct]["R"] * 1e6)
@@ -85,15 +85,25 @@ if __name__ == "__main__":
         x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
         y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
         z = int(STRUCTURES[selected_struct]["W3"] * 1e6)
-    elif selected_struct in ["MXOVER", "MSTEP", "MOPEN"]:
+    elif selected_struct in ["MSTEP", "MXOVER"]:
+        x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
+        y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
+        z = None
+    elif selected_struct == "MOPEN":
         x = int(STRUCTURES[selected_struct]["W"] * 1e6)
         y = None
         z = None
     else:
         do_db = False
 
+    if num_ports == None:
+        try:
+            num_ports = int(STRUCTURES[selected_struct]["NumPorts"])
+        except Exception as e:
+            do_db = False
+    print(num_ports)
     if do_db:
-        networks = db.get_sparams_data(path=paths["OUTPUT_DIR"], name=selected_struct, x=x, y=y, z=z,
+        networks = db.get_sparams_data(path=paths["OUTPUT_DIR"], name=selected_struct, x=x, y=y, z=z, num_ports=num_ports,
                                        table_name=selected_struct.lower(), return_network=True)
         if len(networks) == 2:
             plot_db.plot_networks(networks[0], networks[1])

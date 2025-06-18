@@ -16,7 +16,7 @@ DB_NAME = os.getenv("DB_NAME", "postgres")
 DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}"
 engine = create_engine(DB_URL)
 
-def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int = None, table_name: str = None, return_network: bool = False) -> List[Union[str, rf.Network]]:
+def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int = None,num_ports: int = 2, table_name: str = None, return_network: bool = False) -> List[Union[str, rf.Network]]:
     """
     Retrieves .snp files or skrf.Network objects: one from filesystem (NAME.snp) and one from database (NAME_X_Y.snp).
 
@@ -59,11 +59,11 @@ def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int =
 
     # 2. Retrieve NAME_X_Y.snp from database
     if y == None and z == None:
-        db_filename = f"{name}_{x}.s2p"
+        db_filename = f"{name}_{x}.s{num_ports}p"
     elif y != None and z == None:
-        db_filename = f"{name}_{x}_{y}.s2p"
+        db_filename = f"{name}_{x}_{y}.s{num_ports}p"
     else:
-        db_filename = f"{name}_{x}_{y}_{z}.s2p"
+        db_filename = f"{name}_{x}_{y}_{z}.s{num_ports}p"
     try:
         with engine.connect() as conn:
             query = text(f"""

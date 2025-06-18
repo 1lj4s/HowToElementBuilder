@@ -54,7 +54,7 @@ STRUCTURES = {
         },
     "MTRACE2":  # однопроводная лп, с автотрассировкой (M1LIN_STRUCTS)
         {
-            "W": 70e-6,
+            "W": 100e-6,
             "length": 500.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
@@ -62,7 +62,7 @@ STRUCTURES = {
         },
     "MLSC": # однопроводная лп, земля на дальнем конце
         {
-            "W": 70.e-6,
+            "W": 100.e-6,
             "length": 500.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
@@ -70,7 +70,7 @@ STRUCTURES = {
         },
     "MLEF": # однопроводная лп, обрыв на дальнем конце
         {
-            "W": 70.e-6,
+            "W": 100.e-6,
             "length": 500.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",
@@ -78,14 +78,14 @@ STRUCTURES = {
         },
     "MTAPER": # N однопроводных лп шириной от W1 до W2, каждая длиной L/N
         {
-            "W1": 70.e-6,
-            "W2": 170.e-6,
+            "W1": 100.e-6,
+            "W2": 200.e-6,
             "length": 500.e-6,
             "Taper": "Linear",  # Linear or Exponential sweep of W
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
-            "N": 5, #кол-во точек до интерполяции
+            "N": 3, #кол-во точек до интерполяции
             "N2": 100 #кол-во точек после интерполяции
         },
     "MRSTUB2W": # Множество однопроводных лп шириной от W до
@@ -102,9 +102,9 @@ STRUCTURES = {
         },
     "MCLIN": # Двухпроводная ЛП
         {
-            "W": [70e-6, 80e-6],
+            "W": [100e-6, 100e-6],
             "W2": 70e-6,
-            "S": [30e-6],
+            "S": [100e-6],
             "length": 500.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
@@ -112,10 +112,10 @@ STRUCTURES = {
         },
     "MCFIL": # Двухпроводная ЛП, первый проводник в обрыве на дальнем конце, второй на ближнем
         {
-            "W": [70e-6, 80e-6],
+            "W": [100e-6, 100e-6],
             "W2": 70.e-6,
-            "S": [30e-6],
-            "length": 500.e-6,
+            "S": [100e-6],
+            "length": 250.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",
             "SIMULATION": "SPARAM",
@@ -141,9 +141,9 @@ STRUCTURES = {
         },
     "MCURVE":
         {
-            "W": 70.e-6,
+            "W": 10.e-6,
             "Angle": 90,
-            "R": 150.e-6,
+            "R": 100.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  #2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
@@ -169,10 +169,10 @@ STRUCTURES = {
         },
     "MXOVER": # Пересечение линий передачи на разных слоях
         {
-            "W": 70.e-6,
-            "W1": 70.e-6,
-            "W2": 70.e-6,
-            "length": 70.e-6,
+            "W": 100.e-6,
+            "W1": 100.e-6,
+            "W2": 100.e-6,
+            "length": 100.e-6,
             "SUBSTRATE": "M2SUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
@@ -188,7 +188,7 @@ STRUCTURES = {
     "MSTEP": # Ступенчато-импедансный переход. sub не работает C<0,
         {
             "W1": 50.e-6,
-            "W2": 70.e-6,
+            "W2": 100.e-6,
             "NumPorts": 2,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # Verilog or Subcircuit
@@ -196,7 +196,7 @@ STRUCTURES = {
         },
     "MOPEN": # Иммитация краевого эффекта на конце лп
         {
-            "W": 70.e-6,
+            "W": 100.e-6,
             "NumPorts": 1,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Subcircuit",  # Verilog or Subcircuit
