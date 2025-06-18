@@ -63,7 +63,7 @@ class Simulation_Handler():
                     results_mtaper.append(session.run_script(params, script_code)["result"])
                 result = matrix_interp(results_mtaper, self.struct_params["N2"])
                 print(f"[CORE] Completed MoM2D simulation for {self.struct_name} in {time.time() - start_MoM2D:.2f} sec")
-                print("[CORE] Interpolation performed for {self.struct_name}")
+                print(f"[CORE] Interpolation performed for {self.struct_name}")
             else:
                 if self.struct_name in self.m1lin:
                     script_code = open(os.path.join(self.paths["MoM2D_code"], "M1LIN.py"),

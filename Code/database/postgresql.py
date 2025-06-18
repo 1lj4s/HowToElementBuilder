@@ -16,7 +16,7 @@ DB_NAME = os.getenv("DB_NAME", "postgres")
 DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}"
 engine = create_engine(DB_URL)
 
-def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, table_name: str, return_network: bool = False) -> List[Union[str, rf.Network]]:
+def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int = None, table_name: str = None, return_network: bool = False) -> List[Union[str, rf.Network]]:
     """
     Retrieves .snp files or skrf.Network objects: one from filesystem (NAME.snp) and one from database (NAME_X_Y.snp).
 
@@ -30,8 +30,10 @@ def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, table_na
 
     Returns:
         List of file paths (str) or skrf.Network objects for matching files.
+        :param z:
     """
     result = []
+    name = name.upper()
 
     # 1. Retrieve NAME.snp from filesystem
     path = Path(path)
@@ -56,7 +58,12 @@ def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, table_na
                     result.append(str(p))
 
     # 2. Retrieve NAME_X_Y.snp from database
-    db_filename = f"{name}_{x}_{y}.s2p"
+    if y == None and z == None:
+        db_filename = f"{name}_{x}.s2p"
+    elif y != None and z == None:
+        db_filename = f"{name}_{x}_{y}.s2p"
+    else:
+        db_filename = f"{name}_{x}_{y}_{z}.s2p"
     try:
         with engine.connect() as conn:
             query = text(f"""
@@ -99,14 +106,8 @@ def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, table_na
 if __name__ == "__main__":
 
     # Get skrf.Network objects
-    networks = get_sparams_data(
-        path=r"D:\HowToElementBuilder\Code\Files\symout",
-        name="MLIN",
-        x=100,
-        y=500,
-        table_name="mlin",
-        return_network=True
-    )
+    networks = get_sparams_data(path=r"D:\HowToElementBuilder\Code\Files\symout", name="MLIN", x=100, y=500,
+                                table_name="mlin", return_network=True)
 
 
     #ntw_model, ntw_true = networks

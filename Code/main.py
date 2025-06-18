@@ -24,10 +24,10 @@ if __name__ == "__main__":
     #print("Select structure name")
     #Цикл для  ожидания ввода названия структуры
     #TODO реализовать возможность ввода нескольких структур
-    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MTEE", "MCROSS", "MXOVER", "MGAPX", "MSTEP", "MOPEN", "MLANG"]
+    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MTEE", "MXOVER", "MGAPX", "MSTEP", "MOPEN", "MLANG"]
     print("[MAIN] Available structures:", ', '.join(available_structs))
     while True:
-        selected_struct = input("[MAIN] Type structure name or exit: ")
+        selected_struct = input("[MAIN] Type structure name or exit: ").upper()
         if selected_struct in STRUCTURES.keys():
             if selected_struct not in available_structs:
                 print("This structure not implemented yet, please select from", ', '.join(available_structs))
@@ -47,10 +47,10 @@ if __name__ == "__main__":
         print(f"Warning, number of frequency points is {len(sim_param['freq_range'])+1} and not equal 336, can't compare with database, continue anyway?")
         while True:
             ans = input("Type Y or N: ")
-            if ans == "Y":
+            if ans.upper() == "Y":
                 do_db = False
                 break
-            elif ans == "N":
+            elif ans.upper() == "N":
                 quit()
             else:
                 print("Can't recognise answer")
@@ -61,16 +61,44 @@ if __name__ == "__main__":
     handler.m1lin = STRUCTURES["M1LIN_STRUCTS"]
     handler.mnlin = STRUCTURES["MNLIN_STRUCTS"]
     handler.run_simulation()
+    if selected_struct in ["MLIN", "MTRACE2", "MLSC", "MLEF", "MGAPX"]:
+        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+        y = int(STRUCTURES[selected_struct]["length"] * 1e6)
+        z = None
+    # elif selected_struct == "MTAPER":
+    #     x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
+    #     y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
+    #     z = int(STRUCTURES[selected_struct]["length"] * 1e6)
+    elif selected_struct == "MRSTUB2W":
+        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+        y = int(STRUCTURES[selected_struct]["Ro"] * 1e6)
+        z = int(STRUCTURES[selected_struct]["Theta"])
+    elif selected_struct in ["MCLIN", "MCFIL", "MXCLIN"]:
+        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+        y = int(STRUCTURES[selected_struct]["length"] * 1e6)
+        z = int(STRUCTURES[selected_struct]["S"] * 1e6)
+    elif selected_struct == "MCURVE":
+        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+        y = int(STRUCTURES[selected_struct]["R"] * 1e6)
+        z = int(STRUCTURES[selected_struct]["Angle"])
+    elif selected_struct == "MTEE":
+        x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
+        y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
+        z = int(STRUCTURES[selected_struct]["W3"] * 1e6)
+    elif selected_struct in ["MXOVER", "MSTEP", "MOPEN"]:
+        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+        y = None
+        z = None
+    else:
+        do_db = False
+
     if do_db:
-        networks = db.get_sparams_data(
-            path=paths["OUTPUT_DIR"],
-            name=selected_struct,
-            x=int(STRUCTURES[selected_struct]["W"]*1e6),
-            y=int(STRUCTURES[selected_struct]["length"]*1e6),
-            table_name=selected_struct.lower(),
-            return_network=True
-        )
-        plot_db.plot_networks(networks[0], networks[1])
+        networks = db.get_sparams_data(path=paths["OUTPUT_DIR"], name=selected_struct, x=x, y=y, z=z,
+                                       table_name=selected_struct.lower(), return_network=True)
+        if len(networks) == 2:
+            plot_db.plot_networks(networks[0], networks[1])
+        else:
+            print(networks)
     #results = run_all()
     #print("All simulations completed.")
     #print(f"Completed FULL simulation in {time.time() - start:.2f} sec")

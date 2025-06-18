@@ -7,7 +7,7 @@ SIMULATIONS = {
             "freq_range": np.linspace(0.1e9, 67.e9, 335),
             "loss": True,
             "sigma": None,
-            "seg_cond": 3.0,
+            "seg_cond": 1.0,
             "seg_diel": 1.0,
             "do_vector_fitting": False,
         }
@@ -90,8 +90,8 @@ STRUCTURES = {
         },
     "MRSTUB2W": # Множество однопроводных лп шириной от W до
         {
-            "W": 70.e-6, # Начальная ширина
-            "Ro": 250.e-6, # Длина
+            "W": 100.e-6, # Начальная ширина
+            "Ro": 200.e-6, # Длина
             "Theta": 20, # Угол
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
@@ -207,7 +207,7 @@ STRUCTURES = {
             "N": 4,
             "W": 40.e-6,
             "S": 40.e-6,
-            "L": 100.e-6,
+            "length": 100.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic
             "SIMULATION": "SPARAM",
