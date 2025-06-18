@@ -6,8 +6,8 @@ import core
 def gen_path():
     paths = {
         "main": os.path.dirname(os.path.abspath(__file__)),
-        "talgat_exe": r"C:\Program Files\TALGAT 2021\PythonClient.exe",
-        "talgat_code": os.path.join(os.path.dirname(os.path.abspath(__file__)), "talgat"),
+        "MoM2D_exe": r"C:\Program Files\Talgat 2021\PythonClient.exe",
+        "MoM2D_code": os.path.join(os.path.dirname(os.path.abspath(__file__)), "MoM2D"),
         "shared": None,
     }
     (paths.update({

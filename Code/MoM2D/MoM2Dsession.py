@@ -5,7 +5,7 @@ import itertools
 import numpy as np
 import tempfile
 
-class TalgatSession:
+class MoM2DSession:
     def __init__(self, exe_path: str):
         self.proc = subprocess.Popen(
             [exe_path],
@@ -38,7 +38,7 @@ class TalgatSession:
             line = self.proc.stdout.readline()
             if not line:
                 break
-            print("[TALGAT]", line.strip())
+            print("[MoM2D]", line.strip())
             output_lines.append(line.strip())
             if line.strip().startswith("{") and line.strip().endswith("}"):
                 break
@@ -57,7 +57,7 @@ class TalgatSession:
 
 def main():
     # from shared import CalMat  # если потребуется
-    exe_path = r"C:\Program Files\TALGAT 2021\PythonClient.exe"
+    exe_path = r"C:\Program Files\MoM2D 2021\PythonClient.exe"
     shared_code = open("shared.py", encoding="utf-8").read()
     script_code = open("M1LIN.py", encoding="utf-8").read()
 
@@ -90,7 +90,7 @@ def main():
 
     import time
     start = time.time()
-    session = TalgatSession(exe_path)
+    session = MoM2DSession(exe_path)
     results = []
     for params in param_combinations:
         try:

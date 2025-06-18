@@ -1,4 +1,4 @@
-from talgat.talgatsession import TalgatSession
+from MoM2D.MoM2Dsession import MoM2DSession
 from rlcg2s.rlcg2s import RLGC2SConverter
 from vectorfitting.vectorfitting import SParamProcessor
 from rlcg2s.process_touchstone import make_one_end_line
@@ -34,8 +34,8 @@ class Simulation_Handler():
 
     def run_simulation(self):
         if self.struct_params["MODELTYPE"] == "2D_Quasistatic":
-            shared_code = open(os.path.join(self.paths["talgat_code"], "shared.py"), encoding="utf-8").read()
-            session = TalgatSession(self.paths["talgat_exe"])
+            shared_code = open(os.path.join(self.paths["MoM2D_code"], "shared.py"), encoding="utf-8").read()
+            session = MoM2DSession(self.paths["MoM2D_exe"])
             with tempfile.NamedTemporaryFile("w", delete=False, suffix=".py", encoding="utf-8") as tmp:
                 tmp.write(shared_code)
                 shared_path = tmp.name
@@ -48,8 +48,8 @@ class Simulation_Handler():
             params.update(self.sim_params)
 
             if self.struct_name in ("MTAPER", "MRSTUB2W"):
-                script_code = open(os.path.join(self.paths["talgat_code"], "M1LIN.py"), encoding="utf-8").read()
-                start_talgat = time.time()
+                script_code = open(os.path.join(self.paths["MoM2D_code"], "M1LIN.py"), encoding="utf-8").read()
+                start_MoM2D = time.time()
                 results_mtaper = []
                 if self.struct_params["Taper"] == "Linear":
                     W_values = [self.struct_params["W1"] + i * (self.struct_params["W2"] - self.struct_params["W1"]) / (self.struct_params["N"] - 1) for i in range(self.struct_params["N"])]
@@ -62,21 +62,21 @@ class Simulation_Handler():
                     })
                     results_mtaper.append(session.run_script(params, script_code)["result"])
                 result = matrix_interp(results_mtaper, self.struct_params["N2"])
-                print(f"[CORE] Completed TALGAT simulation for {self.struct_name} in {time.time() - start_talgat:.2f} sec")
+                print(f"[CORE] Completed MoM2D simulation for {self.struct_name} in {time.time() - start_MoM2D:.2f} sec")
                 print("[CORE] Interpolation performed for {self.struct_name}")
             else:
                 if self.struct_name in self.m1lin:
-                    script_code = open(os.path.join(self.paths["talgat_code"], "M1LIN.py"),
+                    script_code = open(os.path.join(self.paths["MoM2D_code"], "M1LIN.py"),
                                        encoding="utf-8").read()
                 elif self.struct_name in self.mnlin:
-                    script_code = open(os.path.join(self.paths["talgat_code"], "MNLIN.py"),
+                    script_code = open(os.path.join(self.paths["MoM2D_code"], "MNLIN.py"),
                                        encoding="utf-8").read()
                 else:
-                    script_code = open(os.path.join(self.paths["talgat_code"], f"{self.struct_name}.py"),
+                    script_code = open(os.path.join(self.paths["MoM2D_code"], f"{self.struct_name}.py"),
                                encoding="utf-8").read()
-                start_talgat = time.time()
+                start_MoM2D = time.time()
                 result = session.run_script(params, script_code)
-                print(f"[CORE] Completed TALGAT simulation for {self.struct_name} in {time.time() - start_talgat:.2f} sec")
+                print(f"[CORE] Completed MoM2D simulation for {self.struct_name} in {time.time() - start_MoM2D:.2f} sec")
 
 
             if "Z0" not in params.keys():
@@ -156,11 +156,6 @@ class Simulation_Handler():
         if "error" in result:
             print("[SYMSPICE]", result["error"])
 
-        # Optionally perform vector fitting
-
-
-
-
 if __name__ == "__main__":
-    #results = run_all()
+
     print("Can't run core without main.py")

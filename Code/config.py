@@ -199,7 +199,7 @@ STRUCTURES = {
             "W": 70.e-6,
             "NumPorts": 1,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "Verilog",  # Verilog or Subcircuit
+            "MODELTYPE": "Subcircuit",  # Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
     "MLANG": # Две n-проводные линии, которые надо правильно соединить
