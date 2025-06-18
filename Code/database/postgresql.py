@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     # Get skrf.Network objects
     networks = get_sparams_data(
-        path=r"D:\saves\Pycharm\HowToElementBuilder\Code\Files\symout",
+        path=r"D:\HowToElementBuilder\Code\Files\symout",
         name="MLIN",
         x=100,
         y=500,
@@ -109,6 +109,8 @@ if __name__ == "__main__":
     )
 
 
-    ntw_model, ntw_true = networks
-
-    plot_networks(ntw_model, ntw_true)
+    #ntw_model, ntw_true = networks
+    #ntw_model = rf.Network(r"D:\HowToElementBuilder\Code\Files\snp\MLIN.s2p")
+    print(networks)
+    #print(ntw_model)
+    plot_networks(networks[0], networks[1])
