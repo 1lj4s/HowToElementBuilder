@@ -43,8 +43,8 @@ if __name__ == "__main__":
     print("[MAIN] Selected structure - ", selected_struct)
     subst = SUBSTRATES[STRUCTURES[selected_struct]["SUBSTRATE"]]
     sim_param = SIMULATIONS[STRUCTURES[selected_struct]["SIMULATION"]]
-    if len(sim_param["freq_range"])+1 != 336:
-        print(f"Warning, number of frequency points is {len(sim_param['freq_range'])+1} and not equal 336, can't compare with database, continue anyway?")
+    if len(sim_param["freq_range"]) != 335:
+        print(f"Warning, number of frequency points is {len(sim_param['freq_range'])} and not equal 335, can't compare with database, continue anyway?")
         while True:
             ans = input("Type Y or N: ")
             if ans.upper() == "Y":
@@ -101,7 +101,6 @@ if __name__ == "__main__":
             num_ports = int(STRUCTURES[selected_struct]["NumPorts"])
         except Exception as e:
             do_db = False
-    print(num_ports)
     if do_db:
         networks = db.get_sparams_data(path=paths["OUTPUT_DIR"], name=selected_struct, x=x, y=y, z=z, num_ports=num_ports,
                                        table_name=selected_struct.lower(), return_network=True)

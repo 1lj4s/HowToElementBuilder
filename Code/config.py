@@ -132,8 +132,8 @@ STRUCTURES = {
         },
     "MBEND":
         {
-            "W1": 70.e-6,
-            "W2": 70.e-6,
+            "W1": 100.e-6,
+            "W2": 100.e-6,
             "NumPorts": 2,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
@@ -181,6 +181,7 @@ STRUCTURES = {
         {
             "W": 70.e-6,
             "S": 20.e-6,
+            "NumPorts": 2,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
