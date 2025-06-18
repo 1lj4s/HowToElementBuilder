@@ -4,7 +4,7 @@ SIMULATIONS = {
     "SPARAM":
         {
             "f0": [0.8e9, 1.e9, 5.e9, 10.e9, 50.e9], # np.linspace(1.5e9, 3.5e9, 2)
-            "freq_range": np.linspace(0.1e9, 67.e9, 100),
+            "freq_range": np.linspace(0.1e9, 67.e9, 335),
             "loss": True,
             "sigma": None,
             "seg_cond": 3.0,
@@ -15,28 +15,28 @@ SIMULATIONS = {
 SUBSTRATES = {
     "MSUB":
         {
-            "T": 2e-6,
+            "T": 1e-6,
             "H": 100.e-6,
             "ER0": 1.0,
             "MU0": 1.0,
             "TD0": 0.0,
             "ER1": 12.9,
             "MU1": 1.0001,
-            "TD1": 0.003,
+            "TD1": 0.001,
         },
     "M2SUB":
         {
-            "T": 2e-6,
-            "T2": 2e-6,
-            "H1": 100.e-6,
-            "H2": 20.e-6,
+            "T": 10e-6,
+            "T2": 10e-6,
+            "H1": 20.e-6,
+            "H2": 100.e-6,
             "ER0": 1.0,
             "MU0": 1.0,
             "TD0": 0.0,
-            "ER1": 12.9,
+            "ER1": 3.,
             "MU1": 1.0001,
-            "TD1": 0.003,
-            "ER2": 3.,
+            "TD1": 0.001,
+            "ER2": 12.9,
             "MU2": 1.0002,
             "TD2": 0.003,
         }
@@ -46,7 +46,7 @@ STRUCTURES = {
     "MNLIN_STRUCTS": ["MCLIN", "MCFIL", "MXCLIN"],
     "MLIN": # однопроводная лп
         {
-            "W": 70e-6,
+            "W": 100.e-6,
             "length": 500.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
