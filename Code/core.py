@@ -26,12 +26,11 @@ class Simulation_Handler():
         if self.struct_name == "MRSTUB2W":
             W1, W2, length = mrstubparamrecalc(self.struct_params)
             self.struct_params.update({"W1": W1, "W2": W2, "length": length})
-            print("W1, W2, length", W1, W2, length)
         elif self.struct_name == "MCURVE":
             length = mcurveparamrecalc(self.struct_params)
             self.struct_params.update({"length": length})
 
-        print("Simulation_Hundler started successfully")
+        print("[CORE] Simulation_Hundler started successfully")
 
     def run_simulation(self):
         if self.struct_params["MODELTYPE"] == "2D_Quasistatic":
@@ -63,9 +62,8 @@ class Simulation_Handler():
                     })
                     results_mtaper.append(session.run_script(params, script_code)["result"])
                 result = matrix_interp(results_mtaper, self.struct_params["N2"])
-                print("result=", result)
-                print(f"Completed TALGAT simulation for {self.struct_name} in {time.time() - start_talgat:.2f} sec")
-                print("Performing interpolation")
+                print(f"[CORE] Completed TALGAT simulation for {self.struct_name} in {time.time() - start_talgat:.2f} sec")
+                print("[CORE] Interpolation performed for {self.struct_name}")
             else:
                 if self.struct_name in self.m1lin:
                     script_code = open(os.path.join(self.paths["talgat_code"], "M1LIN.py"),
@@ -78,19 +76,18 @@ class Simulation_Handler():
                                encoding="utf-8").read()
                 start_talgat = time.time()
                 result = session.run_script(params, script_code)
-                print("MLIN_result", result)
-                print(f"Completed TALGAT simulation for {self.struct_name} in {time.time() - start_talgat:.2f} sec")
+                print(f"[CORE] Completed TALGAT simulation for {self.struct_name} in {time.time() - start_talgat:.2f} sec")
 
 
             if "Z0" not in params.keys():
-                print(f"Warning, can't find Z0 for '{self.struct_name}', using default 50 Ohm")
+                print(f"[CORE] Warning, can't find Z0 for '{self.struct_name}', using default 50 Ohm")
                 params.update({"Z0":50})
 
             # Convert RLGC to S-parameters
             if self.struct_name not in ("MTAPER", "MRSTUB2W"):
                 converter = RLGC2SConverter(params, [result])
                 s_params, rlgc_struct = converter.convert()
-                print(f"S-params shape for {self.struct_name}: {s_params.shape}")
+                print(f"[CORE] S-params shape for {self.struct_name}: {s_params.shape}")
                 match self.struct_name:
                     case "MLSC":
                         s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
@@ -100,15 +97,15 @@ class Simulation_Handler():
                         s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
                                              Z0=params["Z0"], gamma=1)
                         s_params = np.moveaxis(s_params, 0, 2)
-                print(f"New S-params shape for {self.struct_name}: {s_params.shape}")
+                print(f"[CORE] New S-params shape for {self.struct_name}: {s_params.shape}")
             else:
                 s_params_list = []
                 for res in result:
                     converter = RLGC2SConverter(params, [{'result': res}])
                     s_params, rlgc_struct = converter.convert()
                     s_params_list.append(s_params)
-                print(f"S-params list length for {self.struct_name}: {len(s_params_list)}")
-                print(f"Shape of first S-params in list: {s_params_list[0].shape}")
+                print(f"[CORE] S-params list length for {self.struct_name}: {len(s_params_list)}")
+                print(f"[CORE] Shape of first S-params in list: {s_params_list[0].shape}")
                 if self.struct_name in ("MTAPER", "MRSTUB2W"):
                     freqs = self.sim_params['freq_range']
                     s_params = connect_sparams(s_params_list, freqs)
@@ -145,7 +142,7 @@ class Simulation_Handler():
                     fitted_model_name=f"{self.struct_name}_equiv_no_ref",
                     create_reference_pins=False
                 )
-                print("Vector fitting performed")
+                print("[CORE] Vector fitting performed")
 
             converter.save_to_snp(s_params, filename=os.path.join(self.paths["SNP_DIR"], f"{self.struct_name}"))
         SymSession = SymicaSession(self.paths, self.struct_name, self.struct_params, self.subst_params, self.sim_params)

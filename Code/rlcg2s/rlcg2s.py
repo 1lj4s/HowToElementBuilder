@@ -172,11 +172,11 @@ class RLGC2SConverter:
         """
         n_ports = s_params.shape[0]
         if s_params.shape[0] != s_params.shape[1]:
-            raise ValueError(f"S-параметры должны быть квадратной матрицей, получено: {s_params.shape}")
+            raise ValueError(f"[RLCG2S] S-параметры должны быть квадратной матрицей, получено: {s_params.shape}")
 
         expected_ext = f'.s{n_ports}p'
         if not filename.endswith(expected_ext):
-            print(f"Предупреждение: ожидалось расширение {expected_ext}, получено {filename}")
+            print(f"[RLCG2S] Предупреждение: ожидалось расширение {expected_ext}, получено {filename}")
             filename = filename.rsplit('.', 1)[0] + expected_ext
 
         s = np.moveaxis(s_params, 2, 0)
@@ -184,4 +184,4 @@ class RLGC2SConverter:
         ntw = skrf.Network(frequency=frequency, s=s, name=filename.replace(expected_ext, ''))
         ntw.write_touchstone(filename=filename.replace(expected_ext, ''))
 
-        print(f"Файл {filename} успешно сохранён")
+        print(f"[RLCG2S] Файл {filename} успешно сохранён")
