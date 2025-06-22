@@ -59,7 +59,7 @@ def main():
     # from shared import CalMat  # если потребуется
     exe_path = r"C:\Program Files\MoM2D 2021\PythonClient.exe"
     shared_code = open("../Files/scripts/shared.py", encoding="utf-8").read()
-    script_code = open("../Files/scripts/M1LIN.py", encoding="utf-8").read()
+    script_code = open("../Files/scripts/M1LIN_2D.py", encoding="utf-8").read()
 
     W_values = np.arange(10.e-6, 50.e-6, 5.e-6)
     S_values = [10e-6]

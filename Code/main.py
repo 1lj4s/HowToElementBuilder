@@ -5,6 +5,7 @@ from rlcg2s.rlcg2s import RLGC2SConverter
 import os
 import tempfile
 
+
 def main():
     project_path = Path(r"E:\Saves\pycharm\HowToElementBuilder").resolve()
     base_path = project_path / "Code" / "Files"
@@ -24,23 +25,23 @@ def main():
 
     STRUCTURES = {
         "MLIN": {
-            "W": 100.e-6,
-            "length": 500.e-6,
+            "W": 70.e-6,
+            "L": 2000.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "2D_Quasistatic",
+            "MODELTYPE": "3D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
             "SIMULATION": "SPARAM",
         },
-        "MSTEP": {
-            "W1": 50.e-6,
-            "W2": 100.e-6,
-            "NumPorts": 2,
-            "MODELTYPE": "2D_Quasistatic",
+        "MIMCAP": {
+            "W": 50.e-6,
+            "L": 50.e-6,
+            "SUBSTRATE": "MSUB2",
+            "MODELTYPE": "3D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
+            "SIMULATION": "SPARAM",
         },
         "TFR": {
             "RS": 50,
             "W": 100.e-6,
             "L": 100.e-6,
-            "NumPorts": 2,
             "MODELTYPE": "2D_Quasistatic",
         },
     }
@@ -53,22 +54,38 @@ def main():
             "TD0": 0.0,
             "ER1": 12.9,
             "MU1": 1.0001,
-            "TD1": 0.001,
+            "TD1": 0.003,
+        },
+        "MSUB2": {
+            "T1": 1.e-6,
+            "T2": 1.e-6,
+            "H1": 100.e-6,
+            "H2": 0.2515e-6,
+            "ER0": 1.0,
+            "MU0": 1.0,
+            "TD0": 0.0,
+            "ER1": 12.9,
+            "MU1": 1.0001,
+            "TD1": 0.003,
+            "ER2": 3.0,
+            "MU2": 1.0002,
+            "TD2": 0.001,
         }
     }
     SIMULATIONS = {
         "SPARAM": {
-            "f0": [0.8e9, 1.e9, 5.e9, 10.e9, 50.e9],
+            "f0": np.linspace(10.e9, 67.e9, 5), # [0.8e9, 1.e9, 5.e9, 10.e9, 50.e9]
             "freq_range": np.linspace(0.1e9, 67.e9, 335),
             "loss": True,
             "sigma": None,
             "seg_cond": 1.0,
             "seg_diel": 1.0,
             "do_vector_fitting": False,
+            "Z0": 50,
         }
     }
 
-    available_structs = ["MLIN", "MSTEP", "TFR"]
+    available_structs = ["MLIN", "MIMCAP"]
     print("[MAIN] Available structures:", ', '.join(available_structs))
     while True:
         struct_name = input("[MAIN] Enter structure name or exit: ").strip().upper()
@@ -79,11 +96,23 @@ def main():
             break
         print(f"[MAIN] Invalid structure. Please choose from {', '.join(available_structs)} or 'exit'.")
 
-    params = {**STRUCTURES[struct_name], **SUBSTRATES["MSUB"], **SIMULATIONS["SPARAM"]}
-    script_file = f"{struct_name}.py"
+    params = {**STRUCTURES[struct_name], **SUBSTRATES[STRUCTURES[struct_name]["SUBSTRATE"]], **SIMULATIONS["SPARAM"]}
+    model_type = params["MODELTYPE"]
+
+    # Select script files based on MODELTYPE
+    if model_type == "2D_Quasistatic":
+        shared_script = "shared_2D.py"
+        struct_script = f"{struct_name}_2D.py"
+    elif model_type == "3D_Quasistatic":
+        shared_script = "shared_3D.py"
+        struct_script = f"{struct_name}_3D.py"
+    else:
+        print(f"[MAIN] Error: Unsupported MODELTYPE {model_type}")
+        return
+
     try:
-        shared_code = open(Path(paths["SCRIPT_DIR"]) / "shared.py", encoding="utf-8").read()
-        script_code = open(Path(paths["SCRIPT_DIR"]) / script_file, encoding="utf-8").read()
+        shared_code = open(Path(paths["SCRIPT_DIR"]) / shared_script, encoding="utf-8").read()
+        script_code = open(Path(paths["SCRIPT_DIR"]) / struct_script, encoding="utf-8").read()
     except FileNotFoundError as e:
         print(f"[MAIN] Error: File not found - {e.filename}")
         return
@@ -112,8 +141,7 @@ def main():
 
         converter = RLGC2SConverter(params, [result])
         s_params, rlgc_struct = converter.convert()
-
-        output_filename = f"{struct_name}.s{params['NumPorts']*2}p"
+        output_filename = f"{struct_name}.s{s_params.shape[0]}p"
         output_path = Path(paths["OUTPUT_DIR"]) / output_filename
         converter.save_to_snp(s_params, str(output_path))
 
@@ -130,6 +158,7 @@ def main():
             os.unlink(shared_script_path)
         if 'script_path' in locals():
             os.unlink(script_path)
+
 
 if __name__ == "__main__":
     main()

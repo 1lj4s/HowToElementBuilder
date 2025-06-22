@@ -19,7 +19,7 @@ class RLGC2SConverter:
         self.results = results
         self.freq_range = np.asarray(params['freq_range'])
         self.f0 = np.asarray(params['f0'])
-        self.length = params['length']
+        self.length = params['L']
         self.z0 = params['Z0']
         self.mtaper = mtaper
         if mtaper:
