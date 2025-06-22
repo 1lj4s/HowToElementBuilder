@@ -3,8 +3,8 @@ INCLUDE("MATRIX")
 INCLUDE("MOM2D")
 import json
 import numpy as np
-import os
 from numpy import array
+import os
 
 def cond(X, Y, W, T, D1, D2, TOP, GND):
     if TOP:
