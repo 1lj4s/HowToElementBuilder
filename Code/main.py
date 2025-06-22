@@ -84,6 +84,9 @@ def main():
             "Z0": 50,
         }
     }
+    # TODO: Добавить потери в проводниках для 3D
+    # TODO: Добавить MNLIN
+    # TODO: Сделать так, чтобы при rlcg2s для 3D не нужно было нормировать матрицы и сравнить результат с текущим
 
     available_structs = ["MLIN", "MIMCAP"]
     print("[MAIN] Available structures:", ', '.join(available_structs))
