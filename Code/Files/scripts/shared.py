@@ -1,17 +1,16 @@
+register_talgat_commands()
+INCLUDE("MATRIX")
+INCLUDE("MOM2D")
+import json
 import numpy as np
 import os
-import json
-from scipy.interpolate import interp1d
+from numpy import array
 
 def cond(X, Y, W, T, D1, D2, TOP, GND):
     if TOP:
-        c = 1.
-        a = 0.
-        na = 1.
+        c, a, na = 1., 0., 1.
     else:
-        c = -1.
-        a = 1.
-        na = 0.
+        c, a, na = -1., 1., 0.
     if GND:
         CONDUCTOR_GROUNDED()
     else:
@@ -28,6 +27,7 @@ def cond(X, Y, W, T, D1, D2, TOP, GND):
     LINETO(X + a * W, Y)
     return [X, W]
 
+
 def diel1(A, H, D1, D0):
     N = len(A)
     DIELECTRIC()
@@ -40,15 +40,16 @@ def diel1(A, H, D1, D0):
     LINE(0, H, A[0][0], H)
     LINE(A[N - 1][0] + A[N - 1][1], H, A[N - 1][0] + A[N - 1][1] + A[0][0], H)
     if N >= 2:
-        for i1 in range(N - 1):
-            LINE(A[i1][0] + A[i1][1], H, A[i1 + 1][0], H)
+        for i in range(N - 1):
+            LINE(A[i][0] + A[i][1], H, A[i + 1][0], H)
+
 
 def CalMat(conf, f0, loss=False, sigma=None):
     smn_L = SMN_L_OMP(conf)
     mL = CALCULATE_L(smn_L, conf)
     if loss:
         smn_CG = SMN_CG_OMP(conf)
-        mC = CALCULATE_C(SMN_C_OMP(conf), conf)
+        # mC = CALCULATE_C(SMN_C_OMP(conf), conf)
         n = GET_MATRIX_ROWS(mL)
         mR_arr = np.zeros((n, n, len(f0)))
         mG_arr = np.zeros((n, n, len(f0)))
@@ -56,6 +57,7 @@ def CalMat(conf, f0, loss=False, sigma=None):
             freq = f0[idx]
             mR = CALCULATE_R(smn_L, conf, freq, sigma)
             cg = CALCULATE_CG(smn_CG, conf, freq)
+            mC = GET_REAL_MATRIX(cg)
             mG = GET_IMAG_MATRIX(cg)
             for i in range(n):
                 for j in range(n):
@@ -73,26 +75,8 @@ def CalMat(conf, f0, loss=False, sigma=None):
             mL_arr[i, j] = GET_MATRIX_VALUE(mL, i, j)
             mC_arr[i, j] = GET_MATRIX_VALUE(mC, i, j)
     return {
-        'mL': mL_arr,
-        'mC': mC_arr,
-        'mR': mR_arr,
-        'mG': mG_arr
+        'mL': mL_arr.tolist(),
+        'mC': mC_arr.tolist(),
+        'mR': mR_arr.tolist(),
+        'mG': mG_arr.tolist()
     }
-
-def SaveRes(path, data_dict):
-    folder = os.path.dirname(path)
-    if folder and not os.path.exists(folder):
-        os.makedirs(folder, exist_ok=True)
-    if not path.endswith(".npy"):
-        path += ".npy"
-    np.save(path, data_dict)
-    print(f"[!] Result saved to: {path}")
-
-def get_config(config_path: str) -> dict:
-    try:
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Ошибка при загрузке JSON файла: {e}")
-        return {}
-        return {}
