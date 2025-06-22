@@ -1,6 +1,6 @@
 import numpy as np
 from pathlib import Path
-from MoM2D.MoM2Dsession import MoM2DSession
+from MoM.MoMsession import MoMSession
 from rlcg2s.rlcg2s import RLGC2SConverter
 import os
 import tempfile
@@ -12,14 +12,14 @@ def main():
     paths = {
         "OUTPUT_DIR": str((base_path / "snp").resolve()),
         "SCRIPT_DIR": str((base_path / "scripts").resolve()),
-        "MoM2D_exe": r"C:\Program Files\Talgat 2021\PythonClient.exe"
+        "MoM_exe": r"C:\Program Files\Talgat 2021\PythonClient.exe"
     }
 
     for path in [paths["OUTPUT_DIR"], paths["SCRIPT_DIR"]]:
         Path(path).mkdir(parents=True, exist_ok=True)
 
-    if not os.path.isfile(paths["MoM2D_exe"]):
-        print(f"[MAIN] Error: MoM2D executable not found at {paths['MoM2D_exe']}")
+    if not os.path.isfile(paths["MoM_exe"]):
+        print(f"[MAIN] Error: MoM executable not found at {paths['MoM_exe']}")
         return
 
     STRUCTURES = {
@@ -88,40 +88,48 @@ def main():
         print(f"[MAIN] Error: File not found - {e.filename}")
         return
 
-    # session = MoM2DSession(paths["MoM2D_exe"])
-    # try:
-    # Combine shared_code and script_code using a temporary file
-    with tempfile.NamedTemporaryFile("w", delete=False, suffix=".py", encoding="utf-8") as tmp:
-        tmp.write(shared_code + "\n" + script_code)
-        combined_script_path = tmp.name
+    session = MoMSession(paths["MoM_exe"])
+    try:
+        # Create a temporary file for shared_code
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".py", encoding="utf-8") as tmp_shared:
+            tmp_shared.write(shared_code)
+            shared_script_path = tmp_shared.name
 
+        # Execute shared_code first to set up the environment
+        session.proc.stdin.write(f"exec(open(r'''{shared_script_path}''').read())\n")
+        session.proc.stdin.flush()
 
-    with open(combined_script_path, "r", encoding="utf-8") as f:
-        combined_script = f.read()
-    # for line in combined_script:
-    print(combined_script)
-    #     result = session.run_script(params, combined_script)
-    #     if "error" in result:
-    #         print(f"[MAIN] MoM2D Error: {result['error']}")
-    #         return
-    #
-    #     converter = RLGC2SConverter(params, [result])
-    #     s_params, rlgc_struct = converter.convert()
-    #
-    #     output_filename = f"{struct_name}.s{params['NumPorts']*2}p"
-    #     output_path = Path(paths["OUTPUT_DIR"]) / output_filename
-    #     converter.save_to_snp(s_params, str(output_path))
-    #
-    #     print(f"[MAIN] Simulation completed for {struct_name}")
-    #     print(f"[MAIN] S-parameters saved to {output_path}")
-    #     print(f"[MAIN] S-params shape: {s_params.shape}")
-    #
-    # except Exception as e:
-    #     print(f"[MAIN] Error during simulation: {str(e)}")
-    # finally:
-    #     session.close()
-    #     if 'combined_script_path' in locals():
-    #         os.unlink(combined_script_path)
+        # Create a temporary file for the structure-specific script
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".py", encoding="utf-8") as tmp_script:
+            tmp_script.write(script_code)
+            script_path = tmp_script.name
+
+        # Run the structure-specific script
+        result = session.run_script(params, open(script_path, "r", encoding="utf-8").read())
+        if "error" in result:
+            print(f"[MAIN] MoM Error: {result['error']}")
+            return
+
+        converter = RLGC2SConverter(params, [result])
+        s_params, rlgc_struct = converter.convert()
+
+        output_filename = f"{struct_name}.s{params['NumPorts']*2}p"
+        output_path = Path(paths["OUTPUT_DIR"]) / output_filename
+        converter.save_to_snp(s_params, str(output_path))
+
+        print(f"[MAIN] Simulation completed for {struct_name}")
+        print(f"[MAIN] S-parameters saved to {output_path}")
+        print(f"[MAIN] S-params shape: {s_params.shape}")
+
+    except Exception as e:
+        print(f"[MAIN] Error during simulation: {str(e)}")
+    finally:
+        session.close()
+        # Clean up temporary files
+        if 'shared_script_path' in locals():
+            os.unlink(shared_script_path)
+        if 'script_path' in locals():
+            os.unlink(script_path)
 
 if __name__ == "__main__":
     main()

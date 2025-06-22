@@ -5,7 +5,7 @@ import itertools
 import numpy as np
 import tempfile
 
-class MoM2DSession:
+class MoMSession:
     def __init__(self, exe_path: str):
         self.proc = subprocess.Popen(
             [exe_path],
@@ -38,7 +38,7 @@ class MoM2DSession:
             line = self.proc.stdout.readline()
             if not line:
                 break
-            print("[MoM2D]", line.strip())
+            print("[MoM]", line.strip())
             output_lines.append(line.strip())
             if line.strip().startswith("{") and line.strip().endswith("}"):
                 break
@@ -90,7 +90,7 @@ def main():
 
     import time
     start = time.time()
-    session = MoM2DSession(exe_path)
+    session = MoMSession(exe_path)
     results = []
     for params in param_combinations:
         try:
