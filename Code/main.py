@@ -5,7 +5,7 @@ from rlcg2s.rlcg2s import RLGC2SConverter
 
 def main():
     # Define project base path (absolute path to project directory)
-    project_path = Path(r"E:\Saves\pycharm\HowToSpiceModel").resolve()
+    project_path = Path(r"E:\Saves\pycharm\HowToElementBuilder").resolve()
     base_path = project_path / "Code" / "Files"
 
     # Define paths
@@ -65,7 +65,7 @@ def main():
     }
 
     # User input for structure selection
-    available_structs = ["MLIN"]
+    available_structs = ["MLIN", "MSTEP", "TFR"]
     while True:
         struct_name = input(f"Enter structure name {', '.join(available_structs)} or exit: ").strip()
         if struct_name.lower() == 'exit':
@@ -83,7 +83,7 @@ def main():
     script_code = open(Path(paths["SCRIPT_DIR"]) / "M1LIN.py", encoding="utf-8").read()
 
     # Initialize MoM2DSession
-    exe_path = r"C:\Program Files\MoM2D 2021\PythonClient.exe"
+    exe_path = r"C:\Program Files\TALGAT 2021\PythonClient.exe"
     session = MoM2DSession(exe_path)
 
     try:
