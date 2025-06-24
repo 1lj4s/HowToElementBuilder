@@ -49,7 +49,7 @@ STRUCTURES = {
             "W": 100.e-6,
             "length": 500.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
+            "MODELTYPE": "3D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
     "MTRACE2":  # однопроводная лп, с автотрассировкой (M1LIN_STRUCTS)
@@ -212,5 +212,12 @@ STRUCTURES = {
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic
             "SIMULATION": "SPARAM",
-        }
+        },
+    "MIMCAP": {
+        "W": 50.e-6,
+        "length": 50.e-6,
+        "SUBSTRATE": "M2SUB",
+        "MODELTYPE": "3D_Quasistatic",  # 2D_Quasistatic, 3D_Quasistatic
+        "SIMULATION": "SPARAM",
+    },
 }

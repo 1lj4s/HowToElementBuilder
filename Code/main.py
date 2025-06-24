@@ -9,7 +9,7 @@ def gen_path():
     paths = {
         "main": os.path.dirname(os.path.abspath(__file__)),
         "MoM2D_exe": r"C:\Program Files\Talgat 2021\PythonClient.exe",
-        "MoM2D_code": os.path.join(os.path.dirname(os.path.abspath(__file__)), "MoM2D"),
+        "MoM_code": os.path.join(os.path.dirname(os.path.abspath(__file__)), "MoM"),
         "shared": None,
     }
     (paths.update({
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     #print("Select structure name")
     #Цикл для  ожидания ввода названия структуры
     #TODO реализовать возможность ввода нескольких структур
-    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MXOVER", "MSTEP", "MOPEN", "MLANG"]
+    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MXOVER", "MSTEP", "MOPEN", "MLANG", "MIMCAP"]
     print("[MAIN] Available structures:", ', '.join(available_structs))
     while True:
         selected_struct = input("[MAIN] Type structure name or exit: ").upper()

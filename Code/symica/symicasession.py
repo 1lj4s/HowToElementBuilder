@@ -32,7 +32,7 @@ class SymicaSession:
             ports_zeros.append(p)
             ports_zeros.append(z)
 
-        if model_type == "2D_Quasistatic":
+        if model_type in ["2D_Quasistatic", "3D_Quasistatic"]:
             s2p_path = os.path.join(self.paths["SNP_DIR"], f"{self.struct_name}.s{num_ports}p")
             netlist_lines.append(f'NPORT0 {" ".join(ports_zeros)} nport file="{s2p_path}"')
             for idx, port in enumerate(ports):

@@ -1,4 +1,4 @@
-from MoM2D.MoM2Dsession import MoM2DSession
+from MoM.MoM2Dsession import MoM2DSession
 from rlcg2s.rlcg2s import RLGC2SConverter
 from vectorfitting.vectorfitting import SParamProcessor
 from rlcg2s.process_touchstone import make_one_end_line
@@ -33,8 +33,12 @@ class Simulation_Handler():
         print("[CORE] Simulation_Hundler started successfully")
 
     def run_simulation(self):
-        if self.struct_params["MODELTYPE"] == "2D_Quasistatic":
-            shared_code = open(os.path.join(self.paths["MoM2D_code"], "shared.py"), encoding="utf-8").read()
+        if self.struct_params["MODELTYPE"] in ["2D_Quasistatic", "3D_Quasistatic"]:
+            if self.struct_params["MODELTYPE"] == "2D_Quasistatic":
+                self.model_method = "2D"
+            else:
+                self.model_method = "3D"
+            shared_code = open(os.path.join(self.paths["MoM_code"], f"shared_{self.model_method}.py"), encoding="utf-8").read()
             session = MoM2DSession(self.paths["MoM2D_exe"])
             with tempfile.NamedTemporaryFile("w", delete=False, suffix=".py", encoding="utf-8") as tmp:
                 tmp.write(shared_code)
@@ -48,7 +52,7 @@ class Simulation_Handler():
             params.update(self.sim_params)
 
             if self.struct_name in ("MTAPER", "MRSTUB2W"):
-                script_code = open(os.path.join(self.paths["MoM2D_code"], "M1LIN.py"), encoding="utf-8").read()
+                script_code = open(os.path.join(self.paths["MoM_code"], f"M1LIN_{self.model_method}.py"), encoding="utf-8").read()
                 start_MoM2D = time.time()
                 results_mtaper = []
                 if self.struct_params["Taper"] == "Linear":
@@ -66,13 +70,13 @@ class Simulation_Handler():
                 print(f"[CORE] Interpolation performed for {self.struct_name}")
             else:
                 if self.struct_name in self.m1lin:
-                    script_code = open(os.path.join(self.paths["MoM2D_code"], "M1LIN.py"),
+                    script_code = open(os.path.join(self.paths["MoM_code"], f"M1LIN_{self.model_method}.py"),
                                        encoding="utf-8").read()
                 elif self.struct_name in self.mnlin:
-                    script_code = open(os.path.join(self.paths["MoM2D_code"], "MNLIN.py"),
+                    script_code = open(os.path.join(self.paths["MoM_code"], f"MNLIN_{self.model_method}.py"),
                                        encoding="utf-8").read()
                 else:
-                    script_code = open(os.path.join(self.paths["MoM2D_code"], f"{self.struct_name}.py"),
+                    script_code = open(os.path.join(self.paths["MoM_code"], f"{self.struct_name}_{self.model_method}.py"),
                                encoding="utf-8").read()
                 start_MoM2D = time.time()
                 result = session.run_script(params, script_code)
@@ -92,7 +96,7 @@ class Simulation_Handler():
                     case "MLSC":
                         s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
                                                      Z0=params["Z0"], gamma=-1)
-                        s_params = s_params = np.moveaxis(s_params, 0, 2)
+                        s_params = np.moveaxis(s_params, 0, 2)
                     case "MLEF":
                         s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
                                              Z0=params["Z0"], gamma=1)
@@ -106,13 +110,12 @@ class Simulation_Handler():
                     s_params_list.append(s_params)
                 print(f"[CORE] S-params list length for {self.struct_name}: {len(s_params_list)}")
                 print(f"[CORE] Shape of first S-params in list: {s_params_list[0].shape}")
-                if self.struct_name in ("MTAPER", "MRSTUB2W"):
-                    freqs = self.sim_params['freq_range']
-                    s_params = connect_sparams(s_params_list, freqs)
-                    if self.struct_name == "MRSTUB2W":
-                        s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
-                                                     Z0=params["Z0"], gamma=1)
-                        s_params = np.moveaxis(s_params, 0, 2)
+                freqs = self.sim_params['freq_range']
+                s_params = connect_sparams(s_params_list, freqs)
+                if self.struct_name == "MRSTUB2W":
+                    s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
+                                                 Z0=params["Z0"], gamma=1)
+                    s_params = np.moveaxis(s_params, 0, 2)
 
             if self.sim_params['do_vector_fitting']:
                 params.setdefault('vf_params', {
