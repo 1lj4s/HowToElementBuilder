@@ -45,13 +45,7 @@ def COND3D(x0, x, y0, y, z0, z, diels, segx, segy, segz, type=True, pos=True):
 
     return {"x0": x0, "x": x, "z0": z0, "z": z, "segx": segx, "segz": segz}
 
-
 def DIEL3D(h, t, diels, conds, segw, segl, segd):
-    n = len(conds)
-    p1 = 2 * n
-    p2 = 2
-    p3 = n - 1
-    p4 = 2 * n + 2
 
     DIELECTRIC3D()
     SET_ER_PLUS3D(diels['er0'])
@@ -97,7 +91,6 @@ def DIEL3D(h, t, diels, conds, segw, segl, segd):
         RECT_XZ(h, conds[i]['x0'], conds[0]['z0'] + conds[0]['z'], conds[i]['x0'] + conds[i]['x'],
                 2 * conds[0]['z0'] + conds[0]['z'])
 
-
 def CalMat(conf, conf0, f0, L, loss=False):
     mC0 = CALCULATE_C3D(SMN_C3D(conf0), conf0)
     mC = CALCULATE_C3D(SMN_C3D(conf), conf)
@@ -127,13 +120,11 @@ def CalMat(conf, conf0, f0, L, loss=False):
         'mG': mG_arr.tolist()
     }
 
-
 def calcL(mC0):
     c = 3.e8
     mu = 4 * np.pi * 1e-7
     epsilon = 1 / (mu * c ** 2)
     return mu * epsilon * np.linalg.inv(mC0 / L) * L
-
 
 def t2n(talmat):
     n = GET_MATRIX_ROWS(talmat)

@@ -7,7 +7,7 @@ import tempfile
 
 
 def main():
-    project_path = Path(r"E:\Saves\pycharm\HowToElementBuilder").resolve()
+    project_path = Path(r"D:\Saves\pycharm\HowToElementBuilder").resolve()
     base_path = project_path / "Code" / "Files"
 
     paths = {
@@ -28,7 +28,7 @@ def main():
             "W": 70.e-6,
             "L": 2000.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "3D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
+            "MODELTYPE": "2D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
             "SIMULATION": "SPARAM",
         },
         "MIMCAP": {
@@ -38,11 +38,13 @@ def main():
             "MODELTYPE": "3D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
             "SIMULATION": "SPARAM",
         },
-        "TFR": {
-            "RS": 50,
-            "W": 100.e-6,
-            "L": 100.e-6,
-            "MODELTYPE": "2D_Quasistatic",
+        "MNLIN": {
+            "W": [70.e-6, 70.e-6],
+            "S": [20.e-6],
+            "L": 1000.e-6,
+            "SUBSTRATE": "MSUB",
+            "MODELTYPE": "2D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
+            "SIMULATION": "SPARAM",
         },
     }
     SUBSTRATES = {
@@ -88,7 +90,7 @@ def main():
     # TODO: Добавить MNLIN
     # TODO: Сделать так, чтобы при rlcg2s для 3D не нужно было нормировать матрицы и сравнить результат с текущим
 
-    available_structs = ["MLIN", "MIMCAP"]
+    available_structs = ["MLIN", "MIMCAP", "MNLIN"]
     print("[MAIN] Available structures:", ', '.join(available_structs))
     while True:
         struct_name = input("[MAIN] Enter structure name or exit: ").strip().upper()

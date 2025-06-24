@@ -1,0 +1,295 @@
+# 1 "D:\saves\Pycharm\HowToElementBuilder\Code\Files\ver\MBEND.va"
+# 1 "constants.h"
+
+
+
+
+
+
+
+# 10 "constants.h"
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+# 2 "D:\saves\Pycharm\HowToElementBuilder\Code\Files\ver\MBEND.va"
+# 1 "discipline.h"
+
+
+
+
+
+
+# 9 "discipline.h"
+
+
+
+
+discipline logic
+  domain discrete;
+enddiscipline
+
+
+
+
+
+
+nature Current
+  units = "A";
+  access = I;
+  idt_nature = Charge;
+# 29 "discipline.h"
+  abstol = 1e-12;
+
+endnature
+
+nature Charge
+  units = "coul";
+  access = Q;
+  ddt_nature = Current;
+# 40 "discipline.h"
+  abstol = 1e-14;
+
+endnature
+
+nature Voltage
+  units = "V";
+  access = V;
+  idt_nature = Flux;
+# 51 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Flux
+  units = "Wb";
+  access = Phi;
+  ddt_nature = Voltage;
+# 62 "discipline.h"
+  abstol = 1e-9;
+
+endnature
+
+discipline electrical
+  potential Voltage;
+  flow Current;
+enddiscipline
+
+discipline voltage
+  potential Voltage;
+enddiscipline
+discipline current
+  potential Current;
+enddiscipline
+
+
+nature Magneto_Motive_Force
+  units = "A*turn";
+  access = MMF;
+# 85 "discipline.h"
+  abstol = 1e-12;
+
+endnature
+
+discipline magnetic
+  potential Magneto_Motive_Force;
+  flow Flux;
+enddiscipline
+
+
+nature Temperature
+  units = "K";
+  access = Temp;
+# 101 "discipline.h"
+  abstol = 1e-4;
+
+endnature
+
+nature Power
+  units = "W";
+  access = Pwr;
+# 111 "discipline.h"
+  abstol = 1e-9;
+
+endnature
+
+discipline thermal
+  potential Temperature;
+  flow Power;
+enddiscipline
+
+
+nature Position
+  units = "m";
+  access = Pos;
+  ddt_nature = Velocity;
+# 128 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Velocity
+  units = "m/s";
+  access = Vel;
+  ddt_nature = Acceleration;
+  idt_nature = Position;
+# 140 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Acceleration
+  units = "m/s^2";
+  access = Acc;
+  ddt_nature = Impulse;
+  idt_nature = Velocity;
+# 152 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Impulse
+  units = "m/s^3";
+  access = Imp;
+  idt_nature = Acceleration;
+# 163 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Force
+  units = "N";
+  access = F;
+# 173 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+discipline kinematic
+  potential Position;
+  flow Force;
+enddiscipline
+discipline kinematic_v
+  potential Velocity;
+  flow Force;
+enddiscipline
+
+
+nature Angle
+  units = "rads";
+  access = Theta;
+  ddt_nature = Angular_Velocity;
+# 194 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Angular_Velocity
+  units = "rads/s";
+  access = Omega;
+  ddt_nature = Angular_Acceleration;
+  idt_nature = Angle;
+# 206 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Angular_Acceleration
+  units = "rads/s^2";
+  access = Alpha;
+  idt_nature = Angular_Velocity;
+# 217 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Angular_Force
+  units = "N*m";
+  access = Tau;
+# 227 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+discipline rotational
+  potential Angle;
+  flow Angular_Force;
+enddiscipline
+discipline rotational_omega
+  potential Angular_Velocity;
+  flow Angular_Force;
+enddiscipline
+
+# 3 "D:\saves\Pycharm\HowToElementBuilder\Code\Files\ver\MBEND.va"
+
+module MBEND (n1, n2);
+    inout n1, n2;
+    electrical n1, n2, n3;
+
+    parameter real W = 100;
+    parameter real H = 100;
+    parameter real ER1 = 5.0;
+    parameter real frequency_ghz = 5.0;
+
+    real h_um, w_um;
+    real W_over_H, h_meters;
+    real C_div_H, L_div_H;
+    real actual_C, actual_L1, actual_L2;
+    integer warnings;
+
+    analog begin
+        h_um = H * 1.e6
+        w_um = W * 1e6;
+        W_over_H = w_um / h_um;
+        h_meters = h_um * 1e-6;
+        
+        warnings = 0;
+        if (W_over_H < 0.2 || W_over_H > 6.0) warnings = 1;
+        if (epsilon_r < 2.36 || epsilon_r > 10.4) warnings = 1;
+        
+        C_div_H = W_over_H * (7.6 * epsilon_r + 3.8 + W_over_H * (3.93 * epsilon_r + 0.62));
+        
+        L_div_H = 441.2712 * (1 - 1.062 * exp(-0.177 * pow(W_over_H, 0.947)));
+        
+        actual_C = C_div_H * h_meters;
+        actual_L1 = L_div_H * h_meters;
+        actual_L2 = L_div_H * h_meters;
+        
+        I(n1,n3) <+ ddt(V(n1,n3)) * actual_L1 * 1e-9;
+        I(n3,n2) <+ ddt(V(n3,n2)) * actual_L2 * 1e-9;
+        I(n3) <+ ddt(V(n3)) * actual_C * 1e-12;
+        
+        if (warnings) begin
+            $strobe("Warning: Parameters out of range");
+        end
+    end
+endmodule
