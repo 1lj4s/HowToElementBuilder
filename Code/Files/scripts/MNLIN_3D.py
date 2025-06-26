@@ -1,11 +1,11 @@
 #SIM:
 DW = 5*W[0]
 DL = DW
-sub_w = W[0] / 10
-sub_s = S[0] / 10
-sub_d = DW / 10
+sub_w = W[0] / 5
+sub_s = S[0] / 3
+sub_d = DW / 3
 sub_t = T / 3
-sub_l = W[0] / 10
+sub_l = W[0] / 5
 
 SET_INFINITE_GROUND3D(1)
 
@@ -24,7 +24,7 @@ for i in range(len(W)-1):
     CONDS.append(COND3D(DW, W[i], H, T, DL, L, DIELS, sub_w, sub_t, sub_l, type=True, pos=True))
     DW = DW + S[i] + W[i]
 CONDS.append(COND3D(DW, W[-1], H, T, DL, L, DIELS, sub_w, sub_t, sub_l, type=True, pos=True))
-DIEL3D(H, T, DIELS, CONDS, sub_w, sub_l, sub_d)
+DIEL3D(H, DIELS, CONDS, sub_s, sub_w, sub_l, sub_d)
 conf = GET_CONFIGURATION_3D()
 
 result = CalMat(conf, conf0, f0, L, loss=loss)

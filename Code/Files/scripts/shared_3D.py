@@ -45,7 +45,7 @@ def COND3D(x0, x, y0, y, z0, z, diels, segx, segy, segz, type=True, pos=True):
 
     return {"x0": x0, "x": x, "z0": z0, "z": z, "segx": segx, "segz": segz}
 
-def DIEL3D(h, t, diels, conds, segw, segl, segd):
+def DIEL3D(h, diels, conds, segs, segw, segl, segd):
 
     DIELECTRIC3D()
     SET_ER_PLUS3D(diels['er0'])
@@ -75,13 +75,13 @@ def DIEL3D(h, t, diels, conds, segw, segl, segd):
 
     for i in range(len(conds) - 1):
         """psd"""
-        SET_SUBINTERVALS_X(round((conds[i + 1]['x0'] - (conds[i]['x0'] + conds[i]['x'])) / segw))
+        SET_SUBINTERVALS_X(round((conds[i + 1]['x0'] - (conds[i]['x0'] + conds[i]['x'])) / segs))
         SET_SUBINTERVALS_Y(round(conds[0]['z0'] / segd))
         RECT_XZ(h, conds[i]['x0'] + conds[i]['x'], 0, conds[i + 1]['x0'], conds[0]['z0'])
         RECT_XZ(h, conds[i]['x0'] + conds[i]['x'], conds[0]['z0'] + conds[0]['z'], conds[i + 1]['x0'],
                 2 * conds[0]['z0'] + conds[0]['z'])
         """psl"""
-        SET_SUBINTERVALS_X(round((conds[i + 1]['x0'] - (conds[i]['x0'] + conds[i]['x'])) / segw))
+        SET_SUBINTERVALS_X(round((conds[i + 1]['x0'] - (conds[i]['x0'] + conds[i]['x'])) / segs))
         SET_SUBINTERVALS_Y(round(conds[0]['z'] / segl))
         RECT_XZ(h, conds[i]['x0'] + conds[i]['x'], conds[0]['z0'], conds[i + 1]['x0'], conds[0]['z0'] + conds[0]['z'])
         """pwd"""
@@ -110,7 +110,7 @@ def CalMat(conf, conf0, f0, L, loss=False):
         mR_arr = np.zeros((n, n, 1)) / L
         mG_arr = np.zeros((n, n, 1)) / L
 
-    mL_arr = calcL(t2n(mC0)) / L
+    mL_arr = calcL(t2n(mC0), L) / L
     mC_arr = t2n(mC) / L
 
     return {
@@ -120,7 +120,7 @@ def CalMat(conf, conf0, f0, L, loss=False):
         'mG': mG_arr.tolist()
     }
 
-def calcL(mC0):
+def calcL(mC0, L):
     c = 3.e8
     mu = 4 * np.pi * 1e-7
     epsilon = 1 / (mu * c ** 2)

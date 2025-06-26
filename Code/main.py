@@ -25,9 +25,9 @@ def main():
 
     STRUCTURES = {
         "MLIN": {
-            "W": 70.e-6,
-            "L": 2000.e-6,
-            "SUBSTRATE": "MSUB",
+            "W": 1200.e-6,
+            "L": 3500.e-6,
+            "SUBSTRATE": "MSUB1",
             "MODELTYPE": "2D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
             "SIMULATION": "SPARAM",
         },
@@ -35,7 +35,7 @@ def main():
             "W": 50.e-6,
             "L": 50.e-6,
             "SUBSTRATE": "MSUB2",
-            "MODELTYPE": "3D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
+            "MODELTYPE": "2D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
             "SIMULATION": "SPARAM",
         },
         "MNLIN": {
@@ -49,12 +49,22 @@ def main():
     }
     SUBSTRATES = {
         "MSUB": {
-            "T": 1e-6,
+            "T": 2.e-6,
             "H": 100.e-6,
             "ER0": 1.0,
             "MU0": 1.0,
             "TD0": 0.0,
-            "ER1": 12.9,
+            "ER1": 12.6,
+            "MU1": 1.0001,
+            "TD1": 0.003,
+        },
+        "MSUB1": {
+            "T": 35.e-6,
+            "H": 1000.e-6,
+            "ER0": 1.0,
+            "MU0": 1.0,
+            "TD0": 0.0,
+            "ER1": 3.5,
             "MU1": 1.0001,
             "TD1": 0.003,
         },
@@ -77,7 +87,7 @@ def main():
     SIMULATIONS = {
         "SPARAM": {
             "f0": np.linspace(10.e9, 67.e9, 5), # [0.8e9, 1.e9, 5.e9, 10.e9, 50.e9]
-            "freq_range": np.linspace(0.1e9, 67.e9, 335),
+            "freq_range": np.linspace(0.1e9, 67.e9, 670),
             "loss": True,
             "sigma": None,
             "seg_cond": 1.0,
