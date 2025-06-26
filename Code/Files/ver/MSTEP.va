@@ -1,0 +1,66 @@
+`include "constants.h"
+`include "discipline.h"
+
+module MSTEP(p1, p2);
+    inout p1, p2;
+    electrical p1, p2;
+
+    parameter real W1 = 200.0;
+    parameter real W2 = 100.0;
+    parameter real H = 100.0;
+    parameter real ER1 = 12.9;
+
+    parameter real c_mps = 299792458;
+    parameter real pi = 3.141592653589793;
+
+    real Z0m1, Z0m2, epsilon_re1, epsilon_re2;
+    real Cs_pF, L1_nH, L2_nH;
+    real W1_um, W2_um, h_um, wh_ratio1, wh_ratio2;
+    
+    analog begin
+		W1_um = W1 * 1.e6;
+		W2_um = W2 * 1.e6;
+		h_um = H * 1.e6;
+        wh_ratio1 = W1_um / h_um;
+        wh_ratio2 = W2_um / h_um;
+
+        if (wh_ratio1 <= 1) begin
+            epsilon_re1 = (ER1 + 1)/2 + (ER1 - 1)/2 * (1/sqrt(1 + 12/wh_ratio1) + 0.04*pow(1 - wh_ratio1, 2));
+            Z0m1 = 60/sqrt(epsilon_re1) * ln(8/wh_ratio1 + 0.25*wh_ratio1);
+        end else begin
+            epsilon_re1 = (ER1 + 1)/2 + (ER1 - 1)/2 * (1/sqrt(1 + 12/wh_ratio1));
+            Z0m1 = 120*pi/(sqrt(epsilon_re1) * (wh_ratio1 + 1.393 + 0.667*ln(wh_ratio1 + 1.444)));
+        end
+
+        if (wh_ratio2 <= 1) begin
+            epsilon_re2 = (ER1 + 1)/2 + (ER1 - 1)/2 * (1/sqrt(1 + 12/wh_ratio2) + 0.04*pow(1 - wh_ratio2, 2));
+            Z0m2 = 60/sqrt(epsilon_re2) * ln(8/wh_ratio2 + 0.25*wh_ratio2);
+        end else begin
+            epsilon_re2 = (ER1 + 1)/2 + (ER1 - 1)/2 * (1/sqrt(1 + 12/wh_ratio2));
+            Z0m2 = 120*pi/(sqrt(epsilon_re2) * (wh_ratio2 + 1.393 + 0.667*ln(wh_ratio2 + 1.444)));
+        end
+
+        Cs_pF = 0.00137 * h_um * (sqrt(epsilon_re1)/Z0m1) * (1 - W2_um/W1_um) *
+               ((epsilon_re1 + 0.3)/(epsilon_re1 - 0.258)) *
+               ((W1_um/h_um + 0.264)/(W1_um/h_um + 0.8));
+
+        real ratio_ls = (Z0m1/Z0m2) * sqrt(epsilon_re1/epsilon_re2);
+        real Ls_nH = 0.000987 * h_um * pow(1 - ratio_ls, 2);
+
+        real L_w1 = (Z0m1 * sqrt(epsilon_re1)) / c_mps;
+        real L_w2 = (Z0m2 * sqrt(epsilon_re2)) / c_mps;
+        
+        if ((L_w1 + L_w2) == 0) begin
+            L1_nH = Ls_nH / 2;
+            L2_nH = Ls_nH / 2;
+        end else begin
+            L1_nH = (L_w1 / (L_w1 + L_w2)) * Ls_nH;
+            L2_nH = (L_w2 / (L_w1 + L_w2)) * Ls_nH;
+        end
+
+        I(p1, p2) <+ ddt(Cs_pF*1e-12 * V(p1,p2));
+
+        I(p1, p2) <+ idt(V(p1,p2))/(L1_nH*1e-9 + L2_nH*1e-9);
+        
+    end
+endmodule
