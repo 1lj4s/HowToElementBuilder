@@ -23,10 +23,57 @@ def Smodel(ntw_true, ntw_model):
                 denominator = 0.5 * (np.abs(S_true[freq, i, j]) + np.abs(S_model[freq, i, j]))
                 if denominator != 0:
                     error_sum += numerator / denominator
-        errors[freq] = error_sum / (N ** 2)
+        errors[freq] = 100 * error_sum / (N ** 2)
 
     return errors
 
+def ABSmodel(ntw_true, ntw_model):
+    if ntw_true.nports != ntw_model.nports:
+        raise ValueError(f"Число портов не совпадает: {ntw_true.nports} != {ntw_model.nports}")
+    if not np.allclose(ntw_true.f, ntw_model.f):
+        raise ValueError("Частотные точки не совпадают")
+
+    S_true = ntw_true.s
+    S_model = ntw_model.s
+    num_frequencies = S_true.shape[0]
+    N = S_true.shape[1]
+    errors = np.zeros(num_frequencies)
+
+    for freq in range(num_frequencies):
+        error_sum = 0.0
+        for i in range(N):
+            for j in range(N):
+                numerator = np.abs(np.abs(S_true[freq, i, j]) - np.abs(S_model[freq, i, j]))
+                denominator = np.abs(S_model[freq, i, j])
+                if denominator != 0:
+                    error_sum += numerator / denominator
+        errors[freq] = 100 * error_sum / (N ** 2)
+
+    return errors
+
+def FHImodel(ntw_true, ntw_model):
+    if ntw_true.nports != ntw_model.nports:
+        raise ValueError(f"Число портов не совпадает: {ntw_true.nports} != {ntw_model.nports}")
+    if not np.allclose(ntw_true.f, ntw_model.f):
+        raise ValueError("Частотные точки не совпадают")
+
+    S_true = ntw_true.s
+    S_model = ntw_model.s
+    num_frequencies = S_true.shape[0]
+    N = S_true.shape[1]
+    errors = np.zeros(num_frequencies)
+
+    for freq in range(num_frequencies):
+        error_sum = 0.0
+        for i in range(N):
+            for j in range(N):
+                numerator = np.abs(np.angle(S_true[freq, i, j]) - np.angle(S_model[freq, i, j]))
+                denominator = np.abs(np.angle(S_model[freq, i, j]))
+                if denominator != 0:
+                    error_sum += numerator / denominator
+        errors[freq] = 100 * error_sum / (N ** 2)
+
+    return errors
 
 def plot_networks(ntw_model, ntw_true):
     if ntw_model.nports != ntw_true.nports:
