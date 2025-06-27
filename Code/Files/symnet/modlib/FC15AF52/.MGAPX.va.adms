@@ -1,0 +1,300 @@
+# 1 "D:\saves\Pycharm\HowToElementBuilder\Code\Files\ver\MGAPX.va"
+# 1 "constants.h"
+
+
+
+
+
+
+
+# 10 "constants.h"
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+# 2 "D:\saves\Pycharm\HowToElementBuilder\Code\Files\ver\MGAPX.va"
+# 1 "discipline.h"
+
+
+
+
+
+
+# 9 "discipline.h"
+
+
+
+
+discipline logic
+  domain discrete;
+enddiscipline
+
+
+
+
+
+
+nature Current
+  units = "A";
+  access = I;
+  idt_nature = Charge;
+# 29 "discipline.h"
+  abstol = 1e-12;
+
+endnature
+
+nature Charge
+  units = "coul";
+  access = Q;
+  ddt_nature = Current;
+# 40 "discipline.h"
+  abstol = 1e-14;
+
+endnature
+
+nature Voltage
+  units = "V";
+  access = V;
+  idt_nature = Flux;
+# 51 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Flux
+  units = "Wb";
+  access = Phi;
+  ddt_nature = Voltage;
+# 62 "discipline.h"
+  abstol = 1e-9;
+
+endnature
+
+discipline electrical
+  potential Voltage;
+  flow Current;
+enddiscipline
+
+discipline voltage
+  potential Voltage;
+enddiscipline
+discipline current
+  potential Current;
+enddiscipline
+
+
+nature Magneto_Motive_Force
+  units = "A*turn";
+  access = MMF;
+# 85 "discipline.h"
+  abstol = 1e-12;
+
+endnature
+
+discipline magnetic
+  potential Magneto_Motive_Force;
+  flow Flux;
+enddiscipline
+
+
+nature Temperature
+  units = "K";
+  access = Temp;
+# 101 "discipline.h"
+  abstol = 1e-4;
+
+endnature
+
+nature Power
+  units = "W";
+  access = Pwr;
+# 111 "discipline.h"
+  abstol = 1e-9;
+
+endnature
+
+discipline thermal
+  potential Temperature;
+  flow Power;
+enddiscipline
+
+
+nature Position
+  units = "m";
+  access = Pos;
+  ddt_nature = Velocity;
+# 128 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Velocity
+  units = "m/s";
+  access = Vel;
+  ddt_nature = Acceleration;
+  idt_nature = Position;
+# 140 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Acceleration
+  units = "m/s^2";
+  access = Acc;
+  ddt_nature = Impulse;
+  idt_nature = Velocity;
+# 152 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Impulse
+  units = "m/s^3";
+  access = Imp;
+  idt_nature = Acceleration;
+# 163 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Force
+  units = "N";
+  access = F;
+# 173 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+discipline kinematic
+  potential Position;
+  flow Force;
+enddiscipline
+discipline kinematic_v
+  potential Velocity;
+  flow Force;
+enddiscipline
+
+
+nature Angle
+  units = "rads";
+  access = Theta;
+  ddt_nature = Angular_Velocity;
+# 194 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Angular_Velocity
+  units = "rads/s";
+  access = Omega;
+  ddt_nature = Angular_Acceleration;
+  idt_nature = Angle;
+# 206 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Angular_Acceleration
+  units = "rads/s^2";
+  access = Alpha;
+  idt_nature = Angular_Velocity;
+# 217 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+nature Angular_Force
+  units = "N*m";
+  access = Tau;
+# 227 "discipline.h"
+  abstol = 1e-6;
+
+endnature
+
+discipline rotational
+  potential Angle;
+  flow Angular_Force;
+enddiscipline
+discipline rotational_omega
+  potential Angular_Velocity;
+  flow Angular_Force;
+enddiscipline
+
+# 3 "D:\saves\Pycharm\HowToElementBuilder\Code\Files\ver\MGAPX.va"
+
+module MGAP(n1, n2);
+    inout n1, n2;
+    electrical n1, n2, n3;
+
+    parameter real W = 200.0 from (0:inf); 
+    parameter real H = 100.0 from (0:inf); 
+    parameter real ER1 = 12.9 from (0:inf); 
+    parameter real S = 50.0 from (0:inf);  
+
+    real w_h, s_w, m0, k0, m_e, k_e, C_odd_per_w, C_even_per_w;
+    real C_odd_96, C_even_96, C_odd, C_even, Cp, Cg;
+    real w_meters;
+
+    analog begin
+        w_h = W / H;
+        s_w = S / W;
+
+        if (w_h < 0.5 || w_h > 2.0) begin
+            $strobe("Ошибка: Отношение W/H должно быть в диапазоне [0.5, 2.0]");
+        end
+        if (s_w < 0.1 || s_w > 1.0) begin
+            $strobe("Ошибка: Отношение S/W должно быть в диапазоне [0.1, 1.0]");
+        end
+
+        m0 = w_h * (0.619 * ln(w_h)/ln(10) - 0.3853);
+        k0 = 4.26 - 1.453 * ln(w_h)/ln(10);
+
+        m_e = 1.565 / pow(w_h, 0.16) - 1;
+        k_e = (s_w <= 0.3) ? 2.043 * pow(w_h, 0.12) : 1.97 - 0.03 / w_h;
+
+        C_odd_per_w = pow(s_w, m0) * exp(k0);  
+        C_even_per_w = 12 * pow(s_w, m_e) * exp(k_e);  
+
+        C_odd_96 = C_odd_per_w * W;
+        C_even_96 = C_even_per_w * W;
+
+        C_odd = C_odd_96 * pow(er / 9.6, 0.8);
+        C_even = C_even_96 * pow(er / 9.6, 0.9);
+
+        Cp = C_even / 2;
+        Cg = (C_odd - Cp) / 2;
+
+        I(n1) <+ ddt(Cp * 1e-12 * V(n1));
+        I(n2) <+ ddt(Cp * 1e-12 * V(n2));
+        I(n1, n2) <+ ddt(Cg * 1e-12 * V(n1, n2));
+    end
+endmodule

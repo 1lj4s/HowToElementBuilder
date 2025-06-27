@@ -1,0 +1,8 @@
+simulator lang=local
+global 0
+ahdl_include "D:\saves\Pycharm\HowToElementBuilder\Code\Files\ver\MGAPX.va"
+I0 p1 p2 MGAPX T = 1e-06 H = 0.0001 ER0 = 1.0 MU0 = 1.0 TD0 = 0.0 ER1 = 12.9 MU1 = 1.0001 TD1 = 0.001 W = 7e-05 S = 2e-05 NumPorts = 2
+PORT1 p1 0 port r=50 num=1 type=sine rptstart=1 rpttimes=0
+PORT2 p2 0 port r=50 num=2 type=sine rptstart=1 rpttimes=0
+SPSweep sp start=100000000 stop=67000000000 step=199701492.53731343 file="D:\saves\Pycharm\HowToElementBuilder\Code\Files\symout\MGAPX.s2p"
+DEFAULT_OPTIONS options tnom=27 temp=27  acout=0 fast_spice=0 reltol=1.000000e-003 rawfmt=nutascii
