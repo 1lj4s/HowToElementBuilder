@@ -27,7 +27,7 @@ DIEL3D(H1, T, DIELS, CONDS, sub_w, sub_l, sub_d)
 DIELS = {"er0": ER0, "td0": TD0, "er1": ER2, "td1": TD2}
 CONDS = []
 CONDS.append(COND3D(DW, W, H1+T+H2, T2, DL, L, DIELS, sub_w, sub_t2, sub_l, type=True, pos=True))
-DIEL3D(H1+T+H2, T2, DIELS, CONDS, sub_w, sub_l, sub_d)
+DIEL3D(H1+T+H2, DIELS, CONDS, sub_w, sub_l, sub_d)
 conf = GET_CONFIGURATION_3D()
 
 result = CalMat(conf, conf0, f0, L, loss=loss)

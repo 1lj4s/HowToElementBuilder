@@ -8,7 +8,7 @@ import core
 def gen_path():
     paths = {
         "main": os.path.dirname(os.path.abspath(__file__)),
-        "MoM2D_exe": r"C:\Program Files\Talgat 2021\PythonClient.exe",
+        "MoM2D_exe": r"C:\Program Files\Talgat 2020\PythonClient.exe",
         "MoM_code": os.path.join(os.path.dirname(os.path.abspath(__file__)), "MoM"),
         "shared": None,
     }
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     handler.m1lin = STRUCTURES["M1LIN_STRUCTS"]
     handler.mnlin = STRUCTURES["MNLIN_STRUCTS"]
     num_ports = handler.run_simulation()
-    if selected_struct in ["MLIN", "MTRACE2", "MLSC", "MLEF", "MGAPX"]:
+    if selected_struct in ["MLIN", "MTRACE2", "MLSC", "MLEF"]:
         x = int(STRUCTURES[selected_struct]["W"] * 1e6)
         y = int(STRUCTURES[selected_struct]["length"] * 1e6)
         z = None
@@ -92,6 +92,10 @@ if __name__ == "__main__":
     elif selected_struct == "MOPEN":
         x = int(STRUCTURES[selected_struct]["W"] * 1e6)
         y = None
+        z = None
+    elif selected_struct == "MGAPX":
+        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+        y = int(STRUCTURES[selected_struct]["S"] * 1e6)
         z = None
     else:
         do_db = False

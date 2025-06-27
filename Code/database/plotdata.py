@@ -84,7 +84,10 @@ def plot_networks(ntw_model, ntw_true):
     N = ntw_true.nports
     freq_ghz = ntw_true.f / 1e9
 
-    errors = Smodel(ntw_true, ntw_model)
+    smodel_errors = Smodel(ntw_true, ntw_model)
+    ABSmodel_errors = ABSmodel(ntw_true, ntw_model)
+    FHImodel_errors = FHImodel(ntw_true, ntw_model)
+
 
     def prepare_data(s_params):
 
@@ -128,9 +131,11 @@ def plot_networks(ntw_model, ntw_true):
     plt.tight_layout()
     # plt.show()
 
-    # Smodel
+    # error
     plt.figure(figsize=(8, 4))
-    plt.plot(freq_ghz, errors, 'g-', label='Ошибка S-параметров', linewidth=2)
+    plt.plot(freq_ghz, smodel_errors, 'r-', label='Общая ошибка', linewidth=2)
+    plt.plot(freq_ghz, ABSmodel_errors, 'g-', label='Ошибка по амплитуде', linewidth=2)
+    plt.plot(freq_ghz, FHImodel_errors, 'b-', label='Ошибка по фазе', linewidth=2)
     plt.title('Ошибка S-параметров', fontsize=16)
     plt.xlabel('Частота (GHz)', fontsize=14)
     plt.ylabel('Ошибка', fontsize=14)

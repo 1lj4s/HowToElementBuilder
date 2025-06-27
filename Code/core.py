@@ -158,7 +158,7 @@ class Simulation_Handler():
 
         if "error" in result:
             print("[SYMSPICE]", result["error"])
-        if self.struct_params["MODELTYPE"] == "2D_Quasistatic":
+        if self.struct_params["MODELTYPE"] in ["2D_Quasistatic", "3D_Quasistatic"]:
             return s_params.shape[1]
         else:
             None

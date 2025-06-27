@@ -107,7 +107,7 @@ STRUCTURES = {
             "S": [100e-6],
             "length": 500.e-6,
             "SUBSTRATE": "MSUB",
-            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
+            "MODELTYPE": "3D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
         },
     "MCFIL": # Двухпроводная ЛП, первый проводник в обрыве на дальнем конце, второй на ближнем
@@ -179,7 +179,7 @@ STRUCTURES = {
         },
     "MGAPX": # Разрыв меду ЛП
         {
-            "W": 70.e-6,
+            "W": 50.e-6,
             "S": 20.e-6,
             "NumPorts": 2,
             "SUBSTRATE": "MSUB",
