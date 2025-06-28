@@ -1,7 +1,7 @@
 import skrf as rf
 from pathlib import Path
 import re
-from typing import List, Union
+from typing import List, Union, Dict
 from sqlalchemy import create_engine, text
 import numpy as np
 import os
@@ -15,6 +15,60 @@ DB_HOST = os.getenv("DB_HOST", "26.144.128.68")
 DB_NAME = os.getenv("DB_NAME", "postgres")
 DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}"
 engine = create_engine(DB_URL)
+
+import re
+from typing import Dict, List
+
+def parse_element_info(table_name: str) -> Dict:
+    """Извлекает и парсит файл описания элемента из таблицы 'info'."""
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT s_params ->> 'raw_text' FROM info WHERE filename = :filename"),
+            {"filename": f"{table_name.upper()}.txt"}
+        )
+        content = result.scalar()
+
+    if not content:
+        raise ValueError(f"Описание для {table_name} не найдено в БД")
+    """Автоматически парсит info-файл, определяя параметры без хардкодинга."""
+    result = {
+        "fixed_params": {},
+        "variable_params": {},
+        "freq_range": {"start": 0.1e9, "stop": 67e9, "step": 0.2e9}  # Фиксированные значения
+    }
+
+    # Парсинг постоянных параметров (всё что между "Постоянные параметры" и "Диапазон частот")
+    fixed_section = re.search(r"Постоянные параметры.*?:(.*?)(?:Диапазон частот|$)", content, re.DOTALL)
+    if fixed_section:
+        for param_match in re.finditer(r"([^=;]+)\s*=\s*([^;]+)", fixed_section.group(1)):
+            param_name = param_match.group(1).strip().upper()
+            param_value = param_match.group(2).strip().replace(',', '.')
+            if param_name == "ER":
+                param_name = "ER1"
+            elif param_name == "TAN":
+                param_name = "TD1"
+            try:
+                if param_name in ["T", "H"]:
+                    result["fixed_params"][param_name] = float(param_value)*1e-6
+                else:
+                    result["fixed_params"][param_name] = float(param_value)
+            except ValueError:
+                result["fixed_params"][param_name] = param_value  # Оставляем строкой если не число
+
+    # Парсинг переменных параметров (строки после "Диапазон параметров")
+    variable_section = re.search(r"Диапазон параметров.*?:\s*(.*?)(?:\n\n|$)", content, re.DOTALL)
+    if variable_section:
+        for line in variable_section.group(1).split('\n'):
+            if '=' in line:
+                param_name = line.split('=')[0].strip()
+                values_str = line.split('=')[1].strip()
+                values = [float(v.replace(',', '.').strip()) for v in values_str.split(',')]
+                if param_name.lower() in ["w", "w1", "w2", "w3", "w4", "s", "l"]:
+                    result["variable_params"][param_name] = [val*1e-6 for val in values]
+                else:
+                    result["variable_params"][param_name] = values
+
+    return result
 
 def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int = None,num_ports: int = 2, table_name: str = None, return_network: bool = False) -> List[Union[str, rf.Network]]:
     """
@@ -34,6 +88,9 @@ def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int =
     """
     result = []
     name = name.upper()
+    info = parse_element_info(table_name)
+    print("info: \n", info)
+
 
     # 1. Retrieve NAME.snp from filesystem
     path = Path(path)
@@ -100,7 +157,7 @@ def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int =
     if not result:
         print(f"No matching .snp files found for {name} in filesystem or {db_filename} in database")
 
-    return result
+    return result, info
 
 
 if __name__ == "__main__":

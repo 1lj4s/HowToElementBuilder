@@ -4,6 +4,7 @@ import database.postgresql as db
 import database.plotdata as plot_db
 import os
 import core
+import numpy as np
 
 def gen_path():
     paths = {
@@ -106,10 +107,21 @@ if __name__ == "__main__":
         except Exception as e:
             do_db = False
     if do_db:
-        networks = db.get_sparams_data(path=paths["OUTPUT_DIR"], name=selected_struct, x=x, y=y, z=z, num_ports=num_ports,
+        networks, info = db.get_sparams_data(path=paths["OUTPUT_DIR"], name=selected_struct, x=x, y=y, z=z, num_ports=num_ports,
                                        table_name=selected_struct.lower(), return_network=True)
+        # Проверка постоянных параметров
+        unmatched_params = []
+        for param, value in info["fixed_params"].items():
+            if not np.isclose(subst[param]*1e6, info["fixed_params"][param]*1e6, rtol=0.01):
+                print(f"Несоответствие параметра {param}: {subst[param]} (config) != {value} (info)")
+                unmatched_params.append(param)
+        if len(unmatched_params) > 0:
+            print("Внимание! Параметр(ы)", ', '.join(unmatched_params), "не совпадают с параметрами в базе данных")
+            print("Сравнение S-параметров может быть некорректным")
+
         if len(networks) == 2:
-            plot_db.plot_networks(networks[0], networks[1])
+            pass
+            #plot_db.plot_networks(networks[0], networks[1])
         else:
             print(networks)
     #results = run_all()
