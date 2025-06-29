@@ -21,6 +21,8 @@ from typing import Dict, List
 
 def parse_element_info(table_name: str) -> Dict:
     """Извлекает и парсит файл описания элемента из таблицы 'info'."""
+    if table_name == "mtaper": #как исправят название нужно будет убрать это
+        table_name = "mmataper"
     with engine.connect() as conn:
         result = conn.execute(
             text("SELECT s_params ->> 'raw_text' FROM info WHERE filename = :filename"),
@@ -33,8 +35,7 @@ def parse_element_info(table_name: str) -> Dict:
     """Автоматически парсит info-файл, определяя параметры без хардкодинга."""
     result = {
         "fixed_params": {},
-        "variable_params": {},
-        "freq_range": {"start": 0.1e9, "stop": 67e9, "step": 0.2e9}  # Фиксированные значения
+        "variable_params": {}
     }
 
     # Парсинг постоянных параметров (всё что между "Постоянные параметры" и "Диапазон частот")
@@ -59,8 +60,10 @@ def parse_element_info(table_name: str) -> Dict:
     variable_section = re.search(r"Диапазон параметров.*?:\s*(.*?)(?:\n\n|$)", content, re.DOTALL)
     if variable_section:
         for line in variable_section.group(1).split('\n'):
+            if "количество" in line:
+                continue
             if '=' in line:
-                param_name = line.split('=')[0].strip()
+                param_name = line.split('=')[0].strip().upper()
                 values_str = line.split('=')[1].strip()
                 values = [float(v.replace(',', '.').strip()) for v in values_str.split(',')]
                 if param_name.lower() in ["w", "w1", "w2", "w3", "w4", "s", "l"]:
@@ -70,7 +73,61 @@ def parse_element_info(table_name: str) -> Dict:
 
     return result
 
-def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int = None,num_ports: int = 2, table_name: str = None, return_network: bool = False) -> List[Union[str, rf.Network]]:
+def gen_file_name(table_name: str, params: dict, info_data: dict, num_ports, sub) -> str:
+    """
+    Генерирует имя файла для запроса в БД на основе:
+    - table_name: имя таблицы (например, 'mlin')
+    - params: параметры из config.py
+    - info_data: распарсенные данные из info-файла
+    """
+    # Базовое имя (например, "MLIN")
+    struct = table_name.upper()
+    if table_name == "mtaper": #как исправят название нужно будет убрать это
+        struct == "MMTAPER"
+
+    if sub == None:
+        # Общий случай для всех элементов
+        if struct == "MXCLIN":
+            parts = [f"M{len(params['W'])}CLIN"]
+        else:
+            parts = [struct]
+
+        # Добавляем параметры в порядке их упоминания в variable_params
+        for param_name in info_data['variable_params'].keys():
+            # Маппинг названий параметров (а было бы везде одинаково не пришлось бы так делать)
+            config_key = param_name
+            if param_name == 'L':
+                config_key = 'length'  # Специальный случай для длины
+            elif param_name == 'R':
+                if table_name != "mcurve":
+                    config_key = 'Ro'
+            elif param_name == 'THETA':
+                config_key = 'Theta'
+            elif param_name == 'ANG':
+                config_key = 'Angle'
+
+            if config_key in params:
+                #if struct in ["MCLIN", "MCFIL", "MXCLIN"] and config_key in ["W", "S"]:
+                if isinstance(params[config_key], list):
+                    value = params[config_key][0]
+                else:
+                    value = params[config_key]
+                if config_key not in ['Theta', 'Angle']:
+                    parts.append(str(int(value * 1e6)))
+                else:
+                    parts.append(str(int(value)))
+            else:
+                print(f"{config_key} not in params!")
+        return f"{'_'.join(parts)}.s{num_ports}p"
+    else:
+        return f"{struct}_{int(params['W']*1e6)}_{int(params['length']*1e6)}_{sub}.s{num_ports}p"
+
+
+
+
+
+
+def get_sparams_data(path: Union[str, Path], name: str, params, num_ports: int = 2, return_network: bool = False, sub = None):
     """
     Retrieves .snp files or skrf.Network objects: one from filesystem (NAME.snp) and one from database (NAME_X_Y.snp).
 
@@ -88,9 +145,12 @@ def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int =
     """
     result = []
     name = name.upper()
-    info = parse_element_info(table_name)
-    print("info: \n", info)
-
+    table_name = name.lower()
+    if sub == None:
+        info = parse_element_info(table_name)
+        print(info)
+    else:
+        info = None
 
     # 1. Retrieve NAME.snp from filesystem
     path = Path(path)
@@ -114,13 +174,7 @@ def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int =
                 else:
                     result.append(str(p))
 
-    # 2. Retrieve NAME_X_Y.snp from database
-    if y == None and z == None:
-        db_filename = f"{name}_{x}.s{num_ports}p"
-    elif y != None and z == None:
-        db_filename = f"{name}_{x}_{y}.s{num_ports}p"
-    else:
-        db_filename = f"{name}_{x}_{y}_{z}.s{num_ports}p"
+    db_filename = gen_file_name(table_name,params, info, num_ports, sub)
     try:
         with engine.connect() as conn:
             query = text(f"""
@@ -149,6 +203,7 @@ def get_sparams_data(path: Union[str, Path], name: str, x: int, y: int, z: int =
                     result.append(net)
                 else:
                     result.append(db_filename)
+                print(f"Comparing with {db_filename} from database")
             else:
                 print(f"File {db_filename} not found in table {table_name}")
     except Exception as e:

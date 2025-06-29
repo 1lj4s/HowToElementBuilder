@@ -158,10 +158,10 @@ class Simulation_Handler():
 
         if "error" in result:
             print("[SYMSPICE]", result["error"])
-        if self.struct_params["MODELTYPE"] in ["2D_Quasistatic", "3D_Quasistatic"]:
+        if 's_params' in locals():
             return s_params.shape[1]
         else:
-            None
+            return self.struct_params['NumPorts']
 
 if __name__ == "__main__":
 

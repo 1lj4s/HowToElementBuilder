@@ -1,5 +1,5 @@
 import time
-from config import STRUCTURES, SUBSTRATES, SIMULATIONS
+from config import STRUCTURES, SUBSTRATES, SIMULATIONS, elements_for_subst_check, subst_conditions
 import database.postgresql as db
 import database.plotdata as plot_db
 import os
@@ -7,9 +7,20 @@ import core
 import numpy as np
 
 def gen_path():
+    if os.path.exists(r"C:\Program Files\Talgat 2021\PythonClient.exe"):
+        talgat_path = r"C:\Program Files\Talgat 2021\PythonClient.exe"
+    elif os.path.exists(r"C:\Program Files\Talgat 2020\PythonClient.exe"):
+        talgat_path = r"C:\Program Files\Talgat 2020\PythonClient.exe"
+    else:
+        while True:
+            print("Can't find TALGAT system, please specify path to PythonClient.exe")
+            new_path = input()
+            if os.path.exists(new_path):
+                talgat_path = new_path
+                break
     paths = {
         "main": os.path.dirname(os.path.abspath(__file__)),
-        "MoM2D_exe": r"C:\Program Files\Talgat 2020\PythonClient.exe",
+        "MoM2D_exe": talgat_path,
         "MoM_code": os.path.join(os.path.dirname(os.path.abspath(__file__)), "MoM"),
         "shared": None,
     }
@@ -21,11 +32,89 @@ def gen_path():
         "OUTPUT_DIR": os.path.join(paths["main"], "Files", "symout"),}))
     return paths
 
+def compare_with_db():
+    sub = None
+    conntect_to_db = True
+    # Определяем суффикс подложки
+    if selected_struct in elements_for_subst_check:
+        current_W = int(struct_param.get('W', 0) * 1e6)  # конвертируем в микрометры
+        current_length = int(struct_param.get('length', 0) * 1e6)
+
+        for sub_type, conditions in subst_conditions.items():
+            # Проверяем параметры подложки
+            substrate_ok = all(
+                np.isclose(subst.get(param, 0), conditions[param])
+                for param in ['ER1', 'H', 'T']
+            )
+
+            # Проверяем геометрические параметры
+            geometry_ok = (
+                    current_W in conditions['valid_W'] and
+                    current_length in conditions['valid_length']
+            )
+
+            if substrate_ok and geometry_ok:
+                sub = sub_type
+    if sub == None:
+        info = db.parse_element_info(selected_struct.lower())
+
+        # Проверка постоянных параметров
+        unmatched_params = []
+        for param, value in info["fixed_params"].items():
+            if not np.isclose(subst[param] * 1e6, info["fixed_params"][param] * 1e6, rtol=0.01):
+                print(f"Inconsistency of parameter {param}: {subst[param]} (config) != {value} (info)")
+                unmatched_params.append(param)
+        if len(unmatched_params) > 0:
+            print("Warning! Substrate parameters", ', '.join(unmatched_params), "do not match the parameters in the DB")
+            print("S-parameter comparing can be incorrect")
+
+        # Проверка изменяемых параметров
+        for parameter, values in info["variable_params"].items():
+            #Маппинг названий параметров (а было бы везде одинаково не пришлось бы так делать)
+            if parameter == 'L':
+                config_key = 'length'  # Специальный случай для длины
+            elif parameter == 'R':
+                if selected_struct != "MCURVE":
+                    config_key = 'Ro'
+            elif parameter == 'THETA':
+                config_key = 'Theta'
+            elif parameter == 'ANG':
+                config_key = 'Angle'
+            else:
+                config_key = parameter
+
+            if config_key in struct_param:
+                if selected_struct in ["MCLIN", "MCFIL", "MXCLIN"] and config_key in ["W", "S"]:
+                    config_parameter = struct_param[config_key][0]
+                else:
+                    config_parameter = struct_param[config_key]
+
+                if True not in np.isclose(config_parameter, values, rtol=0.01):
+                    print(f"Data for {selected_struct} with parameter {parameter} = {config_parameter} can't be found in DB")
+                    return False
+            else:
+                print(f"Error, parameter {parameter} can't be found in element configuration")
+                print("Comparing with DB is impossible")
+                return False
+
+    if conntect_to_db:
+        networks, info = db.get_sparams_data(path=paths["OUTPUT_DIR"], name=selected_struct,
+                                             params=STRUCTURES[selected_struct],
+                                             num_ports=num_ports, return_network=True, sub=sub)
+
+        if len(networks) == 2:
+            pass
+            plot_db.plot_networks(networks[0], networks[1])
+            return True
+        else:
+            print(networks)
+
+
 if __name__ == "__main__":
     #print("Select structure name")
     #Цикл для  ожидания ввода названия структуры
     #TODO реализовать возможность ввода нескольких структур
-    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MXOVER", "MGAPX", "MSTEP", "MOPEN", "MLANG", "MIMCAP"]
+    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MXOVER", "MGAPX", "MSTEP", "MOPEN", "MLANG", "MIMCAP", "MXCLIN"]
     print("[MAIN] Available structures:", ', '.join(available_structs))
     while True:
         selected_struct = input("[MAIN] Type structure name or exit: ").upper()
@@ -44,6 +133,7 @@ if __name__ == "__main__":
     print("[MAIN] Selected structure - ", selected_struct)
     subst = SUBSTRATES[STRUCTURES[selected_struct]["SUBSTRATE"]]
     sim_param = SIMULATIONS[STRUCTURES[selected_struct]["SIMULATION"]]
+    struct_param = STRUCTURES[selected_struct]
     if len(sim_param["freq_range"]) != 335:
         print(f"Warning, number of frequency points is {len(sim_param['freq_range'])} and not equal 335, can't compare with database, continue anyway?")
         while True:
@@ -105,25 +195,14 @@ if __name__ == "__main__":
         try:
             num_ports = int(STRUCTURES[selected_struct]["NumPorts"])
         except Exception as e:
+            print("Error with ports number calculation, comparing with DB is impossible")
             do_db = False
-    if do_db:
-        networks, info = db.get_sparams_data(path=paths["OUTPUT_DIR"], name=selected_struct, x=x, y=y, z=z, num_ports=num_ports,
-                                       table_name=selected_struct.lower(), return_network=True)
-        # Проверка постоянных параметров
-        unmatched_params = []
-        for param, value in info["fixed_params"].items():
-            if not np.isclose(subst[param]*1e6, info["fixed_params"][param]*1e6, rtol=0.01):
-                print(f"Несоответствие параметра {param}: {subst[param]} (config) != {value} (info)")
-                unmatched_params.append(param)
-        if len(unmatched_params) > 0:
-            print("Внимание! Параметр(ы)", ', '.join(unmatched_params), "не совпадают с параметрами в базе данных")
-            print("Сравнение S-параметров может быть некорректным")
+    if selected_struct == "mtaper":
+        print("Structure 'MTAPER' can't be compared for now")
+        do_db = False
 
-        if len(networks) == 2:
-            pass
-            #plot_db.plot_networks(networks[0], networks[1])
-        else:
-            print(networks)
+    if do_db: compare_with_db()
+
     #results = run_all()
     #print("All simulations completed.")
     #print(f"Completed FULL simulation in {time.time() - start:.2f} sec")

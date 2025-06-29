@@ -15,12 +15,12 @@ SIMULATIONS = {
 SUBSTRATES = {
     "MSUB":
         {
-            "T": 1e-6,
+            "T": 2e-6,
             "H": 100.e-6,
             "ER0": 1.0,
             "MU0": 1.0,
             "TD0": 0.0,
-            "ER1": 12.9,
+            "ER1": 12.6,
             "MU1": 1.0001,
             "TD1": 0.001,
         },
@@ -46,8 +46,8 @@ STRUCTURES = {
     "MNLIN_STRUCTS": ["MCLIN", "MCFIL", "MXCLIN"],
     "MLIN": # однопроводная лп
         {
-            "W": 100.e-6,
-            "length": 500.e-6,
+            "W": 195.e-6,
+            "length": 3500.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "3D_Quasistatic",  # 2D_Quasistatic or Verilog or Subcircuit
             "SIMULATION": "SPARAM",
@@ -122,9 +122,9 @@ STRUCTURES = {
         },
     "MXCLIN":  # X-проводная ЛП (MNLIN_STRUCTS)
         {
-            "W": [50e-6, 60e-6, 70e-6, 80e-6],
-            "S": [50e-6, 60e-6, 70e-6],
-            "N": 5, # Число проводников (в будущем: дает ввести столько W и S сколько надо)
+            "W": [50e-6, 60e-6, 70e-6],
+            "S": [50e-6, 60e-6],
+            "N": 3, # Число проводников (в будущем: дает ввести столько W и S сколько надо)
             "length": 500.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",
@@ -142,7 +142,7 @@ STRUCTURES = {
     "MCURVE":
         {
             "W": 10.e-6,
-            "Angle": 90,
+            "Angle": 120,
             "R": 100.e-6,
             "SUBSTRATE": "MSUB",
             "MODELTYPE": "2D_Quasistatic",  #2D_Quasistatic or Verilog or Subcircuit
@@ -220,4 +220,21 @@ STRUCTURES = {
         "MODELTYPE": "3D_Quasistatic",  # 2D_Quasistatic, 3D_Quasistatic
         "SIMULATION": "SPARAM",
     },
+}
+elements_for_subst_check = ["MLIN"]
+subst_conditions = {
+    "SUB1": {
+        "ER1": 12.6,
+        "H": 100e-6,
+        "T": 2e-6,
+        "valid_W": [195, 75, 30, 4700, 2200, 1200],  # значения в микрометрах
+        "valid_length": [3500, 7500, 15000]          # значения в микрометрах
+    },
+    "SUB2": {
+        "ER1": 3.5,
+        "H": 1000e-6,
+        "T": 35e-6,
+        "valid_W": [195, 75, 30, 4700, 2200, 1200],
+        "valid_length": [3500, 7500, 15000]
+    }
 }
