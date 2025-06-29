@@ -45,7 +45,9 @@ def COND3D(x0, x, y0, y, z0, z, diels, segx, segy, segz, type=True, pos=True):
 
     return {"x0": x0, "x": x, "z0": z0, "z": z, "segx": segx, "segz": segz}
 
-def DIEL3D(h, diels, conds, segs, segw, segl, segd):
+def DIEL3D(h, diels, conds, segw, segl, segd, segs=None):
+    if segs == None:
+        segs = segw
 
     DIELECTRIC3D()
     SET_ER_PLUS3D(diels['er0'])

@@ -7,7 +7,7 @@ import tempfile
 
 
 def main():
-    project_path = Path(r"D:\Saves\pycharm\HowToElementBuilder").resolve()
+    project_path = Path(r"E:\Saves\pycharm\HowToElementBuilder").resolve()
     base_path = project_path / "Code" / "Files"
 
     paths = {
@@ -24,9 +24,17 @@ def main():
         return
 
     STRUCTURES = {
-        "MLIN": {
-            "W": 1200.e-6,
-            "L": 3500.e-6,
+        "M1LIN": {
+            "W": 75.e-6,
+            "L": 2000.e-6,
+            "SUBSTRATE": "MSUB1",
+            "MODELTYPE": "3D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
+            "SIMULATION": "SPARAM",
+        },
+        "MNLIN": {
+            "W": [70.e-6, 70.e-6],
+            "S": [20.e-6],
+            "L": 1000.e-6,
             "SUBSTRATE": "MSUB1",
             "MODELTYPE": "2D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
             "SIMULATION": "SPARAM",
@@ -34,31 +42,23 @@ def main():
         "MIMCAP": {
             "W": 50.e-6,
             "L": 50.e-6,
-            "SUBSTRATE": "MSUB2",
-            "MODELTYPE": "2D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
-            "SIMULATION": "SPARAM",
-        },
-        "MNLIN": {
-            "W": [70.e-6, 70.e-6],
-            "S": [20.e-6],
-            "L": 1000.e-6,
-            "SUBSTRATE": "MSUB",
-            "MODELTYPE": "2D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
+            "SUBSTRATE": "M2SUB1",
+            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic, 3D_Quasistatic
             "SIMULATION": "SPARAM",
         },
     }
     SUBSTRATES = {
-        "MSUB": {
+        "MSUB1": {
             "T": 2.e-6,
             "H": 100.e-6,
             "ER0": 1.0,
             "MU0": 1.0,
             "TD0": 0.0,
-            "ER1": 12.6,
+            "ER1": 12.9,
             "MU1": 1.0001,
             "TD1": 0.003,
         },
-        "MSUB1": {
+        "MSUB2": {
             "T": 35.e-6,
             "H": 1000.e-6,
             "ER0": 1.0,
@@ -68,7 +68,7 @@ def main():
             "MU1": 1.0001,
             "TD1": 0.003,
         },
-        "MSUB2": {
+        "M2SUB1": {
             "T1": 1.e-6,
             "T2": 1.e-6,
             "H1": 100.e-6,
@@ -86,11 +86,11 @@ def main():
     }
     SIMULATIONS = {
         "SPARAM": {
-            "f0": np.linspace(10.e9, 67.e9, 5), # [0.8e9, 1.e9, 5.e9, 10.e9, 50.e9]
+            "f0": [0.1e9, 0.25e9, 0.5e9, 1.e9, 2.5e9, 5.e9, 10.e9, 25.e9, 50.e9], #  np.linspace(10.e9, 67.e9, 5)
             "freq_range": np.linspace(0.1e9, 67.e9, 670),
             "loss": True,
             "sigma": None,
-            "seg_cond": 1.0,
+            "seg_cond": 3.0,
             "seg_diel": 1.0,
             "do_vector_fitting": False,
             "Z0": 50,
@@ -100,7 +100,7 @@ def main():
     # TODO: Добавить MNLIN
     # TODO: Сделать так, чтобы при rlcg2s для 3D не нужно было нормировать матрицы и сравнить результат с текущим
 
-    available_structs = ["MLIN", "MIMCAP", "MNLIN"]
+    available_structs = list(STRUCTURES.keys())
     print("[MAIN] Available structures:", ', '.join(available_structs))
     while True:
         struct_name = input("[MAIN] Enter structure name or exit: ").strip().upper()
