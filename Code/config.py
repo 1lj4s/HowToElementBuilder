@@ -82,8 +82,8 @@ STRUCTURES = {
         },
     "MTRACE2":  # однопроводная лп, с автотрассировкой (M1LIN_STRUCTS)
         {
-            "W": 100e-6,
-            "length": 500.e-6,
+            "W": 195.e-6,
+            "length": 3500.e-6,
             "NumPorts": 2,
             "SUBSTRATE": "SUB1",
             "MODELTYPE": "Verilog",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
@@ -115,7 +115,7 @@ STRUCTURES = {
             "Taper": "Linear",  # Linear or Exponential sweep of W
             "NumPorts": 2,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "Verilog",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
+            "MODELTYPE": "3D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
             "N": 5, #кол-во точек до интерполяции
             "N2": 100 #кол-во точек после интерполяции

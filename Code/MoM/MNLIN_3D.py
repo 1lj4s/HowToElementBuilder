@@ -1,6 +1,6 @@
 #SIM:
 L = length
-DW = 5*W[0]
+DW = 10*min(W)
 DL = DW
 sub_w = min(W) / 3
 sub_s = min(S) / 3
