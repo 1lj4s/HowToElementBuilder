@@ -5,10 +5,10 @@ module MBEND (n1, n2);
     inout n1, n2;
     electrical n1, n2, n3;
 
-    parameter real w_um = 100;   
-    parameter real h_um = 100;    
-    parameter real epsilon_r = 5.0;  
-    parameter real frequency_ghz = 5.0; 
+    parameter real w_um = 100;
+    parameter real h_um = 100;
+    parameter real epsilon_r = 5.0;
+    parameter real frequency_ghz = 5.0;
 
     real W_over_H, h_meters;
     real C_div_H, L_div_H;
@@ -18,23 +18,23 @@ module MBEND (n1, n2);
     analog begin
         W_over_H = w_um / h_um;
         h_meters = h_um * 1e-6;
-        
+
         warnings = 0;
         if (W_over_H < 0.2 || W_over_H > 6.0) warnings = 1;
         if (epsilon_r < 2.36 || epsilon_r > 10.4) warnings = 1;
-        
+
         C_div_H = W_over_H * (7.6 * epsilon_r + 3.8 + W_over_H * (3.93 * epsilon_r + 0.62));
-        
+
         L_div_H = 441.2712 * (1 - 1.062 * exp(-0.177 * pow(W_over_H, 0.947)));
-        
+
         actual_C = C_div_H * h_meters;
         actual_L1 = L_div_H * h_meters;
         actual_L2 = L_div_H * h_meters;
-        
+
         I(n1,n3) <+ ddt(V(n1,n3)) * actual_L1 * 1e-9;
         I(n3,n2) <+ ddt(V(n3,n2)) * actual_L2 * 1e-9;
         I(n3) <+ ddt(V(n3)) * actual_C * 1e-12;
-        
+
         if (warnings) begin
             $strobe("Warning: Parameters out of range");
         end

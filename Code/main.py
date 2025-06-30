@@ -109,12 +109,12 @@ def compare_with_db():
         else:
             print(networks)
 
-
 if __name__ == "__main__":
-    #print("Select structure name")
+    print("[MAIN] Select structure name")
     #Цикл для  ожидания ввода названия структуры
     #TODO реализовать возможность ввода нескольких структур
-    available_structs = ["MLIN", "MLSC", "MLEF", "MTRACE2", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MBEND", "MCURVE", "MXOVER", "MGAPX", "MSTEP", "MOPEN", "MLANG", "MIMCAP", "MXCLIN"]
+
+    available_structs = ["MLIN", "MTRACE2", "MLSC", "MLEF", "MTAPER", "MRSTUB2W", "MCLIN", "MCFIL", "MXCLIN", "MBEND", "MCURVE", "MTEE", "MCROSS", "MXOVER", "MGAPX", "MSTEP", "MOPEN"]
     print("[MAIN] Available structures:", ', '.join(available_structs))
     while True:
         selected_struct = input("[MAIN] Type structure name or exit: ").upper()
@@ -146,7 +146,7 @@ if __name__ == "__main__":
             else:
                 print("Can't recognise answer")
     else:
-        do_db = True
+        do_db = False
     start = time.time()
     handler = core.Simulation_Handler(paths, selected_struct, STRUCTURES[selected_struct], subst, sim_param)
     handler.m1lin = STRUCTURES["M1LIN_STRUCTS"]

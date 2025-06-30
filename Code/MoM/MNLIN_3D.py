@@ -2,11 +2,11 @@
 L = length
 DW = 5*W[0]
 DL = DW
-sub_w = W[0] / 5
-sub_s = S[0] / 3
+sub_w = min(W) / 3
+sub_s = min(S) / 3
 sub_d = DW / 3
 sub_t = T / 3
-sub_l = W[0] / 5
+sub_l = min(W) / 1
 
 SET_INFINITE_GROUND3D(1)
 

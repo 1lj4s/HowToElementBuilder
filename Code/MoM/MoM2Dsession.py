@@ -38,7 +38,7 @@ class MoM2DSession:
             line = self.proc.stdout.readline()
             if not line:
                 break
-            print("[MoM2D]", line.strip())
+            print("[MoM]", line.strip())
             output_lines.append(line.strip())
             if line.strip().startswith("{") and line.strip().endswith("}"):
                 break
