@@ -20,7 +20,7 @@ SUBSTRATES = {
             "ER0": 1.0,
             "MU0": 1.0,
             "TD0": 0.0,
-            "ER1": 12.9,
+            "ER1": 12.6,
             "MU1": 1.0001,
             "TD1": 0.003,
         },
@@ -75,32 +75,36 @@ STRUCTURES = {
         {
             "W": 195.e-6,
             "length": 3500.e-6,
+            "NumPorts": 2,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic
+            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
         },
     "MTRACE2":  # однопроводная лп, с автотрассировкой (M1LIN_STRUCTS)
         {
             "W": 100e-6,
             "length": 500.e-6,
+            "NumPorts": 2,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "3D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic
+            "MODELTYPE": "Verilog",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
         },
     "MLSC":  # однопроводная лп, земля на дальнем конце
         {
             "W": 195.e-6,
             "length": 3500.e-6,
+            "NumPorts": 2,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "3D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic
+            "MODELTYPE": "Verilog",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
         },
     "MLEF":  # однопроводная лп, обрыв на дальнем конце
         {
             "W": 195.e-6,
             "length": 3500.e-6,
+            "NumPorts": 2,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic
+            "MODELTYPE": "Verilog",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
         },
     "MTAPER": # N однопроводных лп шириной от W1 до W2, каждая длиной L/N
@@ -109,8 +113,9 @@ STRUCTURES = {
             "W2": 195.e-6,
             "length": 3500.e-6,
             "Taper": "Linear",  # Linear or Exponential sweep of W
+            "NumPorts": 2,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "3D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic
+            "MODELTYPE": "Verilog",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
             "N": 5, #кол-во точек до интерполяции
             "N2": 100 #кол-во точек после интерполяции
@@ -171,8 +176,9 @@ STRUCTURES = {
             "W": 10.e-6,
             "Angle": 120,
             "R": 100.e-6,
+            "NumPorts": 2,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "3D_Quasistatic",  #2D_Quasistatic or 3D_Quasistatic
+            "MODELTYPE": "3D_Quasistatic",  #2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
         },
     "MTEE": #*

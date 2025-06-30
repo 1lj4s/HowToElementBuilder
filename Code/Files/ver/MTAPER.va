@@ -1,0 +1,115 @@
+`include "constants.h"
+`include "discipline.h"
+
+module MTAPER(p1, p2);
+    inout p1, p2;
+    electrical p1, p2;
+
+    parameter real er = 12.9;    // Относительная диэлектрическая проницаемость
+    parameter real h = 0.1e-3;   // Высота подложки [м]
+    parameter real w1 = 0.4e-3;  // Начальная ширина линии [м]
+    parameter real w2 = 0.2e-3;  // Конечная ширина линии [м]
+    parameter real length = 1000e-6; // Длина линии [м] (1 мм)
+
+    // Константы
+    parameter real c_mps = 299792458; // Скорость света
+    parameter real pi = 3.141592653589793; // Число π
+
+    // Внутренние узлы
+    electrical [0:19] node; // 20 узлов
+
+    real w[0:19];                // Массив ширин для каждого узла
+    real wh_ratio[0:19];         // Массив отношения w/h
+    real e_eff[0:19];            // Массив эффективной диэлектрической проницаемости
+    real Z0[0:19];               // Массив характеристического сопротивления
+    real L_total[0:19];          // Массив погонной индуктивности (Гн/м)
+    real C_total[0:19];          // Массив погонной емкости (Ф/м)
+    real L_seg_SI[0:18];         // Индуктивность на сегмент (Гн)
+    real C_seg_SI[0:19];         // Емкость на сегмент (Ф)
+
+    integer i;
+
+    analog begin
+        // Линейное изменение ширины от w1 до w2 через 20 узлов
+        for (i = 0; i <= 19; i = i + 1) begin
+            w[i] = w1 + (w2 - w1) * i / 19.0;
+
+            // Расчет отношения w/h
+            wh_ratio[i] = w[i] / h;
+
+            // Расчет эффективной диэлектрической проницаемости
+            if (wh_ratio[i] <= 1.0) begin
+                e_eff[i] = (er + 1.0)/2.0 + (er - 1.0)/2.0 * (
+                    1.0 / sqrt(1.0 + 12.0/wh_ratio[i]) + 0.04 * pow(1.0 - wh_ratio[i], 2.0) );
+            end else begin
+                e_eff[i] = (er + 1.0)/2.0 + (er - 1.0)/2.0 * (
+                    1.0 / sqrt(1.0 + 12.0/wh_ratio[i]) );
+            end
+
+            // Расчет характеристического сопротивления
+            if (wh_ratio[i] <= 1.0) begin
+                Z0[i] = (60.0 / sqrt(e_eff[i])) * ln(8.0/wh_ratio[i] + 0.25*wh_ratio[i]);
+            end else begin
+                Z0[i] = (120.0 * pi) / (sqrt(e_eff[i]) * (wh_ratio[i] + 1.393 + 0.667*ln(wh_ratio[i] + 1.444)));
+            end
+
+            // Расчет погонных L и C (на метр)
+            L_total[i] = (Z0[i] * sqrt(e_eff[i])) / c_mps;  // Гн/м
+            C_total[i] = (sqrt(e_eff[i])) / (Z0[i] * c_mps); // Ф/м
+        end
+
+        // Расчет параметров для каждого сегмента
+        for (i = 0; i < 19; i = i + 1) begin
+            L_seg_SI[i] = (L_total[i] * length) / 19.0;  // Индуктивность на сегмент
+        end
+        for (i = 0; i <= 19; i = i + 1) begin
+            C_seg_SI[i] = (C_total[i] * length) / 20.0;  // Емкость на сегмент
+        end
+
+        // Подключение портов
+        V(p1, node[0]) <+ 0;
+        V(p2, node[19]) <+ 0;
+
+        // Индуктивные сегменты (19 элементов)
+        V(node[0], node[1]) <+ L_seg_SI[0] * ddt(I(node[0], node[1]));
+        V(node[1], node[2]) <+ L_seg_SI[1] * ddt(I(node[1], node[2]));
+        V(node[2], node[3]) <+ L_seg_SI[2] * ddt(I(node[2], node[3]));
+        V(node[3], node[4]) <+ L_seg_SI[3] * ddt(I(node[3], node[4]));
+        V(node[4], node[5]) <+ L_seg_SI[4] * ddt(I(node[4], node[5]));
+        V(node[5], node[6]) <+ L_seg_SI[5] * ddt(I(node[5], node[6]));
+        V(node[6], node[7]) <+ L_seg_SI[6] * ddt(I(node[6], node[7]));
+        V(node[7], node[8]) <+ L_seg_SI[7] * ddt(I(node[7], node[8]));
+        V(node[8], node[9]) <+ L_seg_SI[8] * ddt(I(node[8], node[9]));
+        V(node[9], node[10]) <+ L_seg_SI[9] * ddt(I(node[9], node[10]));
+        V(node[10], node[11]) <+ L_seg_SI[10] * ddt(I(node[10], node[11]));
+        V(node[11], node[12]) <+ L_seg_SI[11] * ddt(I(node[11], node[12]));
+        V(node[12], node[13]) <+ L_seg_SI[12] * ddt(I(node[12], node[13]));
+        V(node[13], node[14]) <+ L_seg_SI[13] * ddt(I(node[13], node[14]));
+        V(node[14], node[15]) <+ L_seg_SI[14] * ddt(I(node[14], node[15]));
+        V(node[15], node[16]) <+ L_seg_SI[15] * ddt(I(node[15], node[16]));
+        V(node[16], node[17]) <+ L_seg_SI[16] * ddt(I(node[16], node[17]));
+        V(node[17], node[18]) <+ L_seg_SI[17] * ddt(I(node[17], node[18]));
+        V(node[18], node[19]) <+ L_seg_SI[18] * ddt(I(node[18], node[19]));
+
+        // Емкостные сегменты (20 элементов)
+        I(node[1]) <+ C_seg_SI[1] * ddt(V(node[1]));
+        I(node[2]) <+ C_seg_SI[2] * ddt(V(node[2]));
+        I(node[3]) <+ C_seg_SI[3] * ddt(V(node[3]));
+        I(node[4]) <+ C_seg_SI[4] * ddt(V(node[4]));
+        I(node[5]) <+ C_seg_SI[5] * ddt(V(node[5]));
+        I(node[6]) <+ C_seg_SI[6] * ddt(V(node[6]));
+        I(node[7]) <+ C_seg_SI[7] * ddt(V(node[7]));
+        I(node[8]) <+ C_seg_SI[8] * ddt(V(node[8]));
+        I(node[9]) <+ C_seg_SI[9] * ddt(V(node[9]));
+        I(node[10]) <+ C_seg_SI[10] * ddt(V(node[10]));
+        I(node[11]) <+ C_seg_SI[11] * ddt(V(node[10]));
+        I(node[12]) <+ C_seg_SI[12] * ddt(V(node[12]));
+        I(node[13]) <+ C_seg_SI[13] * ddt(V(node[13]));
+        I(node[14]) <+ C_seg_SI[14] * ddt(V(node[14]));
+        I(node[15]) <+ C_seg_SI[15] * ddt(V(node[15]));
+        I(node[16]) <+ C_seg_SI[16] * ddt(V(node[16]));
+        I(node[17]) <+ C_seg_SI[17] * ddt(V(node[17]));
+        I(node[18]) <+ C_seg_SI[18] * ddt(V(node[18]));
+        I(node[19]) <+ C_seg_SI[19] * ddt(V(node[19]));
+    end
+endmodule

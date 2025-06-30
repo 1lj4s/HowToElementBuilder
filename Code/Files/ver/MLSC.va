@@ -1,0 +1,88 @@
+`include "constants.h"
+`include "discipline.h"
+
+module MLSC(p);
+    inout p;
+    electrical p, gnd;  // Changed 'ground gnd' to 'electrical gnd'
+
+    parameter real er = 12.9;    // Относительная диэлектрическая проницаемость
+    parameter real h = 0.1e-3;   // Высота подложки [м]
+    parameter real w = 0.2e-3;   // Ширина линии [м]
+    parameter real length = 1000e-6; // Длина линии [м]
+
+    // Константы
+    parameter real c_mps = 299792458; // Скорость света
+    parameter real pi = 3.141592653589793; // Число π
+
+    // Внутренние узлы
+    electrical node0, node1, node2, node3, node4, node5, node6,
+               node7, node8, node9, node10, node11, node12;
+
+    real wh_ratio, e_eff, Z0;
+    real L_total, C_total;
+    real L_seg_SI, C_seg_SI;
+
+    analog begin
+        // Explicitly ground the gnd node
+        V(gnd) <+ 0;
+
+        // Расчет отношения w/h
+        wh_ratio = w / h;
+
+        // Расчет эффективной диэлектрической проницаемости
+        if (wh_ratio <= 1.0) begin
+            e_eff = (er + 1.0)/2.0 + (er - 1.0)/2.0 * (
+                    1.0 / sqrt(1.0 + 12.0/wh_ratio) + 0.04 * pow(1.0 - wh_ratio, 2.0) );
+        end else begin
+            e_eff = (er + 1.0)/2.0 + (er - 1.0)/2.0 * (
+                    1.0 / sqrt(1.0 + 12.0/wh_ratio) );
+        end
+
+        // Расчет характеристического сопротивления
+        if (wh_ratio <= 1.0) begin
+            Z0 = (60.0 / sqrt(e_eff)) * ln(8.0/wh_ratio + 0.25*wh_ratio);
+        end else begin
+            Z0 = (120.0 * pi) / (sqrt(e_eff) * (wh_ratio + 1.393 + 0.667*ln(wh_ratio + 1.444)));
+        end
+
+        // Расчет погонных параметров
+        L_total = (Z0 * sqrt(e_eff)) / c_mps;  // Гн/м (Fixed negative sign)
+        C_total = (sqrt(e_eff)) / (Z0 * c_mps); // Ф/м
+
+        // Параметры сегментов
+        L_seg_SI = (L_total * length) / 12.0;
+        C_seg_SI = (C_total * length) / 12.0;
+
+        // Подключение портов
+        V(p, node0) <+ 0;        // Начало линии
+        V(node12, gnd) <+ 0;     // Конец линии заземлен
+
+        // Индуктивные сегменты (12 элементов)
+        V(node0, node1) <+ L_seg_SI * ddt(I(node0, node1));
+        V(node1, node2) <+ L_seg_SI * ddt(I(node1, node2));
+        V(node2, node3) <+ L_seg_SI * ddt(I(node2, node3));
+        V(node3, node4) <+ L_seg_SI * ddt(I(node3, node4));
+        V(node4, node5) <+ L_seg_SI * ddt(I(node4, node5));
+        V(node5, node6) <+ L_seg_SI * ddt(I(node5, node6)); // Fixed typo
+        V(node6, node7) <+ L_seg_SI * ddt(I(node6, node7));
+        V(node7, node8) <+ L_seg_SI * ddt(I(node7, node8));
+        V(node8, node9) <+ L_seg_SI * ddt(I(node8, node9));
+        V(node9, node10) <+ L_seg_SI * ddt(I(node9, node10));
+        V(node10, node11) <+ L_seg_SI * ddt(I(node10, node11));
+        V(node11, node12) <+ L_seg_SI * ddt(I(node11, node12));
+
+        // Емкостные сегменты к земле (13 элементов)
+        I(node0, gnd) <+ C_seg_SI * ddt(V(node0, gnd));
+        I(node1, gnd) <+ C_seg_SI * ddt(V(node1, gnd));
+        I(node2, gnd) <+ C_seg_SI * ddt(V(node2, gnd));
+        I(node3, gnd) <+ C_seg_SI * ddt(V(node3, gnd));
+        I(node4, gnd) <+ C_seg_SI * ddt(V(node4, gnd));
+        I(node5, gnd) <+ C_seg_SI * ddt(V(node5, gnd));
+        I(node6, gnd) <+ C_seg_SI * ddt(V(node6, gnd));
+        I(node7, gnd) <+ C_seg_SI * ddt(V(node7, gnd));
+        I(node8, gnd) <+ C_seg_SI * ddt(V(node8, gnd));
+        I(node9, gnd) <+ C_seg_SI * ddt(V(node9, gnd));
+        I(node10, gnd) <+ C_seg_SI * ddt(V(node10, gnd));
+        I(node11, gnd) <+ C_seg_SI * ddt(V(node11, gnd));
+    end
+endmodule
