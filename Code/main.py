@@ -32,11 +32,11 @@ def main():
             "SIMULATION": "SPARAM",
         },
         "MNLIN": {
-            "W": [70.e-6, 70.e-6],
+            "W": [75.e-6, 75.e-6],
             "S": [20.e-6],
-            "L": 1000.e-6,
+            "L": 2000.e-6,
             "SUBSTRATE": "MSUB1",
-            "MODELTYPE": "2D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
+            "MODELTYPE": "3D_Quasistatic", # 2D_Quasistatic, 3D_Quasistatic
             "SIMULATION": "SPARAM",
         },
         "MIMCAP": {
