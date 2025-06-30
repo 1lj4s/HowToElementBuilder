@@ -1,4 +1,5 @@
 import skrf as rf
+import numpy as np
 
 def make_one_end_line(s_params, freq: list, Z0: float, gamma: int):
     """
@@ -40,4 +41,32 @@ def make_one_end_line(s_params, freq: list, Z0: float, gamma: int):
     ntwk_1port = rf.Network(frequency=freq, s=s_1port, name="test_s1p")
     # ntwk_1port.write_touchstone("test_s1p", form="db")
     return ntwk_1port.s
+
+def convert_s4p_to_s2p(s_params, freq, Z0, keep_ports=(0, 3), short_ports=(1, 2), gamma = [1, 1]) -> rf.Network:
+    """
+    Convert s4p to s2
+    keep_ports=(0, 3), short_ports=(1, 2) - first line input, second line output
+    gamma mb [1, 1] or [-1, -1]. [-1, 1] and [1, -1] not tested yet
+    """
+    # Тут может быть какая то умная проверка
+    # if ntwk4.nports != 4:
+    #     raise ValueError("Only 4-port networks are supported")
+
+    rf.stylely()
+    frequency_obj = rf.Frequency.from_f(freq, unit='Hz')
+    ntwk4 = rf.Network(frequency=frequency_obj, s=s_params, name="snp", z0=Z0)
+    s = ntwk4.s  # (n_freq, 4, 4)
+    keep_idx = np.array(keep_ports)
+    short_idx = np.array(short_ports)
+
+    S11 = s[:, keep_idx[:, None], keep_idx]
+    S12 = s[:, keep_idx[:, None], short_idx]
+    S21 = s[:, short_idx[:, None], keep_idx]
+    S22 = s[:, short_idx[:, None], short_idx]
+
+    Gamma = np.diag([gamma[0], gamma[1]])
+    I = np.eye(2)
+    S_eff = S11 + S12 @ np.linalg.inv(I - S22 @ Gamma) @ Gamma @ S21
+    result_nwrk = rf.Network(frequency=ntwk4.frequency, s=S_eff, name=f"{ntwk4.name}_shorted_reduced")
+    return result_nwrk.s
 

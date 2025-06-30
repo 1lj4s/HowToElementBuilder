@@ -25,12 +25,29 @@ def gen_path():
         "shared": None,
     }
     (paths.update({
+        "files": os.path.join(paths["main"],"Files"),
         "NETLIST_DIR": os.path.join(paths["main"], "Files", "symnet"),
         "SNP_DIR": os.path.join(paths["main"], "Files","snp"),
         "VERILOG_DIR": os.path.join(paths["main"], "Files", "ver"),
         "SUBCIRCUIT_DIR": os.path.join(paths["main"], "Files", "sub"),
         "OUTPUT_DIR": os.path.join(paths["main"], "Files", "symout"),}))
     return paths
+
+def delete_temp_files():
+    root_dir = paths["files"]
+    if not os.path.isdir(root_dir):
+        print(f"Error: Directory '{root_dir}' does not exist.")
+        return
+
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        if os.path.basename(dirpath) not in ["sub", "ver"]:
+            for filename in filenames:
+                file_path = os.path.join(dirpath, filename)
+                try:
+                    os.remove(file_path)
+                    #print(f"Deleted: {file_path}")
+                except OSError as e:
+                    print(f"Error deleting {file_path}: {e}")
 
 def compare_with_db():
     sub = None
@@ -57,7 +74,7 @@ def compare_with_db():
                 sub = sub_type
     if sub == None:
         info = db.parse_element_info(selected_struct.lower())
-
+        print(info)
         # Проверка постоянных параметров
         unmatched_params = []
         for param, value in info["fixed_params"].items():
@@ -129,7 +146,7 @@ if __name__ == "__main__":
             print("[MAIN] Invalid structure, select from available ones")
             print("[MAIN] Available structures:", ', '.join(available_structs))
     paths = gen_path()
-
+    delete_temp_files()
     print("[MAIN] Selected structure - ", selected_struct)
     subst = SUBSTRATES[STRUCTURES[selected_struct]["SUBSTRATE"]]
     sim_param = SIMULATIONS[STRUCTURES[selected_struct]["SIMULATION"]]
@@ -152,44 +169,44 @@ if __name__ == "__main__":
     handler.m1lin = STRUCTURES["M1LIN_STRUCTS"]
     handler.mnlin = STRUCTURES["MNLIN_STRUCTS"]
     num_ports = handler.run_simulation()
-    if selected_struct in ["MLIN", "MTRACE2", "MLSC", "MLEF"]:
-        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
-        y = int(STRUCTURES[selected_struct]["length"] * 1e6)
-        z = None
-    elif selected_struct == "MTAPER":
-        x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
-        y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
-        z = int(STRUCTURES[selected_struct]["length"] * 1e6)
-    elif selected_struct == "MRSTUB2W":
-        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
-        y = int(STRUCTURES[selected_struct]["Ro"] * 1e6)
-        z = int(STRUCTURES[selected_struct]["Theta"])
-    elif selected_struct in ["MCLIN", "MCFIL", "MXCLIN"]:
-        x = int(STRUCTURES[selected_struct]["W"][0] * 1e6)
-        y = int(STRUCTURES[selected_struct]["length"] * 1e6)
-        z = int(STRUCTURES[selected_struct]["S"][0] * 1e6)
-    elif selected_struct == "MCURVE":
-        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
-        y = int(STRUCTURES[selected_struct]["R"] * 1e6)
-        z = int(STRUCTURES[selected_struct]["Angle"])
-    elif selected_struct == "MTEE":
-        x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
-        y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
-        z = int(STRUCTURES[selected_struct]["W3"] * 1e6)
-    elif selected_struct in ["MSTEP", "MXOVER"]:
-        x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
-        y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
-        z = None
-    elif selected_struct == "MOPEN":
-        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
-        y = None
-        z = None
-    elif selected_struct == "MGAPX":
-        x = int(STRUCTURES[selected_struct]["W"] * 1e6)
-        y = int(STRUCTURES[selected_struct]["S"] * 1e6)
-        z = None
-    else:
-        do_db = False
+    # if selected_struct in ["MLIN", "MTRACE2", "MLSC", "MLEF"]:
+    #     x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+    #     y = int(STRUCTURES[selected_struct]["length"] * 1e6)
+    #     z = None
+    # elif selected_struct == "MTAPER":
+    #     x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
+    #     y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
+    #     z = int(STRUCTURES[selected_struct]["length"] * 1e6)
+    # elif selected_struct == "MRSTUB2W":
+    #     x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+    #     y = int(STRUCTURES[selected_struct]["Ro"] * 1e6)
+    #     z = int(STRUCTURES[selected_struct]["Theta"])
+    # elif selected_struct in ["MCLIN", "MCFIL", "MXCLIN"]:
+    #     x = int(STRUCTURES[selected_struct]["W"][0] * 1e6)
+    #     y = int(STRUCTURES[selected_struct]["length"] * 1e6)
+    #     z = int(STRUCTURES[selected_struct]["S"][0] * 1e6)
+    # elif selected_struct == "MCURVE":
+    #     x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+    #     y = int(STRUCTURES[selected_struct]["R"] * 1e6)
+    #     z = int(STRUCTURES[selected_struct]["Angle"])
+    # elif selected_struct == "MTEE":
+    #     x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
+    #     y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
+    #     z = int(STRUCTURES[selected_struct]["W3"] * 1e6)
+    # elif selected_struct in ["MSTEP", "MXOVER"]:
+    #     x = int(STRUCTURES[selected_struct]["W1"] * 1e6)
+    #     y = int(STRUCTURES[selected_struct]["W2"] * 1e6)
+    #     z = None
+    # elif selected_struct == "MOPEN":
+    #     x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+    #     y = None
+    #     z = None
+    # elif selected_struct == "MGAPX":
+    #     x = int(STRUCTURES[selected_struct]["W"] * 1e6)
+    #     y = int(STRUCTURES[selected_struct]["S"] * 1e6)
+    #     z = None
+    # else:
+    #     do_db = False
 
     if num_ports == None:
         try:
