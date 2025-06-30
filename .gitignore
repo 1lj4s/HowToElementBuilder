@@ -38,7 +38,7 @@ Code/Symica/symsnptest_sp.apb/
 /Code/Files/ts/MLIN_run.py
 /Code/Files/sym/MLIN_test.s2p
 /Code/Files/npy/MLIN_test_10.npy
-/Code/MoM2D/MTAPER_01.py
+/Code/MoM/MTAPER_01.py
 /Code/Files/ts/MTAPER_run.py
 /Code/Files/sym/MTAPER_test.s2p
 /Code/Files/npy/MTAPER_test_65.npy
@@ -50,3 +50,7 @@ Code/Symica/symsnptest_sp.apb/
 /Code/skrf_test.s1p
 /skrf_test.s1p
 /Code/Files/sym/SymSnpTest.s2p
+/Code/database/Postgresql_test.py
+/Code/Files/symnet/
+/MLSC_test.s1p
+/Code/talgat/MTAPER_01.py

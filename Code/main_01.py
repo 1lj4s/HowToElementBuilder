@@ -2,7 +2,7 @@ import time
 import json
 import numpy as np
 from config import CONFIG
-from MoM2D.MoM2Dsession import MoM2DSession
+from MoM.MoM2Dsession import MoM2DSession
 from rlcg2s.rlcg2s import RLGC2SConverter
 from vectorfitting.vectorfitting import SParamProcessor
 from symica.symicanetlist import SymicaNetlist
@@ -16,13 +16,13 @@ def run_all():
     symica_exe_path = r"C:\Program Files\Symica\bin\symspice.exe"
     working_dir = "E:/Saves/pycharm/SubprocessTest/symica"
 
-    # Load shared.py once
-    shared_code = open("MoM2D/shared.py", encoding="utf-8").read()
+    # Load shared_2D.py once
+    shared_code = open("MoM/shared_2D.py", encoding="utf-8").read()
     session = MoM2DSession(exe_path)
     symica_session = SymicaSession(symica_exe_path, working_dir)
     netlist_gen = SymicaNetlist(working_dir)
 
-    # Write shared.py to a temporary file
+    # Write shared_2D.py to a temporary file
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".py", encoding="utf-8") as tmp:
         tmp.write(shared_code)
         shared_path = tmp.name
@@ -34,7 +34,7 @@ def run_all():
 
     for struct_name, struct_conf in CONFIG.items():
         print(f"Running structure: {struct_name}")
-        script_code = open(f"MoM2D/{struct_name}.py", encoding="utf-8").read()
+        script_code = open(f"MoM/{struct_name}.py", encoding="utf-8").read()
 
         struct_results = []
         for params in struct_conf:

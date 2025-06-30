@@ -1,7 +1,7 @@
 from MoM.MoM2Dsession import MoM2DSession
 from rlcg2s.rlcg2s import RLGC2SConverter
 from vectorfitting.vectorfitting import SParamProcessor
-from rlcg2s.process_touchstone import make_one_end_line
+from rlcg2s.process_touchstone import make_one_end_line, convert_s4p_to_s2p
 from symica.symicasession import SymicaSession
 from rlcg2s.matinterp import matrix_interp
 from rlcg2s.paramrecalc import mrstubparamrecalc, mcurveparamrecalc
@@ -101,6 +101,11 @@ class Simulation_Handler():
                         s_params = make_one_end_line(s_params=np.moveaxis(s_params, 2, 0), freq=converter.freq_range,
                                              Z0=params["Z0"], gamma=1)
                         s_params = np.moveaxis(s_params, 0, 2)
+                    case "MCFIL":
+                        s_params = convert_s4p_to_s2p(s_params=np.moveaxis(s_params, 2, 0),
+                                                      freq=converter.freq_range, Z0=params["Z0"])
+                        s_params = np.moveaxis(s_params, 0, 2)
+
                 print(f"[CORE] New S-params shape for {self.struct_name}: {s_params.shape}")
             else:
                 s_params_list = []

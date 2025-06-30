@@ -1,0 +1,50 @@
+`include "constants.h"
+`include "discipline.h"
+
+module MGAPX(n1, n2);
+    inout n1, n2;
+    electrical n1, n2, n3;
+
+    parameter real W = 200.0 from (0:inf); // Ширина линии (микрометры)
+    parameter real H = 100.0 from (0:inf); // Толщина подложки (микрометры)
+    parameter real ER1 = 12.9 from (0:inf); // Диэлектрическая проницаемость
+    parameter real S = 50.0 from (0:inf);  // Ширина зазора (микрометры)
+
+    real w_h, s_w, m0, k0, m_e, k_e, C_odd_per_w, C_even_per_w;
+    real C_odd_96, C_even_96, C_odd, C_even, Cp, Cg;
+    real w_meters;
+
+    analog begin
+        w_h = W / H;
+        s_w = S / W;
+
+        if (w_h < 0.5 || w_h > 2.0) begin
+            $strobe("Ошибка: Отношение W/H должно быть в диапазоне [0.5, 2.0]");
+        end
+        if (s_w < 0.1 || s_w > 1.0) begin
+            $strobe("Ошибка: Отношение S/W должно быть в диапазоне [0.1, 1.0]");
+        end
+
+        m0 = w_h * (0.619 * ln(w_h)/ln(10) - 0.3853);
+        k0 = 4.26 - 1.453 * ln(w_h)/ln(10);
+
+        m_e = 1.565 / pow(w_h, 0.16) - 1;
+        k_e = (s_w <= 0.3) ? 2.043 * pow(w_h, 0.12) : 1.97 - 0.03 / w_h;
+
+        C_odd_per_w = pow(s_w, m0) * exp(k0);  // Для нечетного режима
+        C_even_per_w = 12 * pow(s_w, m_e) * exp(k_e);  // Для четного режима
+
+        C_odd_96 = C_odd_per_w * W;
+        C_even_96 = C_even_per_w * W;
+
+        C_odd = C_odd_96 * pow(ER1 / 9.6, 0.8);
+        C_even = C_even_96 * pow(ER1 / 9.6, 0.9);
+
+        Cp = C_even / 2;
+        Cg = (C_odd - Cp) / 2;
+
+        I(n1) <+ ddt(Cp * 1e-12 * V(n1));
+        I(n2) <+ ddt(Cp * 1e-12 * V(n2));
+        I(n1, n2) <+ ddt(Cg * 1e-12 * V(n1, n2));
+    end
+endmodule

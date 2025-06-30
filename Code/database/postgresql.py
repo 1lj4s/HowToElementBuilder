@@ -211,7 +211,6 @@ def get_sparams_data(path: Union[str, Path], name: str, params, num_ports: int =
 
     if not result:
         print(f"No matching .snp files found for {name} in filesystem or {db_filename} in database")
-
     return result, info
 
 

@@ -1,0 +1,11 @@
+.SUBCKT MOPEN 1
+
+.PARAM WH = 'W / H'
+.PARAM EFF = '(ER1 + 1)/2 + (ER1 - 1)/2 / sqrt(1 + 12 / WH)'
+.PARAM Z0 = '60 / sqrt(EFF) * log(8 / WH + 0.25 * WH)'
+.PARAM DL = '0.412 * H * (EFF + 0.3)/(EFF - 0.258)*(WH + 0.264)/(WH + 0.8)'
+.PARAM COC = 'DL * sqrt(EFF) / (3e8 * Z0)'
+
+C1 1 capacitor C=COC
+
+.ENDS MOPEN
