@@ -1,13 +1,13 @@
 `include "constants.h"
 `include "discipline.h"
 
-module MLIN(p1, p2);
+module MTRACE2(p1, p2);
     inout p1, p2;
     electrical p1, p2;
 
-    parameter real er = 12.9;    // Относительная диэлектрическая проницаемость
-    parameter real h = 0.1e-3;   // Высота подложки [м]
-    parameter real w = 0.2e-3;   // Ширина линии [м]
+    parameter real ER1 = 12.9;    // Относительная диэлектрическая проницаемость
+    parameter real H = 0.1e-3;   // Высота подложки [м]
+    parameter real W = 0.2e-3;   // Ширина линии [м]
     parameter real length = 1e-6; // Длина линии [м] (1 мм)
 
     // Константы
@@ -21,15 +21,15 @@ module MLIN(p1, p2);
     real L_total, C_total, L_seg_SI, C_seg_SI;  // В Гн/м и Ф/м, затем в Гн и Ф на сегмент
 
     analog begin
-        // Расчет отношения w/h
-        wh_ratio = w / h;
+        // Расчет отношения w/H
+        wh_ratio = W / H;
 
         // Расчет эффективной диэлектрической проницаемости
         if (wh_ratio <= 1.0) begin
-            e_eff = (er + 1.0)/2.0 + (er - 1.0)/2.0 * (
+            e_eff = (ER1 + 1.0)/2.0 + (ER1 - 1.0)/2.0 * (
                     1.0 / sqrt(1.0 + 12.0/wh_ratio) + 0.04 * pow(1.0 - wh_ratio, 2.0) );
         end else begin
-            e_eff = (er + 1.0)/2.0 + (er - 1.0)/2.0 * (
+            e_eff = (ER1 + 1.0)/2.0 + (ER1 - 1.0)/2.0 * (
                     1.0 / sqrt(1.0 + 12.0/wh_ratio) );
         end
 

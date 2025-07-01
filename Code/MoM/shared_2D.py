@@ -6,7 +6,7 @@ import numpy as np
 import os
 from numpy import array
 
-def cond(X, Y, W, T, D1, D2, TOP, GND):
+def cond(X, Y, W, T, subs, diels, TOP, GND):
     if TOP:
         c, a, na = 1., 0., 1.
     else:
@@ -15,31 +15,37 @@ def cond(X, Y, W, T, D1, D2, TOP, GND):
         CONDUCTOR_GROUNDED()
     else:
         CONDUCTOR()
-    SET_ER_PLUS(D1[0])
-    SET_MU_PLUS(D1[1])
-    SET_TAN_DELTA_PLUS(D1[2])
+    SET_ER_PLUS(diels['er1'])
+    SET_MU_PLUS(diels['mu1'])
+    SET_TAN_DELTA_PLUS(diels['td1'])
+    SET_SUBINTERVALS(subs['sub_w'])
     LINE(X + a * W, Y, X + na * W, Y)
-    SET_ER_PLUS(D2[0])
-    SET_MU_PLUS(D2[1])
-    SET_TAN_DELTA_PLUS(D2[2])
+    SET_ER_PLUS(diels['er0'])
+    SET_MU_PLUS(diels['mu0'])
+    SET_TAN_DELTA_PLUS(diels['td0'])
+    SET_SUBINTERVALS(subs['sub_t'])
     LINETO(X + na * W, Y + c * T)
+    SET_SUBINTERVALS(subs['sub_w'])
     LINETO(X + a * W, Y + c * T)
+    SET_SUBINTERVALS(subs['sub_t'])
     LINETO(X + a * W, Y)
     return [X, W]
 
 
-def diel1(A, H, D1, D0):
+def diel1(A, H, subs, diels):
     N = len(A)
     DIELECTRIC()
-    SET_ER_PLUS(D1[0])
-    SET_MU_PLUS(D1[1])
-    SET_TAN_DELTA_PLUS(D1[2])
-    SET_ER_MINUS(D0[0])
-    SET_MU_MINUS(D0[1])
-    SET_TAN_DELTA_MINUS(D0[2])
+    SET_ER_PLUS(diels['er1'])
+    SET_MU_PLUS(diels['mu1'])
+    SET_TAN_DELTA_PLUS(diels['td1'])
+    SET_ER_MINUS(diels['er0'])
+    SET_MU_MINUS(diels['mu0'])
+    SET_TAN_DELTA_MINUS(diels['td0'])
+    SET_SUBINTERVALS(subs['sub_d'])
     LINE(0, H, A[0][0], H)
     LINE(A[N - 1][0] + A[N - 1][1], H, A[N - 1][0] + A[N - 1][1] + A[0][0], H)
     if N >= 2:
+        SET_SUBINTERVALS(subs['sub_s'])
         for i in range(N - 1):
             LINE(A[i][0] + A[i][1], H, A[i + 1][0], H)
 

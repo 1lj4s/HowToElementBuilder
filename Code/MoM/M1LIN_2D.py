@@ -1,17 +1,20 @@
-D0 = [ER0, MU0, TD0]
-D1 = [ER1, MU1, TD1]
+sub_w = 20
+sub_d = 20
+sub_s = 20
+sub_t = 3
+
+DIELS = {"er0": ER0, "mu0": MU0, "td0": TD0, "er1": ER1, "mu1": MU1, "td1": TD1}
+SUBS = {"sub_s": sub_s, "sub_w": sub_w, "sub_t": sub_t, "sub_d": sub_d}
 
 SET_INFINITE_GROUND(1)
-SET_AUTO_SEGMENT_LENGTH_DIELECTRIC(T / seg_diel)
-SET_AUTO_SEGMENT_LENGTH_CONDUCTOR(T / seg_cond)
 
 CC1 = []
-CC1.append(cond(2 * W, H, W, T, D1, D0, True, False))
-diel1(CC1, H, D1, D0)
+D = 2 * W
+CC1.append(cond(D, H, W, T, SUBS, DIELS, True, False))
+diel1(CC1, H, SUBS, DIELS)
 
 conf = GET_CONFIGURATION_2D()
 result = CalMat(conf, f0, loss=loss, sigma=sigma)
-# result.update({"W": W, "T": T, "f0": f0})
 ECHO()
 ECHO(json.dumps(result))
 

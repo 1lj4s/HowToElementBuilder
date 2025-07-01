@@ -5,10 +5,10 @@ module MTAPER(p1, p2);
     inout p1, p2;
     electrical p1, p2;
 
-    parameter real er = 12.9;    // Относительная диэлектрическая проницаемость
-    parameter real h = 0.1e-3;   // Высота подложки [м]
-    parameter real w1 = 0.4e-3;  // Начальная ширина линии [м]
-    parameter real w2 = 0.2e-3;  // Конечная ширина линии [м]
+    parameter real ER1 = 12.9;    // Относительная диэлектрическая проницаемость
+    parameter real H = 0.1e-3;   // Высота подложки [м]
+    parameter real W1 = 0.4e-3;  // Начальная ширина линии [м]
+    parameter real W2 = 0.2e-3;  // Конечная ширина линии [м]
     parameter real length = 1000e-6; // Длина линии [м] (1 мм)
 
     // Константы
@@ -32,17 +32,17 @@ module MTAPER(p1, p2);
     analog begin
         // Линейное изменение ширины от w1 до w2 через 20 узлов
         for (i = 0; i <= 19; i = i + 1) begin
-            w[i] = w1 + (w2 - w1) * i / 19.0;
+            w[i] = W1 + (W2 - W1) * i / 19.0;
 
             // Расчет отношения w/h
-            wh_ratio[i] = w[i] / h;
+            wh_ratio[i] = w[i] / H;
 
             // Расчет эффективной диэлектрической проницаемости
             if (wh_ratio[i] <= 1.0) begin
-                e_eff[i] = (er + 1.0)/2.0 + (er - 1.0)/2.0 * (
+                e_eff[i] = (ER1 + 1.0)/2.0 + (ER1 - 1.0)/2.0 * (
                     1.0 / sqrt(1.0 + 12.0/wh_ratio[i]) + 0.04 * pow(1.0 - wh_ratio[i], 2.0) );
             end else begin
-                e_eff[i] = (er + 1.0)/2.0 + (er - 1.0)/2.0 * (
+                e_eff[i] = (ER1 + 1.0)/2.0 + (ER1 - 1.0)/2.0 * (
                     1.0 / sqrt(1.0 + 12.0/wh_ratio[i]) );
             end
 
