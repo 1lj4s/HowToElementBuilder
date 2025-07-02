@@ -84,7 +84,7 @@ STRUCTURES = {
             "length": 3500.e-6,
             "NumPorts": 2,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "Verilog",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
+            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
         },
     "MLSC":  # однопроводная лп, земля на дальнем конце
@@ -93,7 +93,7 @@ STRUCTURES = {
             "length": 3500.e-6,
             "NumPorts": 1,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "Verilog",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
+            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
         },
     "MLEF":  # однопроводная лп, обрыв на дальнем конце
@@ -102,7 +102,7 @@ STRUCTURES = {
             "length": 3500.e-6,
             "NumPorts": 1,
             "SUBSTRATE": "SUB1",
-            "MODELTYPE": "Verilog",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
+            "MODELTYPE": "2D_Quasistatic",  # 2D_Quasistatic or 3D_Quasistatic or Verilog
             "SIMULATION": "SPARAM",
         },
     "MTAPER": # N однопроводных лп шириной от W1 до W2, каждая длиной L/N

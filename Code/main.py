@@ -163,7 +163,7 @@ if __name__ == "__main__":
             else:
                 print("Can't recognise answer")
     else:
-        do_db = False
+        do_db = True
     start = time.time()
     handler = core.Simulation_Handler(paths, selected_struct, STRUCTURES[selected_struct], subst, sim_param)
     handler.m1lin = STRUCTURES["M1LIN_STRUCTS"]
